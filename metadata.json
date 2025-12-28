@@ -1,0 +1,7 @@
+{
+  "name": "Gradway - Study Abroad Simplified",
+  "description": "A modern, professional website for Gradway (Pvt) Ltd, a Sri Lanka-based study abroad consultancy partner specializing in migration and international education.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
