@@ -1,241 +1,187 @@
 
-import { Destination, Service, Step, FAQ, Testimonial } from './types';
+import { Destination, Service, SuccessStory } from './types';
 
 export const DESTINATIONS: Destination[] = [
   {
     id: 'uk',
     name: 'United Kingdom',
-    description: 'Historic universities, modern campuses and globally recognised degrees',
-    color: '#3B82F6',
+    description: 'World-renowned education and historic campuses with global recognition.',
+    color: '#00247D',
     icon: 'fa-solid fa-building-columns',
     bgClass: 'bg-blue-50',
-    image: 'https://flagcdn.com/w160/gb.png'
-  },
-  {
-    id: 'australia',
-    name: 'Australia',
-    description: 'High quality of life, career focused courses and modern campuses',
-    color: '#8B5CF6',
-    icon: 'fa-solid fa-sun',
-    bgClass: 'bg-purple-50',
-    image: 'https://flagcdn.com/w160/au.png'
-  },
-  {
-    id: 'france',
-    name: 'France',
-    description: 'World-class education in the heart of Europe with rich cultural heritage',
-    color: '#1D4ED8',
-    icon: 'fa-solid fa-archway',
-    bgClass: 'bg-blue-50',
-    image: 'https://flagcdn.com/w160/fr.png'
+    image: 'https://flagcdn.com/w160/gb.png',
+    region: 'Europe'
   },
   {
     id: 'germany',
     name: 'Germany',
-    description: 'Engineering, technology and applied sciences with strong practical focus and low tuition options',
-    color: '#FBBF24',
-    icon: 'fa-solid fa-microscope',
-    bgClass: 'bg-amber-50',
-    image: 'https://flagcdn.com/w160/de.png'
+    description: 'Leader in engineering and technology with low tuition programs.',
+    color: '#000000',
+    icon: 'fa-solid fa-gears',
+    bgClass: 'bg-yellow-50',
+    image: 'https://flagcdn.com/w160/de.png',
+    region: 'Europe'
   },
   {
-    id: 'canada',
-    name: 'Canada',
-    description: 'Career-focused programs with clear pathways to post-study options',
-    color: '#EF4444',
-    icon: 'fa-solid fa-map',
-    bgClass: 'bg-rose-50',
-    image: 'https://flagcdn.com/w160/ca.png'
+    id: 'france',
+    name: 'France',
+    description: 'European hub for business, fashion, and culinary excellence.',
+    color: '#0055A4',
+    icon: 'fa-solid fa-archway',
+    bgClass: 'bg-indigo-50',
+    image: 'https://flagcdn.com/w160/fr.png',
+    region: 'Europe'
   },
   {
     id: 'ireland',
     name: 'Ireland',
-    description: 'A tech and finance hub of Europe with close links to global companies',
-    color: '#10B981',
-    icon: 'fa-solid fa-building',
-    bgClass: 'bg-emerald-50',
-    image: 'https://flagcdn.com/w160/ie.png'
+    description: 'A tech hub with warm hospitality and 2-year post-study work visa.',
+    color: '#169B62',
+    icon: 'fa-solid fa-clover',
+    bgClass: 'bg-green-50',
+    image: 'https://flagcdn.com/w160/ie.png',
+    region: 'Europe'
+  },
+  {
+    id: 'usa',
+    name: 'USA',
+    description: 'The land of opportunity with flexible curriculum and vast research options.',
+    color: '#00247D',
+    icon: 'fa-solid fa-star',
+    bgClass: 'bg-blue-50',
+    image: 'https://flagcdn.com/w160/us.png',
+    region: 'Americas & Pacific'
+  },
+  {
+    id: 'canada',
+    name: 'Canada',
+    description: 'High quality of life, diversity, and welcoming post-study work policies.',
+    color: '#FF0000',
+    icon: 'fa-solid fa-leaf',
+    bgClass: 'bg-red-50',
+    image: 'https://flagcdn.com/w160/ca.png',
+    region: 'Americas & Pacific'
+  },
+  {
+    id: 'australia',
+    name: 'Australia',
+    description: 'High standard of living and top-tier research institutions.',
+    color: '#00008B',
+    icon: 'fa-solid fa-sun',
+    bgClass: 'bg-blue-50',
+    image: 'https://flagcdn.com/w160/au.png',
+    region: 'Americas & Pacific'
   },
   {
     id: 'new-zealand',
     name: 'New Zealand',
-    description: 'Safe, scenic and student friendly with strong focus on quality of life',
-    color: '#0EA5E9',
+    description: 'Safe, scenic environment excellent for research-based programs.',
+    color: '#00247D',
     icon: 'fa-solid fa-mountain',
-    bgClass: 'bg-sky-50',
-    image: 'https://flagcdn.com/w160/nz.png'
-  },
-  {
-    id: 'switzerland',
-    name: 'Switzerland',
-    description: 'Global excellence in hospitality, business, and finance education',
-    color: '#DC2626',
-    icon: 'fa-solid fa-mountain-sun',
-    bgClass: 'bg-red-50',
-    image: 'https://flagcdn.com/w160/ch.png'
-  },
-  {
-    id: 'malta',
-    name: 'Malta',
-    description: 'Affordable English-taught programs in a Mediterranean island setting',
-    color: '#64748B',
-    icon: 'fa-solid fa-anchor',
-    bgClass: 'bg-slate-50',
-    image: 'https://flagcdn.com/w160/mt.png'
-  },
-  {
-    id: 'uae',
-    name: 'UAE',
-    description: 'UK and Australian branch campuses plus respected local universities in a dynamic Middle Eastern setting',
-    color: '#F59E0B',
-    icon: 'fa-solid fa-city',
-    bgClass: 'bg-yellow-50',
-    image: 'https://flagcdn.com/w160/ae.png'
+    bgClass: 'bg-blue-50',
+    image: 'https://flagcdn.com/w160/nz.png',
+    region: 'Americas & Pacific'
   },
   {
     id: 'singapore',
     name: 'Singapore',
-    description: 'Asian hub for business, finance and hospitality studies',
-    color: '#EC4899',
+    description: 'A global business hub with top-ranked universities in Asia.',
+    color: '#ED2939',
     icon: 'fa-solid fa-landmark',
     bgClass: 'bg-pink-50',
-    image: 'https://flagcdn.com/w160/sg.png'
+    image: 'https://flagcdn.com/w160/sg.png',
+    region: 'Asia & Other'
+  },
+  {
+    id: 'japan',
+    name: 'Japan',
+    description: 'Blend of tradition and technology with unique cultural experiences.',
+    color: '#BC002D',
+    icon: 'fa-solid fa-torii-gate',
+    bgClass: 'bg-red-50',
+    image: 'https://flagcdn.com/w160/jp.png',
+    region: 'Asia & Other'
   },
   {
     id: 'malaysia',
     name: 'Malaysia',
-    description: 'Value for money twinning routes to UK and Australian degrees',
-    color: '#6366F1',
+    description: 'Affordable education with twinning programs from UK and Aus.',
+    color: '#003399',
     icon: 'fa-solid fa-school',
     bgClass: 'bg-indigo-50',
-    image: 'https://flagcdn.com/w160/my.png'
+    image: 'https://flagcdn.com/w160/my.png',
+    region: 'Asia & Other'
   },
   {
     id: 'south-korea',
     name: 'South Korea',
-    description: 'Cutting-edge technology and high-ranking research universities',
+    description: 'Leader in innovation with generous scholarship opportunities.',
     color: '#000000',
-    icon: 'fa-solid fa-landmark-dome',
+    icon: 'fa-solid fa-microchip',
     bgClass: 'bg-gray-50',
-    image: 'https://flagcdn.com/w160/kr.png'
+    image: 'https://flagcdn.com/w160/kr.png',
+    region: 'Asia & Other'
   }
 ];
 
 export const SERVICES: Service[] = [
   {
     id: 1,
-    title: 'Profile Review & Counselling',
-    description: 'We carefully assess your academics, English, finances and goals, then map realistic routes that match your situation.',
-    icon: 'fa-solid fa-user-check',
-    image: 'https://picsum.photos/seed/service1/800/600'
+    title: 'Career Counseling',
+    description: 'Personalized guidance to find the right course and university that matches your career aspirations.',
+    icon: 'fa-solid fa-lightbulb',
+    iconBg: 'bg-blue-50',
+    iconColor: 'text-blue-500'
   },
   {
     id: 2,
-    title: 'Course & University Mapping',
-    description: 'We shortlist options across the UK, Europe, Canada, Australia and Asia that are properly recognised and valued.',
-    icon: 'fa-solid fa-location-dot',
-    image: 'https://picsum.photos/seed/service2/800/600'
+    title: 'Test Prep',
+    description: 'Expert coaching for IELTS, TOEFL, GRE, and GMAT with high-score guaranteed strategies.',
+    icon: 'fa-solid fa-graduation-cap',
+    iconBg: 'bg-purple-50',
+    iconColor: 'text-purple-500'
   },
   {
     id: 3,
-    title: 'Application & Documentation',
-    description: 'We organise your applications, supporting documents, references and statements so everything looks professional.',
-    icon: 'fa-solid fa-file-lines',
-    image: 'https://picsum.photos/seed/service3/800/600'
+    title: 'Application Support',
+    description: 'End-to-end support for SOP writing, LORs, and university applications to ensure acceptance.',
+    icon: 'fa-solid fa-file-contract',
+    iconBg: 'bg-orange-50',
+    iconColor: 'text-orange-500'
   },
   {
     id: 4,
-    title: 'Interview Preparation',
-    description: 'We prepare you for university and visa interviews, helping you respond confidently to all admissions queries.',
-    icon: 'fa-solid fa-comments',
-    image: 'https://picsum.photos/seed/service4/800/600'
-  },
-  {
-    id: 5,
     title: 'Visa Assistance',
-    description: 'We guide you step-by-step through the visa process, financial evidence requirements and interview prep.',
-    icon: 'fa-solid fa-passport',
-    image: 'https://picsum.photos/seed/service5/800/600'
-  },
-  {
-    id: 6,
-    title: 'Pre-Departure Orientation',
-    description: 'Practical advice on accommodation, banking, part-time work rules and settling into your new country.',
-    icon: 'fa-solid fa-plane-departure',
-    image: 'https://picsum.photos/seed/service7/800/600'
+    description: 'Hassle-free visa filing, financial document preparation, and mock interview sessions.',
+    icon: 'fa-solid fa-plane-up',
+    iconBg: 'bg-green-50',
+    iconColor: 'text-green-500'
   }
 ];
 
-export const STEPS: Step[] = [
+export const SUCCESS_STORIES: SuccessStory[] = [
   {
-    id: 'discover',
-    number: '01',
-    title: 'Discover',
-    description: 'Explore universities, programs, and destinations that match your goals.',
-    icon: 'fa-solid fa-compass'
+    id: 1,
+    name: 'Sarah Jenkins',
+    university: 'Imperial College London',
+    quote: '"Gradway made my dream of studying in London a reality. Their counseling was spot on, and the visa process was seamless."',
+    image: 'https://i.pravatar.cc/150?u=sarah',
+    tag: 'MSc Data Science'
   },
   {
-    id: 'shortlist',
-    number: '02',
-    title: 'Shortlist',
-    description: 'Get personalized recommendations based on your profile and budget.',
-    icon: 'fa-solid fa-heart'
+    id: 2,
+    name: 'Michael Chen',
+    university: 'University of Toronto',
+    quote: '"The test prep coaches were incredible. I improved my IELTS score significantly, which opened doors to scholarships I didn\'t think possible."',
+    image: 'https://i.pravatar.cc/150?u=michael',
+    tag: 'B.Eng'
   },
   {
-    id: 'apply',
-    number: '03',
-    title: 'Apply',
-    description: 'Submit applications with our expert guidance on all documentation.',
-    icon: 'fa-solid fa-file-pen'
-  },
-  {
-    id: 'visa',
-    number: '04',
-    title: 'Visa',
-    description: 'Navigate the visa process smoothly with our step-by-step assistance.',
-    icon: 'fa-solid fa-id-card'
-  },
-  {
-    id: 'depart',
-    number: '05',
-    title: 'Depart',
-    description: 'Prepare for your journey with pre-departure orientation and support.',
-    icon: 'fa-solid fa-paper-plane'
-  }
-];
-
-export const FAQS: FAQ[] = [
-  {
-    question: 'When should I start planning my study abroad journey?',
-    answer: 'Ideally, you should start planning 9-12 months before your intended intake to allow time for applications and visas.'
-  },
-  {
-    question: 'What are the costs involved in studying abroad?',
-    answer: 'Costs include tuition, living expenses, health insurance, and airfare. We provide detailed budgeting based on your country choice.'
-  },
-  {
-    question: 'Do I need to take IELTS or TOEFL?',
-    answer: 'Most English-speaking countries require proof of proficiency. Some universities may waive this based on your academic history.'
-  },
-  {
-    question: 'Can I work while studying abroad?',
-    answer: 'Yes, most countries allow international students to work part-time (usually 20 hours per week) during terms.'
-  }
-];
-
-export const TESTIMONIALS: Testimonial[] = [
-  {
-    name: 'Hashini Jayawardena',
-    location: 'Studying in UK',
-    verified: true,
-    quote: 'Big thanks to the Gradway team. They handled my application and visa without any stress. Really appreciate the support!',
-    image: 'https://picsum.photos/seed/person1/200/200'
-  },
-  {
-    name: 'Kasun Perera',
-    location: 'Studying in Australia',
-    verified: true,
-    quote: 'The guidance I received for my Australian visa was exceptional. They mapped out exactly what I needed. Highly recommend!',
-    image: 'https://picsum.photos/seed/person2/200/200'
+    id: 3,
+    name: 'Priya Patel',
+    university: 'University of Melbourne',
+    quote: '"They helped me navigate the complex application system in Australia. I felt supported every step of the way, even after arriving."',
+    image: 'https://i.pravatar.cc/150?u=priya',
+    tag: 'MBA'
   }
 ];

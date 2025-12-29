@@ -7,6 +7,7 @@ export interface Destination {
   icon: string;
   bgClass: string;
   image?: string;
+  region: 'Europe' | 'Americas & Pacific' | 'Asia & Other';
 }
 
 export interface Service {
@@ -14,15 +15,17 @@ export interface Service {
   title: string;
   description: string;
   icon: string;
-  image: string;
+  iconBg: string;
+  iconColor: string;
 }
 
-export interface Step {
-  id: string;
-  number: string;
-  title: string;
-  description: string;
-  icon: string;
+export interface SuccessStory {
+  id: number;
+  name: string;
+  university: string;
+  quote: string;
+  image: string;
+  tag: string;
 }
 
 export interface FAQ {
