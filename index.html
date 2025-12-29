@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -97,7 +98,6 @@
         flex-shrink: 0;
         will-change: transform, border-radius, box-shadow;
         border: 1px solid rgba(255, 255, 255, 0.5);
-        /* Intense Layered Shadows for 3D Pop */
         box-shadow: 
           0 10px 15px -3px rgba(0, 0, 0, 0.1), 
           0 25px 50px -12px rgba(0, 0, 0, 0.35),
@@ -133,6 +133,15 @@
         border-radius: 50%;
         flex-shrink: 0;
         filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
+      }
+
+      /* Hide scrollbar utility */
+      .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+      }
+      .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
       }
     </style>
 <script type="importmap">

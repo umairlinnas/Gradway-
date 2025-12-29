@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { DESTINATIONS } from './constants';
 import { getGeminiResponse } from './services/geminiService';
+import { Destination } from './types';
+
+// Asset Simulation
+const ASSETS = {
+  logo: "https://i.ibb.co/3ykG4SjV/logo.png"
+};
 
 const App: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -9,12 +15,14 @@ const App: React.FC = () => {
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'bot'; text: string }[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [showPhoneOptions, setShowPhoneOptions] = useState(false);
+  const [allVisible, setAllVisible] = useState(false);
 
   const destinationsRef = useRef<HTMLDivElement>(null);
+  const scrollRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
+      setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -32,11 +40,19 @@ const App: React.FC = () => {
     setIsTyping(false);
   };
 
-  const scrollToDestinations = () => {
-    destinationsRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const logoUrl = "https://i.ibb.co/3ykG4SjV/logo.png";
+  const scrollContainer = (region: string, direction: 'left' | 'right') => {
+    const container = scrollRefs.current[region];
+    if (container) {
+      const scrollAmount = 400;
+      container.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const regions = ['Europe', 'Americas & Pacific', 'Asia & Other'];
 
   const ligatureFClasses = "relative inline-block after:content-[''] after:absolute after:top-[38.5%] after:left-[45%] after:w-[0.54em] after:h-[0.085em] after:bg-[#FBBF24] after:z-[5]";
   const ligatureIClasses = "relative inline-block -ml-[0.12em] [mask-image:linear-gradient(to_bottom,transparent_32%,black_32%)] after:content-[''] after:absolute after:top-[-0.05em] after:left-1/2 after:-translate-x-1/2 after:w-[0.22em] after:h-[0.22em] after:bg-[#1A1F2C] after:rounded-full after:z-[10]";
@@ -44,25 +60,36 @@ const App: React.FC = () => {
   const bubbleBaseClass = "hero-bubble";
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
-      {/* Navigation */}
-      <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-xl py-2 shadow-sm border-b border-black/5' : 'bg-transparent py-6'}`}>
-        <div className="container mx-auto px-4 lg:px-12 flex justify-between items-center">
+    <div className="min-h-screen bg-[#FAFAFA]" id="top">
+      {/* Navigation - Slenderized vertically with py-1 and py-3 */}
+      <nav className={`fixed w-full z-[100] transition-all duration-500 ${isScrolled ? 'bg-white/95 backdrop-blur-xl py-1 shadow-md border-b border-black/5' : 'bg-transparent py-3'}`}>
+        <div className="container mx-auto px-4 lg:px-12 flex justify-between items-center relative">
+          
+          {/* Pop-out Circular Logo Container */}
           <div className="flex items-center">
-            <a href="/" className="flex items-center group transition-transform duration-300 hover:scale-105">
-              <div className="h-10 md:h-14 w-auto flex items-center justify-center overflow-hidden">
-                <img src={logoUrl} alt="Gradway Logo" className="h-full w-auto object-contain" />
+            <a href="#top" onClick={(e) => { e.preventDefault(); scrollToTop(); }} className="relative z-[110] block group">
+              <div className={`transition-all duration-500 ease-in-out border-[3px] border-white shadow-2xl rounded-full bg-white flex items-center justify-center
+                ${isScrolled ? 'w-20 h-20 translate-y-4 scale-100' : 'w-14 h-14 translate-y-0 scale-95'}`}>
+                <img 
+                  src={ASSETS.logo} 
+                  alt="Gradway Logo" 
+                  className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+                />
               </div>
             </a>
           </div>
           
-          <div className="hidden lg:flex items-center space-x-10 text-xs font-black text-[#1A1F2C]">
-            <a href="#" className="hover:text-[#FBBF24] transition-colors uppercase tracking-[0.15em]">Home</a>
-            <a href="#destinations" className="hover:text-[#FBBF24] transition-colors uppercase tracking-[0.15em]">Destinations</a>
+          {/* Slender Nav Menu items */}
+          <div className="hidden lg:flex items-center space-x-7 text-[10px] font-black text-[#1A1F2C]">
+            <a href="#top" onClick={(e) => { e.preventDefault(); scrollToTop(); }} className="hover:text-[#FBBF24] transition-colors uppercase tracking-[0.15em]">Home</a>
+            <a href="#about" className="hover:text-[#FBBF24] transition-colors uppercase tracking-[0.15em]">About Us</a>
             <a href="#services" className="hover:text-[#FBBF24] transition-colors uppercase tracking-[0.15em]">Services</a>
-            <a href="#about" className="hover:text-[#FBBF24] transition-colors uppercase tracking-[0.15em]">About</a>
-            <button className="bg-gradient-to-br from-[#FBBF24] to-[#F59E0B] text-white px-8 py-3 rounded-full shadow-lg hover:shadow-amber-200 hover:-translate-y-0.5 transition-all font-black uppercase tracking-widest text-[10px]">
-              Book Consultation
+            <a href="#destinations" className="hover:text-[#FBBF24] transition-colors uppercase tracking-[0.15em]">Destinations</a>
+            <a href="#stories" className="hover:text-[#FBBF24] transition-colors uppercase tracking-[0.15em]">Stories</a>
+            <a href="#contact" className="hover:text-[#FBBF24] transition-colors uppercase tracking-[0.15em]">Contact</a>
+            
+            <button className="bg-gradient-to-br from-[#FBBF24] to-[#F59E0B] text-white px-5 py-2 rounded-full shadow-lg hover:shadow-amber-200 hover:-translate-y-0.5 transition-all font-black uppercase tracking-widest text-[9px]">
+              Assessment
             </button>
           </div>
           
@@ -75,7 +102,7 @@ const App: React.FC = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center pt-24 md:pt-0 overflow-hidden">
+      <section className="relative min-h-screen flex items-center pt-32 md:pt-0 overflow-hidden">
         <div className="absolute top-0 right-0 w-[60%] h-[60%] bg-[#FBBF24]/5 rounded-full blur-[100px] -z-10"></div>
         
         <div className="container mx-auto px-4 lg:px-12 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-24">
@@ -101,7 +128,7 @@ const App: React.FC = () => {
             
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 md:gap-6">
               <button 
-                onClick={scrollToDestinations}
+                onClick={() => destinationsRef.current?.scrollIntoView({ behavior: 'smooth' })}
                 className="bg-gradient-to-br from-[#FBBF24] to-[#F59E0B] text-white px-10 py-5 rounded-full font-black shadow-xl hover:shadow-amber-200 hover:scale-105 transition-all text-xs uppercase tracking-[0.2em] w-full sm:w-auto"
               >
                 Start Exploring
@@ -119,11 +146,9 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Corrected Bubble Placements: Balanced "X" with high visibility */}
+          {/* Hero Bubbles */}
           <div className="lg:w-1/2 relative h-[500px] md:h-[600px] lg:h-[700px] w-full overflow-visible lg:-translate-x-12 mt-12 lg:mt-0">
-            
-            {/* 1. Students First (CENTER ANCHOR) */}
-            <div className={`${bubbleBaseClass} hero-bubble-center absolute top-1/2 left-1/2 w-[210px] h-[210px] md:w-[230px] md:h-[230px] lg:w-[260px] lg:h-[260px] bg-white/70 backdrop-blur-2xl [border-radius:60%_40%_30%_70%/60%_30%_70%_40%] animate-float-1 z-20`}>
+            <div className={`${bubbleBaseClass} hero-bubble-center absolute top-1/2 left-1/2 w-[210px] h-[210px] md:w-[230px] md:h-[230px] lg:w-[260px] lg:h-[260px] bg-white/70 backdrop-blur-2xl [border-radius:60%_40%_30%_70%/60%_30%_70%_40%] animate-float-1 z-20 shadow-2xl shadow-black/10`}>
                <div className="bubble-inner px-4">
                  <div className="icon-circle w-12 h-12 md:w-14 lg:w-18 bg-amber-100 mb-2 md:mb-3">
                    <i className="fa-solid fa-user-graduate text-2xl md:text-3xl lg:text-4xl text-amber-600"></i>
@@ -132,8 +157,7 @@ const App: React.FC = () => {
                </div>
             </div>
 
-            {/* 2. Institutions (Top Left) - Moved Down significantly for desktop */}
-            <div className={`${bubbleBaseClass} absolute top-[2%] left-[4%] md:top-[8%] md:left-[5%] lg:top-[18%] lg:left-[-5%] w-[120px] h-[120px] md:w-[140px] md:h-[140px] lg:w-[160px] lg:h-[160px] bg-[#FBBF24] [border-radius:30%_70%_70%_30%/50%_40%_60%_50%] animate-float-2 z-30`}>
+            <div className={`${bubbleBaseClass} absolute top-[18%] left-[-5%] w-[120px] h-[120px] md:w-[140px] md:h-[140px] lg:w-[160px] lg:h-[160px] bg-[#FBBF24] [border-radius:30%_70%_70%_30%/50%_40%_60%_50%] animate-float-2 z-30 shadow-2xl shadow-amber-500/30`}>
                <div className="bubble-inner">
                  <div className="icon-circle w-9 h-9 md:w-11 lg:w-13 bg-white/20 mb-1 md:mb-2">
                    <i className="fa-solid fa-hotel text-xl md:text-2xl lg:text-3xl text-white"></i>
@@ -143,8 +167,7 @@ const App: React.FC = () => {
                </div>
             </div>
             
-            {/* 3. 10k+ Programs (Top Right - FIXED POSITION) */}
-            <div className={`${bubbleBaseClass} absolute top-[1%] right-[5%] md:top-[12%] md:right-[5%] lg:top-[10%] lg:right-[0%] w-[125px] h-[125px] md:w-[145px] md:h-[145px] lg:w-[170px] lg:h-[170px] bg-white/90 backdrop-blur-md [border-radius:70%_30%_60%_40%/50%_30%_70%_50%] animate-float-4 z-10`}>
+            <div className={`${bubbleBaseClass} absolute top-[10%] right-[0%] w-[125px] h-[125px] md:w-[145px] md:h-[145px] lg:w-[170px] lg:h-[170px] bg-white/90 backdrop-blur-md [border-radius:70%_30%_60%_40%/50%_30%_70%_50%] animate-float-4 z-10 shadow-2xl shadow-black/5`}>
                <div className="bubble-inner px-2">
                  <div className="icon-circle w-9 h-9 md:w-11 lg:w-13 bg-blue-50 mb-1 md:mb-2">
                    <i className="fa-solid fa-book-open text-xl md:text-2xl lg:text-3xl text-blue-500"></i>
@@ -154,8 +177,7 @@ const App: React.FC = () => {
                </div>
             </div>
 
-            {/* 4. Countries (Bottom Right - Moved further Right & Down for desktop) */}
-            <div className={`${bubbleBaseClass} absolute bottom-[8%] right-[-4%] md:bottom-[12%] md:right-[5%] lg:bottom-[10%] lg:right-[-10%] w-[120px] h-[120px] md:w-[140px] md:h-[140px] lg:w-[160px] lg:h-[160px] bg-[#0F172A] [border-radius:70%_30%_30%_70%/60%_70%_30%_40%] animate-float-3 z-30`}>
+            <div className={`${bubbleBaseClass} absolute bottom-[10%] right-[-10%] w-[120px] h-[120px] md:w-[140px] md:h-[140px] lg:w-[160px] lg:h-[160px] bg-[#0F172A] [border-radius:70%_30%_30%_70%/60%_70%_30%_40%] animate-float-3 z-30 shadow-2xl shadow-black/40`}>
                <div className="bubble-inner">
                  <div className="icon-circle w-9 h-9 md:w-11 lg:w-13 bg-white/10 mb-1">
                    <i className="fa-solid fa-earth-americas text-xl md:text-2xl lg:text-3xl text-white"></i>
@@ -165,8 +187,7 @@ const App: React.FC = () => {
                </div>
             </div>
 
-            {/* 5. Application Management (Bottom Left) */}
-            <div className={`${bubbleBaseClass} absolute bottom-[4%] left-[2%] md:bottom-[8%] md:left-[5%] lg:bottom-[8%] lg:left-[-2%] w-[130px] h-[130px] md:w-[150px] md:h-[150px] lg:w-[170px] lg:h-[170px] bg-[#991B1B] [border-radius:40%_60%_30%_70%/50%_70%_30%_50%] animate-float-2 z-10`}>
+            <div className={`${bubbleBaseClass} absolute bottom-[8%] left-[-2%] w-[130px] h-[130px] md:w-[150px] md:h-[150px] lg:w-[170px] lg:h-[170px] bg-[#991B1B] [border-radius:40%_60%_30%_70%/50%_70%_30%_50%] animate-float-2 z-10 shadow-2xl shadow-red-900/30`}>
                <div className="bubble-inner px-2">
                  <div className="icon-circle w-9 h-9 md:w-11 lg:w-13 bg-white/20 mb-1 md:mb-2">
                    <i className="fa-solid fa-list-check text-xl md:text-2xl lg:text-3xl text-white"></i>
@@ -175,55 +196,162 @@ const App: React.FC = () => {
                </div>
             </div>
             
-            {/* Ambient Background Circle */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] border border-amber-500/5 rounded-full -z-20 animate-pulse"></div>
           </div>
         </div>
       </section>
 
-      {/* Destinations Section */}
-      <section ref={destinationsRef} id="destinations" className="pt-8 md:pt-12 pb-32 bg-white scroll-mt-24">
-        <div className="container mx-auto px-4 md:px-12">
-          <div className="flex flex-col mb-12">
-            <div className="max-w-2xl text-left">
-               <span className="text-amber-500 font-black uppercase tracking-[0.3em] text-[10px] md:text-xs mb-4 block">Global Opportunities</span>
-               <h2 className="text-4xl md:text-5xl font-black text-[#1A1F2C] leading-tight mb-4">Your World-Class <br/>Destination Awaits</h2>
-               <p className="text-slate-500 text-base md:text-lg mb-8 leading-relaxed">Select your preferred destination and let us pave the way for your future.</p>
-               
-               <button className="px-10 py-4 bg-[#1A1F2C] text-white rounded-full font-black text-xs uppercase tracking-[0.2em] hover:bg-amber-500 transition-all flex items-center gap-3 w-fit shadow-xl">
-                <span>View All Destinations</span>
-                <i className="fa-solid fa-arrow-right-long"></i>
-              </button>
+      {/* About Section */}
+      <section id="about" className="py-24 bg-slate-50">
+        <div className="container mx-auto px-4 lg:px-12">
+          <div className="max-w-4xl mx-auto text-center">
+            <span className="text-amber-500 font-black uppercase tracking-[0.3em] text-xs mb-4 block">About Gradway</span>
+            <h2 className="text-4xl md:text-5xl font-black text-[#1A1F2C] mb-8">Your Sri Lankan Gateway to Global Education</h2>
+            <p className="text-lg text-slate-600 leading-relaxed mb-12">
+              Gradway (Pvt) Ltd is a premier education consultancy based in the heart of Colombo. We specialize in providing tailored pathways for Sri Lankan students to achieve their dreams of studying abroad. With a focus on transparency and student success, we handle everything from profile mapping to visa success.
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {[
+                { label: 'Success Rate', value: '98%' },
+                { label: 'Visa Experts', value: '15+' },
+                { label: 'Scholarships', value: '$1M+' },
+                { label: 'Partner Uni', value: '450+' }
+              ].map((stat, i) => (
+                <div key={i} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                  <div className="text-2xl md:text-3xl font-black text-[#1A1F2C] mb-1">{stat.value}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-            {DESTINATIONS.map((dest) => (
-              <div key={dest.id} className="group relative bg-slate-50 rounded-[2rem] overflow-hidden p-8 hover:bg-white hover:shadow-2xl hover:shadow-amber-100 transition-all duration-500 border border-transparent hover:border-amber-100">
-                <div className="flex justify-between items-start mb-8">
-                   <div className="w-12 h-12 md:w-14 md:h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <i className={`${dest.icon} text-xl md:text-2xl`} style={{ color: dest.color }}></i>
-                   </div>
-                   <div className="w-10 h-6 md:w-12 md:h-8 rounded shadow-sm overflow-hidden border border-slate-200">
-                      <img src={dest.image} alt={dest.name} className="w-full h-full object-cover" />
-                   </div>
+      {/* Services Section */}
+      <section id="services" className="py-24 bg-white">
+        <div className="container mx-auto px-4 lg:px-12">
+          <div className="text-center mb-16">
+            <span className="text-amber-500 font-black uppercase tracking-[0.3em] text-xs mb-4 block">Our Expertise</span>
+            <h2 className="text-4xl font-black text-[#1A1F2C]">Comprehensive Support</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { title: 'Profile Review', desc: 'Expert analysis of your academic and financial background.', icon: 'fa-user-check' },
+              { title: 'University Mapping', desc: 'Strategic course selection based on your future goals.', icon: 'fa-map-location-dot' },
+              { title: 'Visa Filing', desc: 'Detailed assistance with complex documentation and interviews.', icon: 'fa-passport' }
+            ].map((service, i) => (
+              <div key={i} className="group p-8 bg-slate-50 rounded-[2.5rem] hover:bg-white hover:shadow-2xl hover:shadow-amber-100 transition-all border border-transparent hover:border-amber-100">
+                <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <i className={`fa-solid ${service.icon} text-2xl text-amber-500`}></i>
                 </div>
-                <h3 className="text-xl md:text-2xl font-black mb-3 text-[#1A1F2C]">{dest.name}</h3>
-                <p className="text-slate-500 text-xs md:text-sm leading-relaxed mb-10 min-h-[3rem]">
-                  {dest.description}
-                </p>
-                <div className="flex items-center gap-2 text-[#1A1F2C] font-black text-[10px] uppercase tracking-[0.25em] group-hover:text-amber-500 transition-colors">
-                  <span>Explore Unis</span>
-                  <i className="fa-solid fa-arrow-right translate-x-0 group-hover:translate-x-2 transition-transform"></i>
-                </div>
+                <h3 className="text-xl font-black mb-4 text-[#1A1F2C]">{service.title}</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">{service.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Talk to a counsellor Section */}
-      <section className="relative py-24 md:py-32 bg-gradient-to-br from-[#7799FF] via-[#88AAFF] to-[#DDAAFF] overflow-hidden">
+      {/* Grouped Destinations Section with Slider */}
+      <section ref={destinationsRef} id="destinations" className="pt-24 pb-32 bg-[#FAFAFA] scroll-mt-24">
+        <div className="container mx-auto px-4 md:px-12">
+          <div className="flex flex-col mb-16">
+            <div className="max-w-2xl text-left">
+               <span className="text-amber-500 font-black uppercase tracking-[0.3em] text-[10px] md:text-xs mb-4 block">Global Opportunities</span>
+               <h2 className="text-4xl md:text-5xl font-black text-[#1A1F2C] leading-tight mb-4">Your World-Class <br/>Destination Awaits</h2>
+            </div>
+          </div>
+
+          <div className="space-y-20">
+            {regions.map((region) => (
+              <div key={region} className="relative">
+                <div className="flex justify-between items-center mb-10 border-l-4 border-[#1A1F2C] pl-6">
+                  <h3 className="text-2xl md:text-3xl font-black text-[#1A1F2C]">{region}</h3>
+                  <div className="flex items-center space-x-3">
+                    <button 
+                      onClick={() => scrollContainer(region, 'left')}
+                      className="w-10 h-10 md:w-12 md:h-12 border border-slate-200 rounded-full flex items-center justify-center hover:bg-[#1A1F2C] hover:text-white transition-all text-slate-400"
+                    >
+                      <i className="fa-solid fa-chevron-left text-sm"></i>
+                    </button>
+                    <button 
+                      onClick={() => scrollContainer(region, 'right')}
+                      className="w-10 h-10 md:w-12 md:h-12 border border-slate-200 rounded-full flex items-center justify-center hover:bg-[#1A1F2C] hover:text-white transition-all text-slate-400"
+                    >
+                      <i className="fa-solid fa-chevron-right text-sm"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div 
+                  ref={(el) => { scrollRefs.current[region] = el; }}
+                  className="flex overflow-x-auto scrollbar-hide space-x-6 md:space-x-8 pb-10 px-2 scroll-smooth"
+                >
+                  {DESTINATIONS.filter(d => d.region === region).map((dest) => (
+                    <div key={dest.id} className="min-w-[280px] md:min-w-[340px] group relative bg-white rounded-[2.5rem] overflow-hidden p-8 hover:shadow-2xl hover:shadow-amber-100 transition-all duration-500 border border-slate-100 hover:border-amber-100">
+                      <div className="flex justify-between items-start mb-8">
+                         <div className="w-12 h-12 md:w-14 md:h-14 bg-slate-50 rounded-2xl shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i className={`${dest.icon} text-xl md:text-2xl`} style={{ color: dest.color }}></i>
+                         </div>
+                         <div className="w-10 h-6 md:w-12 md:h-8 rounded-lg shadow-md overflow-hidden border border-slate-100 bg-white p-0.5">
+                            <img src={dest.image} alt={dest.name} className="w-full h-full object-cover rounded-[3px]" />
+                         </div>
+                      </div>
+                      <h3 className="text-xl md:text-2xl font-black mb-3 text-[#1A1F2C]">{dest.name}</h3>
+                      <p className="text-slate-500 text-xs md:text-sm leading-relaxed mb-10 min-h-[3.5rem]">
+                        {dest.description}
+                      </p>
+                      <div className="flex items-center gap-2 text-[#1A1F2C] font-black text-[10px] uppercase tracking-[0.25em] group-hover:text-amber-500 transition-colors">
+                        <span>Explore Unis</span>
+                        <i className="fa-solid fa-arrow-right translate-x-0 group-hover:translate-x-2 transition-transform"></i>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-24 text-center">
+            <button 
+              onClick={() => setAllVisible(!allVisible)}
+              className="px-12 py-5 bg-[#1A1F2C] text-white rounded-full font-black text-xs uppercase tracking-[0.3em] hover:bg-amber-500 transition-all flex items-center gap-4 mx-auto shadow-2xl"
+            >
+              <span>{allVisible ? 'Show Less' : 'View All Destinations'}</span>
+              <i className={`fa-solid ${allVisible ? 'fa-minus' : 'fa-arrow-right-long'}`}></i>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Stories Section */}
+      <section id="stories" className="py-24 bg-white">
+        <div className="container mx-auto px-4 lg:px-12 text-center">
+          <span className="text-amber-500 font-black uppercase tracking-[0.3em] text-xs mb-4 block">Success Stories</span>
+          <h2 className="text-4xl font-black text-[#1A1F2C] mb-16">See where our students are now</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="bg-slate-50 p-8 rounded-[3rem] text-left border border-slate-100">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-14 h-14 bg-slate-200 rounded-full overflow-hidden">
+                    <img src={`https://i.pravatar.cc/150?u=${i}`} alt="Student" />
+                  </div>
+                  <div>
+                    <h4 className="font-black text-[#1A1F2C]">Student Name</h4>
+                    <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">University of Warwick, UK</p>
+                  </div>
+                </div>
+                <p className="text-slate-500 text-sm italic leading-relaxed">
+                  "The support I received from Gradway was exceptional. They guided me through every step of the visa process with such patience."
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Talk to a counsellor / Contact Section */}
+      <section id="contact" className="relative py-24 md:py-32 bg-gradient-to-br from-[#7799FF] via-[#88AAFF] to-[#DDAAFF] overflow-hidden">
          <div className="container mx-auto px-4 text-center text-white relative z-10">
             <h2 className="text-4xl md:text-7xl font-bold mb-6 drop-shadow-sm">Talk to a counsellor</h2>
             <p className="text-lg md:text-xl font-medium opacity-90 mb-16">Tell us your story and we will sketch realistic routes together</p>
@@ -297,7 +425,7 @@ const App: React.FC = () => {
              <div className="sm:col-span-2">
                 <div className="flex items-center space-x-3 mb-8">
                   <div className="h-14 w-auto flex items-center justify-center">
-                     <img src={logoUrl} alt="Gradway Logo" className="h-full w-auto object-contain invert" />
+                     <img src={ASSETS.logo} alt="Gradway Logo" className="h-full w-auto object-contain invert" />
                   </div>
                 </div>
                 <p className="text-slate-400 max-w-sm mb-10 leading-relaxed text-lg">
@@ -314,18 +442,18 @@ const App: React.FC = () => {
              <div>
                 <h4 className="font-black uppercase tracking-widest text-amber-400 mb-8 text-xs">Destinations</h4>
                 <ul className="space-y-4 text-slate-400 font-medium">
-                   <li><a href="#" className="hover:text-white transition-colors text-sm">UK</a></li>
-                   <li><a href="#" className="hover:text-white transition-colors text-sm">Australia</a></li>
-                   <li><a href="#" className="hover:text-white transition-colors text-sm">Canada</a></li>
-                   <li><a href="#" className="hover:text-white transition-colors text-sm">Germany</a></li>
+                   <li><a href="#destinations" className="hover:text-white transition-colors text-sm">UK</a></li>
+                   <li><a href="#destinations" className="hover:text-white transition-colors text-sm">Australia</a></li>
+                   <li><a href="#destinations" className="hover:text-white transition-colors text-sm">Canada</a></li>
+                   <li><a href="#destinations" className="hover:text-white transition-colors text-sm">Germany</a></li>
                 </ul>
              </div>
              <div>
                 <h4 className="font-black uppercase tracking-widest text-amber-400 mb-8 text-xs">Gradway</h4>
                 <ul className="space-y-4 text-slate-400 font-medium text-sm">
-                   <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                   <li><a href="#" className="hover:text-white transition-colors">Services</a></li>
-                   <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+                   <li><a href="#about" className="hover:text-white transition-colors">About Us</a></li>
+                   <li><a href="#services" className="hover:text-white transition-colors">Services</a></li>
+                   <li><a href="#contact" className="hover:text-white transition-colors">Contact</a></li>
                 </ul>
              </div>
           </div>
@@ -337,7 +465,7 @@ const App: React.FC = () => {
       </footer>
 
       {/* AI Chat Widget */}
-      <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-[100]">
+      <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-[150]">
         {!chatOpen ? (
           <button 
             onClick={() => setChatOpen(true)}

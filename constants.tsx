@@ -43,13 +43,13 @@ export const DESTINATIONS: Destination[] = [
     region: 'Europe'
   },
   {
-    id: 'usa',
-    name: 'USA',
-    description: 'The land of opportunity with flexible curriculum and vast research options.',
-    color: '#00247D',
-    icon: 'fa-solid fa-star',
-    bgClass: 'bg-blue-50',
-    image: 'https://flagcdn.com/w160/us.png',
+    id: 'uae',
+    name: 'UAE',
+    description: 'A global hub for business and innovation in the heart of the Middle East.',
+    color: '#00732F',
+    icon: 'fa-solid fa-city',
+    bgClass: 'bg-emerald-50',
+    image: 'https://flagcdn.com/w160/ae.png',
     region: 'Americas & Pacific'
   },
   {
@@ -93,13 +93,13 @@ export const DESTINATIONS: Destination[] = [
     region: 'Asia & Other'
   },
   {
-    id: 'japan',
-    name: 'Japan',
-    description: 'Blend of tradition and technology with unique cultural experiences.',
-    color: '#BC002D',
-    icon: 'fa-solid fa-torii-gate',
+    id: 'switzerland',
+    name: 'Switzerland',
+    description: 'World-class hospitality and finance programs in a stunning alpine setting.',
+    color: '#D52B1E',
+    icon: 'fa-solid fa-mountain-sun',
     bgClass: 'bg-red-50',
-    image: 'https://flagcdn.com/w160/jp.png',
+    image: 'https://flagcdn.com/w160/ch.png',
     region: 'Asia & Other'
   },
   {
