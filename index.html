@@ -72,13 +72,12 @@
       /* Ultra Smooth Floating */
       @keyframes float-gentle {
         0%, 100% { transform: translate(0, 0); }
-        50% { transform: translate(0, -20px); }
+        50% { transform: translate(0, -25px); }
       }
       
-      /* Special centering for the main bubble to avoid conflicts with float */
       @keyframes float-gentle-center {
         0%, 100% { transform: translate(-50%, -50%); }
-        50% { transform: translate(-50%, calc(-50% - 20px)); }
+        50% { transform: translate(-50%, calc(-50% - 25px)); }
       }
 
       .animate-float-1 { animation: float-gentle-center 6s ease-in-out infinite; }
@@ -87,7 +86,7 @@
       .animate-float-4 { animation: float-gentle 6.5s ease-in-out infinite 0.2s; }
 
       .hero-bubble {
-        transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
         cursor: pointer;
         display: flex;
         flex-direction: column;
@@ -96,21 +95,25 @@
         text-align: center;
         aspect-ratio: 1 / 1;
         flex-shrink: 0;
-        will-change: transform, border-radius;
-        border: 1px solid rgba(255, 255, 255, 0.4);
+        will-change: transform, border-radius, box-shadow;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        /* Intense Layered Shadows for 3D Pop */
+        box-shadow: 
+          0 10px 15px -3px rgba(0, 0, 0, 0.1), 
+          0 25px 50px -12px rgba(0, 0, 0, 0.35),
+          inset 0 2px 4px 0 rgba(255, 255, 255, 0.2);
       }
       
       .hero-bubble:hover {
         border-radius: 50% !important;
-        transform: scale(1.05);
-        z-index: 50;
-        box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.12);
-        border: 1px solid rgba(251, 191, 36, 0.3);
+        transform: scale(1.08) translateY(-10px);
+        z-index: 60;
+        box-shadow: 0 45px 85px -15px rgba(0, 0, 0, 0.45);
+        border: 1px solid rgba(251, 191, 36, 0.5);
       }
 
-      /* Ensure hovering centered bubble keeps its center */
       .hero-bubble-center:hover {
-        transform: translate(-50%, -50%) scale(1.05) !important;
+        transform: translate(-50%, -50%) scale(1.08) !important;
       }
 
       .bubble-inner {
@@ -129,6 +132,7 @@
         justify-content: center;
         border-radius: 50%;
         flex-shrink: 0;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15));
       }
     </style>
 <script type="importmap">

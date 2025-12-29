@@ -41,7 +41,7 @@ const App: React.FC = () => {
   const ligatureFClasses = "relative inline-block after:content-[''] after:absolute after:top-[38.5%] after:left-[45%] after:w-[0.54em] after:h-[0.085em] after:bg-[#FBBF24] after:z-[5]";
   const ligatureIClasses = "relative inline-block -ml-[0.12em] [mask-image:linear-gradient(to_bottom,transparent_32%,black_32%)] after:content-[''] after:absolute after:top-[-0.05em] after:left-1/2 after:-translate-x-1/2 after:w-[0.22em] after:h-[0.22em] after:bg-[#1A1F2C] after:rounded-full after:z-[10]";
 
-  const bubbleBaseClass = "hero-bubble shadow-xl";
+  const bubbleBaseClass = "hero-bubble";
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
@@ -119,11 +119,11 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Improved Bubble Area: Better Mobile Organization & Premium Colors */}
+          {/* Corrected Bubble Placements: Balanced "X" with high visibility */}
           <div className="lg:w-1/2 relative h-[500px] md:h-[600px] lg:h-[700px] w-full overflow-visible lg:-translate-x-12 mt-12 lg:mt-0">
             
-            {/* 1. Students First (CENTERED BUBBLE) */}
-            <div className={`${bubbleBaseClass} hero-bubble-center absolute top-1/2 left-1/2 w-[200px] h-[200px] md:w-[230px] md:h-[230px] lg:w-[260px] lg:h-[260px] bg-white/60 backdrop-blur-2xl [border-radius:60%_40%_30%_70%/60%_30%_70%_40%] animate-float-1 z-20`}>
+            {/* 1. Students First (CENTER ANCHOR) */}
+            <div className={`${bubbleBaseClass} hero-bubble-center absolute top-1/2 left-1/2 w-[210px] h-[210px] md:w-[230px] md:h-[230px] lg:w-[260px] lg:h-[260px] bg-white/70 backdrop-blur-2xl [border-radius:60%_40%_30%_70%/60%_30%_70%_40%] animate-float-1 z-20`}>
                <div className="bubble-inner px-4">
                  <div className="icon-circle w-12 h-12 md:w-14 lg:w-18 bg-amber-100 mb-2 md:mb-3">
                    <i className="fa-solid fa-user-graduate text-2xl md:text-3xl lg:text-4xl text-amber-600"></i>
@@ -132,8 +132,8 @@ const App: React.FC = () => {
                </div>
             </div>
 
-            {/* 2. Institutions (Top Left) - Amber */}
-            <div className={`${bubbleBaseClass} absolute top-[0%] left-[5%] md:top-[8%] md:left-[8%] lg:top-[10%] lg:left-[5%] w-[120px] h-[120px] md:w-[140px] md:h-[140px] lg:w-[160px] lg:h-[160px] bg-[#FBBF24] [border-radius:30%_70%_70%_30%/50%_40%_60%_50%] animate-float-2 z-30`}>
+            {/* 2. Institutions (Top Left) - Moved Down significantly for desktop */}
+            <div className={`${bubbleBaseClass} absolute top-[2%] left-[4%] md:top-[8%] md:left-[5%] lg:top-[18%] lg:left-[-5%] w-[120px] h-[120px] md:w-[140px] md:h-[140px] lg:w-[160px] lg:h-[160px] bg-[#FBBF24] [border-radius:30%_70%_70%_30%/50%_40%_60%_50%] animate-float-2 z-30`}>
                <div className="bubble-inner">
                  <div className="icon-circle w-9 h-9 md:w-11 lg:w-13 bg-white/20 mb-1 md:mb-2">
                    <i className="fa-solid fa-hotel text-xl md:text-2xl lg:text-3xl text-white"></i>
@@ -143,19 +143,19 @@ const App: React.FC = () => {
                </div>
             </div>
             
-            {/* 3. Programs (Top Right - Anchor Outlier) - Soft Blue/White */}
-            <div className={`${bubbleBaseClass} absolute top-[5%] right-[0%] md:top-[18%] md:right-[0%] lg:top-[15%] lg:right-[-10%] w-[110px] h-[110px] md:w-[130px] md:h-[130px] lg:w-[150px] lg:h-[150px] bg-white/90 backdrop-blur-md [border-radius:50%_50%_20%_80%/25%_80%_20%_75%] animate-float-4 z-10`}>
-               <div className="bubble-inner">
-                 <div className="icon-circle w-8 h-8 md:w-10 lg:w-12 bg-blue-50 mb-1 md:mb-2">
-                   <i className="fa-solid fa-book-open text-lg md:text-xl lg:text-2xl text-blue-500"></i>
+            {/* 3. 10k+ Programs (Top Right - FIXED POSITION) */}
+            <div className={`${bubbleBaseClass} absolute top-[1%] right-[5%] md:top-[12%] md:right-[5%] lg:top-[10%] lg:right-[0%] w-[125px] h-[125px] md:w-[145px] md:h-[145px] lg:w-[170px] lg:h-[170px] bg-white/90 backdrop-blur-md [border-radius:70%_30%_60%_40%/50%_30%_70%_50%] animate-float-4 z-10`}>
+               <div className="bubble-inner px-2">
+                 <div className="icon-circle w-9 h-9 md:w-11 lg:w-13 bg-blue-50 mb-1 md:mb-2">
+                   <i className="fa-solid fa-book-open text-xl md:text-2xl lg:text-3xl text-blue-500"></i>
                  </div>
-                 <span className="text-lg md:text-2xl lg:text-3xl font-black text-[#1A1F2C] leading-none">10k+</span>
-                 <span className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-0.5">Programs</span>
+                 <span className="text-xl md:text-3xl lg:text-4xl font-black text-[#1A1F2C] leading-none">10k+</span>
+                 <span className="text-[8px] md:text-[10px] lg:text-[11px] font-bold uppercase tracking-widest text-slate-400 mt-0.5">Programs</span>
                </div>
             </div>
 
-            {/* 4. Countries (Bottom Right) - NEW Sophisticated Indigo */}
-            <div className={`${bubbleBaseClass} absolute bottom-[5%] right-[0%] md:bottom-[15%] md:right-[10%] lg:bottom-[18%] lg:right-[5%] w-[120px] h-[120px] md:w-[140px] md:h-[140px] lg:w-[160px] lg:h-[160px] bg-[#4338ca] [border-radius:70%_30%_30%_70%/60%_70%_30%_40%] animate-float-3 z-30`}>
+            {/* 4. Countries (Bottom Right - Moved further Right & Down for desktop) */}
+            <div className={`${bubbleBaseClass} absolute bottom-[8%] right-[-4%] md:bottom-[12%] md:right-[5%] lg:bottom-[10%] lg:right-[-10%] w-[120px] h-[120px] md:w-[140px] md:h-[140px] lg:w-[160px] lg:h-[160px] bg-[#0F172A] [border-radius:70%_30%_30%_70%/60%_70%_30%_40%] animate-float-3 z-30`}>
                <div className="bubble-inner">
                  <div className="icon-circle w-9 h-9 md:w-11 lg:w-13 bg-white/10 mb-1">
                    <i className="fa-solid fa-earth-americas text-xl md:text-2xl lg:text-3xl text-white"></i>
@@ -165,11 +165,11 @@ const App: React.FC = () => {
                </div>
             </div>
 
-            {/* 5. Application Management (Bottom Left) - NEW Royal Purple */}
-            <div className={`${bubbleBaseClass} absolute bottom-[0%] left-[5%] md:bottom-[10%] md:left-[10%] lg:bottom-[12%] lg:left-[8%] w-[125px] h-[125px] md:w-[150px] md:h-[150px] lg:w-[170px] lg:h-[170px] bg-[#7c3aed] [border-radius:40%_60%_30%_70%/50%_70%_30%_50%] animate-float-2 z-10`}>
+            {/* 5. Application Management (Bottom Left) */}
+            <div className={`${bubbleBaseClass} absolute bottom-[4%] left-[2%] md:bottom-[8%] md:left-[5%] lg:bottom-[8%] lg:left-[-2%] w-[130px] h-[130px] md:w-[150px] md:h-[150px] lg:w-[170px] lg:h-[170px] bg-[#991B1B] [border-radius:40%_60%_30%_70%/50%_70%_30%_50%] animate-float-2 z-10`}>
                <div className="bubble-inner px-2">
                  <div className="icon-circle w-9 h-9 md:w-11 lg:w-13 bg-white/20 mb-1 md:mb-2">
-                   <i className="fa-solid fa-clipboard-check text-xl md:text-2xl lg:text-3xl text-white"></i>
+                   <i className="fa-solid fa-list-check text-xl md:text-2xl lg:text-3xl text-white"></i>
                  </div>
                  <span className="text-[9px] md:text-[11px] lg:text-[13px] font-black uppercase tracking-tight text-white text-center leading-tight">End-to-end <br/>application <br/>management</span>
                </div>
