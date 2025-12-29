@@ -1,12 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { DESTINATIONS } from './constants';
 import { getGeminiResponse } from './services/geminiService';
-import { Destination } from './types';
 
-// Asset Simulation
-const ASSETS = {
-  logo: "https://i.ibb.co/3ykG4SjV/logo.png"
-};
+const LOGO_URL = "https://i.ibb.co/3ykG4SjV/logo.png";
 
 const App: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -14,8 +10,7 @@ const App: React.FC = () => {
   const [chatMessage, setChatMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'bot'; text: string }[]>([]);
   const [isTyping, setIsTyping] = useState(false);
-  const [showPhoneOptions, setShowPhoneOptions] = useState(false);
-  const [allVisible, setAllVisible] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const destinationsRef = useRef<HTMLDivElement>(null);
   const scrollRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -40,10 +35,6 @@ const App: React.FC = () => {
     setIsTyping(false);
   };
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   const scrollContainer = (region: string, direction: 'left' | 'right') => {
     const container = scrollRefs.current[region];
     if (container) {
@@ -53,481 +44,289 @@ const App: React.FC = () => {
   };
 
   const regions = ['Europe', 'Americas & Pacific', 'Asia & Other'];
-
-  const ligatureFClasses = "relative inline-block after:content-[''] after:absolute after:top-[38.5%] after:left-[45%] after:w-[0.54em] after:h-[0.085em] after:bg-[#FBBF24] after:z-[5]";
-  const ligatureIClasses = "relative inline-block -ml-[0.12em] [mask-image:linear-gradient(to_bottom,transparent_32%,black_32%)] after:content-[''] after:absolute after:top-[-0.05em] after:left-1/2 after:-translate-x-1/2 after:w-[0.22em] after:h-[0.22em] after:bg-[#1A1F2C] after:rounded-full after:z-[10]";
-
-  const bubbleBaseClass = "hero-bubble";
+  const navLinks = ['Home', 'About Us', 'Services', 'Destinations', 'Stories', 'Contact'];
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]" id="top">
-      {/* Navigation - Slenderized vertically with py-1 and py-3 */}
-      <nav className={`fixed w-full z-[100] transition-all duration-500 ${isScrolled ? 'bg-white/95 backdrop-blur-xl py-1 shadow-md border-b border-black/5' : 'bg-transparent py-3'}`}>
-        <div className="container mx-auto px-4 lg:px-12 flex justify-between items-center relative">
+    <div className={`min-h-screen bg-[#FAFAFA] ${mobileMenuOpen ? 'overflow-hidden' : ''}`} id="top">
+      
+      {/* Redesigned Mobile Navigation Drawer */}
+      <div className={`drawer-overlay ${mobileMenuOpen ? 'open' : ''}`}>
+        <div className="flex flex-col h-full p-8">
+          <div className="flex justify-between items-center mb-16">
+            <div className="w-12 h-12 bg-white rounded-full p-2">
+              <img src={LOGO_URL} alt="Gradway" className="w-full h-full object-contain" />
+            </div>
+            <button 
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white text-xl"
+            >
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+          </div>
           
-          {/* Pop-out Circular Logo Container */}
+          <nav className="flex flex-col space-y-6">
+            {navLinks.map((link, idx) => (
+              <a 
+                key={link} 
+                href={`#${link.toLowerCase().replace(' ', '')}`} 
+                onClick={() => setMobileMenuOpen(false)}
+                className="nav-link-mobile text-3xl font-bold text-white hover:text-amber-500 transition-colors"
+                style={{ transitionDelay: `${0.1 + idx * 0.05}s` }}
+              >
+                {link}
+              </a>
+            ))}
+          </nav>
+
+          <div className="mt-auto pt-8 border-t border-white/10 text-white/50 space-y-4">
+            <p className="text-xs font-black uppercase tracking-widest text-amber-500">Connect with us</p>
+            <div className="flex space-x-6 text-2xl">
+              <a href="https://wa.me/94775009929" className="hover:text-amber-500 transition-colors"><i className="fa-brands fa-whatsapp"></i></a>
+              <a href="#" className="hover:text-amber-500 transition-colors"><i className="fa-brands fa-facebook"></i></a>
+              <a href="#" className="hover:text-amber-500 transition-colors"><i className="fa-brands fa-instagram"></i></a>
+            </div>
+            <p className="text-[10px] leading-relaxed">Gradway (Pvt) Ltd. Colombo 05, Sri Lanka.<br/>Migration Simplified.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation - Main */}
+      <nav className={`fixed w-full z-[100] transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md py-2 shadow-md' : 'bg-transparent py-4'}`}>
+        <div className="container mx-auto px-4 lg:px-12 flex justify-between items-center h-16">
           <div className="flex items-center">
-            <a href="#top" onClick={(e) => { e.preventDefault(); scrollToTop(); }} className="relative z-[110] block group">
-              <div className={`transition-all duration-500 ease-in-out border-[3px] border-white shadow-2xl rounded-full bg-white flex items-center justify-center
-                ${isScrolled ? 'w-20 h-20 translate-y-4 scale-100' : 'w-14 h-14 translate-y-0 scale-95'}`}>
-                <img 
-                  src={ASSETS.logo} 
-                  alt="Gradway Logo" 
-                  className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
-                />
+            <a href="#top" className="relative z-[110] block">
+              <div className={`transition-all duration-300 ease-in-out bg-white rounded-full flex items-center justify-center overflow-hidden shadow-lg
+                ${isScrolled ? 'w-12 h-12' : 'w-16 h-16 md:w-20 md:h-20'}`}>
+                <img src={LOGO_URL} alt="Gradway" className="w-[85%] h-[85%] object-contain" />
               </div>
             </a>
           </div>
           
-          {/* Slender Nav Menu items */}
-          <div className="hidden lg:flex items-center space-x-7 text-[10px] font-black text-[#1A1F2C]">
-            <a href="#top" onClick={(e) => { e.preventDefault(); scrollToTop(); }} className="hover:text-[#FBBF24] transition-colors uppercase tracking-[0.15em]">Home</a>
-            <a href="#about" className="hover:text-[#FBBF24] transition-colors uppercase tracking-[0.15em]">About Us</a>
-            <a href="#services" className="hover:text-[#FBBF24] transition-colors uppercase tracking-[0.15em]">Services</a>
-            <a href="#destinations" className="hover:text-[#FBBF24] transition-colors uppercase tracking-[0.15em]">Destinations</a>
-            <a href="#stories" className="hover:text-[#FBBF24] transition-colors uppercase tracking-[0.15em]">Stories</a>
-            <a href="#contact" className="hover:text-[#FBBF24] transition-colors uppercase tracking-[0.15em]">Contact</a>
-            
-            <button className="bg-gradient-to-br from-[#FBBF24] to-[#F59E0B] text-white px-5 py-2 rounded-full shadow-lg hover:shadow-amber-200 hover:-translate-y-0.5 transition-all font-black uppercase tracking-widest text-[9px]">
+          <div className="hidden lg:flex items-center space-x-8 text-[11px] font-black text-[#1A1F2C]">
+            {navLinks.map(link => (
+              <a key={link} href={`#${link.toLowerCase().replace(' ', '')}`} className="hover:text-amber-500 transition-colors uppercase tracking-widest relative group">
+                {link}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full"></span>
+              </a>
+            ))}
+            <button className="bg-amber-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-amber-600 transition-all font-black uppercase tracking-widest text-[10px]">
               Assessment
             </button>
           </div>
-          
-          <div className="lg:hidden">
-            <button className="w-10 h-10 flex items-center justify-center text-[#1A1F2C]">
-              <i className="fa-solid fa-bars-staggered text-xl"></i>
-            </button>
+
+          <div className="lg:hidden flex items-center space-x-4">
+             <button onClick={() => setMobileMenuOpen(true)} className="w-10 h-10 flex items-center justify-center bg-white shadow-md rounded-full text-xl text-[#1A1F2C]">
+               <i className="fa-solid fa-bars-staggered"></i>
+             </button>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center pt-32 md:pt-0 overflow-hidden">
-        <div className="absolute top-0 right-0 w-[60%] h-[60%] bg-[#FBBF24]/5 rounded-full blur-[100px] -z-10"></div>
+      {/* Hero Section - Redesigned Mobile Layout */}
+      <section className="relative min-h-[100svh] flex flex-col items-center pt-24 lg:pt-0 lg:flex-row overflow-hidden">
+        {/* Fun Background Pattern */}
+        <div className="absolute inset-0 hero-pattern opacity-10 pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-amber-500/5 rounded-full blur-[100px] -z-10"></div>
         
-        <div className="container mx-auto px-4 lg:px-12 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-24">
-          <div className="lg:w-1/2 text-center lg:text-left z-10">
-            <div className="inline-flex items-center space-x-2 bg-slate-100/80 px-4 py-2 rounded-full mb-8 border border-slate-200">
-               <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
-               <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.2em] text-[#1A1F2C]">Your partner in education.</span>
+        <div className="container mx-auto px-4 lg:px-12 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-20 relative z-10 flex-1 lg:flex-none">
+          <div className="lg:w-1/2 text-center lg:text-left mt-8 md:mt-0">
+            <div className="inline-flex items-center space-x-2 bg-slate-100 px-4 py-2 rounded-full mb-6 border border-slate-200">
+               <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+               <span className="text-[10px] font-black uppercase tracking-widest text-[#1A1F2C]">Your partner in Education</span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.05] mb-8 md:mb-10">
-              <span className="text-[#1A1F2C]">Migration</span> <br />
-              <span className="text-[#FBBF24] inline-block">
-                Simpl
-                <span className={ligatureFClasses}>f</span>
-                <span className={ligatureIClasses}>i</span>
-                ed!!
-              </span>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.05] mb-6">
+              <span className="text-[#1A1F2C] block">Migration</span>
+              <span className="text-amber-500 block">Simplified!!</span>
             </h1>
             
-            <p className="text-base md:text-lg text-slate-600 mb-10 md:mb-12 max-w-xl leading-relaxed font-medium mx-auto lg:mx-0">
-              The Sri Lanka-based partner connecting you to world-class education that fits your profile, budget, and dreams.
+            <p className="text-base md:text-lg text-slate-600 mb-8 max-w-lg mx-auto lg:mx-0 font-medium leading-relaxed">
+              Empowering Sri Lankan students to achieve global academic success with tailored migration strategies and dedicated support.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 md:gap-6">
-              <button 
-                onClick={() => destinationsRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                className="bg-gradient-to-br from-[#FBBF24] to-[#F59E0B] text-white px-10 py-5 rounded-full font-black shadow-xl hover:shadow-amber-200 hover:scale-105 transition-all text-xs uppercase tracking-[0.2em] w-full sm:w-auto"
-              >
-                Start Exploring
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-12 lg:mb-0">
+              <button onClick={() => destinationsRef.current?.scrollIntoView({ behavior: 'smooth' })} className="w-full sm:w-auto bg-[#1A1F2C] text-white px-10 py-4 rounded-full font-black shadow-xl hover:bg-slate-800 transition-all text-[11px] uppercase tracking-widest">
+                Explore Destinations
               </button>
-              
-              <a 
-                href="https://wa.me/94775009929"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[#25D366] text-white px-10 py-5 rounded-full font-black shadow-xl hover:shadow-green-200 hover:scale-105 transition-all text-xs uppercase tracking-[0.2em] w-full sm:w-auto flex items-center justify-center gap-3"
-              >
-                <i className="fa-brands fa-whatsapp text-lg"></i>
-                <span className="font-extrabold">Free Consultation</span>
+              <a href="https://wa.me/94775009929" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-[#25D366] text-white px-10 py-4 rounded-full font-black shadow-xl hover:scale-105 transition-all text-[11px] uppercase tracking-widest flex items-center justify-center gap-2">
+                <i className="fa-brands fa-whatsapp text-xl"></i> Talk to us
               </a>
             </div>
           </div>
 
-          {/* Hero Bubbles */}
-          <div className="lg:w-1/2 relative h-[500px] md:h-[600px] lg:h-[700px] w-full overflow-visible lg:-translate-x-12 mt-12 lg:mt-0">
-            <div className={`${bubbleBaseClass} hero-bubble-center absolute top-1/2 left-1/2 w-[210px] h-[210px] md:w-[230px] md:h-[230px] lg:w-[260px] lg:h-[260px] bg-white/70 backdrop-blur-2xl [border-radius:60%_40%_30%_70%/60%_30%_70%_40%] animate-float-1 z-20 shadow-2xl shadow-black/10`}>
-               <div className="bubble-inner px-4">
-                 <div className="icon-circle w-12 h-12 md:w-14 lg:w-18 bg-amber-100 mb-2 md:mb-3">
-                   <i className="fa-solid fa-user-graduate text-2xl md:text-3xl lg:text-4xl text-amber-600"></i>
-                 </div>
-                 <span className="text-base md:text-xl lg:text-2xl font-black uppercase tracking-tight leading-none text-[#1A1F2C]">Students First <br/>Approach</span>
-               </div>
-            </div>
-
-            <div className={`${bubbleBaseClass} absolute top-[18%] left-[-5%] w-[120px] h-[120px] md:w-[140px] md:h-[140px] lg:w-[160px] lg:h-[160px] bg-[#FBBF24] [border-radius:30%_70%_70%_30%/50%_40%_60%_50%] animate-float-2 z-30 shadow-2xl shadow-amber-500/30`}>
-               <div className="bubble-inner">
-                 <div className="icon-circle w-9 h-9 md:w-11 lg:w-13 bg-white/20 mb-1 md:mb-2">
-                   <i className="fa-solid fa-hotel text-xl md:text-2xl lg:text-3xl text-white"></i>
-                 </div>
-                 <span className="text-xl md:text-3xl lg:text-4xl font-black text-white leading-none">450+</span>
-                 <span className="text-[8px] md:text-[9px] lg:text-[10px] font-bold uppercase tracking-widest text-white/90 mt-0.5">Institutions</span>
-               </div>
-            </div>
-            
-            <div className={`${bubbleBaseClass} absolute top-[10%] right-[0%] w-[125px] h-[125px] md:w-[145px] md:h-[145px] lg:w-[170px] lg:h-[170px] bg-white/90 backdrop-blur-md [border-radius:70%_30%_60%_40%/50%_30%_70%_50%] animate-float-4 z-10 shadow-2xl shadow-black/5`}>
-               <div className="bubble-inner px-2">
-                 <div className="icon-circle w-9 h-9 md:w-11 lg:w-13 bg-blue-50 mb-1 md:mb-2">
-                   <i className="fa-solid fa-book-open text-xl md:text-2xl lg:text-3xl text-blue-500"></i>
-                 </div>
-                 <span className="text-xl md:text-3xl lg:text-4xl font-black text-[#1A1F2C] leading-none">10k+</span>
-                 <span className="text-[8px] md:text-[10px] lg:text-[11px] font-bold uppercase tracking-widest text-slate-400 mt-0.5">Programs</span>
-               </div>
-            </div>
-
-            <div className={`${bubbleBaseClass} absolute bottom-[10%] right-[-10%] w-[120px] h-[120px] md:w-[140px] md:h-[140px] lg:w-[160px] lg:h-[160px] bg-[#0F172A] [border-radius:70%_30%_30%_70%/60%_70%_30%_40%] animate-float-3 z-30 shadow-2xl shadow-black/40`}>
-               <div className="bubble-inner">
-                 <div className="icon-circle w-9 h-9 md:w-11 lg:w-13 bg-white/10 mb-1">
-                   <i className="fa-solid fa-earth-americas text-xl md:text-2xl lg:text-3xl text-white"></i>
-                 </div>
-                 <span className="text-xl md:text-2xl lg:text-4xl font-black text-white leading-none">10+</span>
-                 <span className="text-[8px] md:text-[9px] lg:text-[10px] font-bold uppercase tracking-widest text-white/70 mt-0.5">Countries</span>
-               </div>
-            </div>
-
-            <div className={`${bubbleBaseClass} absolute bottom-[8%] left-[-2%] w-[130px] h-[130px] md:w-[150px] md:h-[150px] lg:w-[170px] lg:h-[170px] bg-[#991B1B] [border-radius:40%_60%_30%_70%/50%_70%_30%_50%] animate-float-2 z-10 shadow-2xl shadow-red-900/30`}>
-               <div className="bubble-inner px-2">
-                 <div className="icon-circle w-9 h-9 md:w-11 lg:w-13 bg-white/20 mb-1 md:mb-2">
-                   <i className="fa-solid fa-list-check text-xl md:text-2xl lg:text-3xl text-white"></i>
-                 </div>
-                 <span className="text-[9px] md:text-[11px] lg:text-[13px] font-black uppercase tracking-tight text-white text-center leading-tight">End-to-end <br/>application <br/>management</span>
-               </div>
-            </div>
-            
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] border border-amber-500/5 rounded-full -z-20 animate-pulse"></div>
-          </div>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section id="about" className="py-24 bg-slate-50">
-        <div className="container mx-auto px-4 lg:px-12">
-          <div className="max-w-4xl mx-auto text-center">
-            <span className="text-amber-500 font-black uppercase tracking-[0.3em] text-xs mb-4 block">About Gradway</span>
-            <h2 className="text-4xl md:text-5xl font-black text-[#1A1F2C] mb-8">Your Sri Lankan Gateway to Global Education</h2>
-            <p className="text-lg text-slate-600 leading-relaxed mb-12">
-              Gradway (Pvt) Ltd is a premier education consultancy based in the heart of Colombo. We specialize in providing tailored pathways for Sri Lankan students to achieve their dreams of studying abroad. With a focus on transparency and student success, we handle everything from profile mapping to visa success.
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {[
-                { label: 'Success Rate', value: '98%' },
-                { label: 'Visa Experts', value: '15+' },
-                { label: 'Scholarships', value: '$1M+' },
-                { label: 'Partner Uni', value: '450+' }
-              ].map((stat, i) => (
-                <div key={i} className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                  <div className="text-2xl md:text-3xl font-black text-[#1A1F2C] mb-1">{stat.value}</div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{stat.label}</div>
+          {/* Hero Bubbles - Clustered Group for Mobile */}
+          <div className="lg:w-1/2 relative h-[380px] md:h-[650px] w-full max-w-[400px] lg:max-w-none mb-12 lg:mb-0 flex items-center justify-center overflow-visible">
+            <div className="relative w-full h-full animate-float-cluster lg:animate-none">
+              
+              {/* 1. Middle Bubble: Students First */}
+              <div className="hero-bubble hero-bubble-center absolute top-1/2 left-1/2 w-[140px] h-[140px] md:w-[260px] md:h-[260px] bg-white/95 backdrop-blur-md [border-radius:60%_40%_30%_70%/60%_30%_70%_40%] animate-float-center z-20">
+                <div className="flex flex-col items-center justify-center">
+                  <span className="text-2xl md:text-4xl mb-1 md:mb-2">❤️</span>
+                  <span className="text-[10px] md:text-xl font-black uppercase tracking-tight text-[#1A1F2C]">Students <br/> First</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Services Section */}
-      <section id="services" className="py-24 bg-white">
-        <div className="container mx-auto px-4 lg:px-12">
-          <div className="text-center mb-16">
-            <span className="text-amber-500 font-black uppercase tracking-[0.3em] text-xs mb-4 block">Our Expertise</span>
-            <h2 className="text-4xl font-black text-[#1A1F2C]">Comprehensive Support</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { title: 'Profile Review', desc: 'Expert analysis of your academic and financial background.', icon: 'fa-user-check' },
-              { title: 'University Mapping', desc: 'Strategic course selection based on your future goals.', icon: 'fa-map-location-dot' },
-              { title: 'Visa Filing', desc: 'Detailed assistance with complex documentation and interviews.', icon: 'fa-passport' }
-            ].map((service, i) => (
-              <div key={i} className="group p-8 bg-slate-50 rounded-[2.5rem] hover:bg-white hover:shadow-2xl hover:shadow-amber-100 transition-all border border-transparent hover:border-amber-100">
-                <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <i className={`fa-solid ${service.icon} text-2xl text-amber-500`}></i>
-                </div>
-                <h3 className="text-xl font-black mb-4 text-[#1A1F2C]">{service.title}</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">{service.desc}</p>
               </div>
-            ))}
+
+              {/* 2. Top Left: 450+ Universities */}
+              <div className="hero-bubble absolute top-[10%] left-[5%] md:top-[10%] md:left-[5%] w-[85px] h-[85px] md:w-[170px] md:h-[170px] bg-amber-400 [border-radius:30%_70%_70%_30%/50%_40%_60%_50%] z-30">
+                <div className="flex flex-col items-center justify-center text-white">
+                  <span className="text-lg md:text-3xl mb-0.5">🏛️</span>
+                  <span className="text-sm md:text-4xl font-black leading-none">450+</span>
+                  <span className="text-[6px] md:text-[10px] font-bold uppercase tracking-widest mt-0.5">Universities</span>
+                </div>
+              </div>
+              
+              {/* 3. Top Right: 10+ Countries */}
+              <div className="hero-bubble absolute top-[5%] right-[5%] md:top-[5%] md:right-[5%] w-[90px] h-[90px] md:w-[180px] md:h-[180px] bg-white [border-radius:50%_50%_20%_80%/30%_60%_40%_70%] z-10 border-slate-100">
+                <div className="flex flex-col items-center justify-center">
+                  <span className="text-lg md:text-3xl mb-0.5">🌍</span>
+                  <span className="text-sm md:text-3xl font-black text-[#1A1F2C] leading-none">10+</span>
+                  <span className="text-[6px] md:text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-0.5">Countries</span>
+                </div>
+              </div>
+
+              {/* 4. Bottom Left: 10k+ Programs */}
+              <div className="hero-bubble absolute bottom-[10%] left-[8%] md:bottom-[8%] md:left-[8%] w-[90px] h-[90px] md:w-[180px] md:h-[180px] bg-indigo-600 [border-radius:40%_60%_50%_50%/70%_30%_60%_40%] z-30">
+                <div className="flex flex-col items-center justify-center text-white">
+                  <span className="text-lg md:text-3xl mb-0.5">📚</span>
+                  <span className="text-sm md:text-3xl font-black leading-none">10k+</span>
+                  <span className="text-[6px] md:text-[10px] font-bold uppercase tracking-widest opacity-80 mt-0.5">Programs</span>
+                </div>
+              </div>
+
+              {/* 5. Bottom Right: Application Management */}
+              <div className="hero-bubble absolute bottom-[10%] right-[2%] md:bottom-[10%] md:right-[0%] w-[95px] h-[95px] md:w-[200px] md:h-[200px] bg-[#1A1F2C] [border-radius:70%_30%_30%_70%/60%_70%_30%_40%] z-30">
+                <div className="flex flex-col items-center justify-center text-white px-2">
+                  <span className="text-lg md:text-3xl mb-0.5">🛫</span>
+                  <span className="text-[6px] md:text-[11px] font-black text-amber-500 uppercase tracking-tighter mb-0.5">Application</span>
+                  <span className="text-[8px] md:text-[18px] font-black text-white leading-tight">Management</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Grouped Destinations Section with Slider */}
-      <section ref={destinationsRef} id="destinations" className="pt-24 pb-32 bg-[#FAFAFA] scroll-mt-24">
-        <div className="container mx-auto px-4 md:px-12">
-          <div className="flex flex-col mb-16">
-            <div className="max-w-2xl text-left">
-               <span className="text-amber-500 font-black uppercase tracking-[0.3em] text-[10px] md:text-xs mb-4 block">Global Opportunities</span>
-               <h2 className="text-4xl md:text-5xl font-black text-[#1A1F2C] leading-tight mb-4">Your World-Class <br/>Destination Awaits</h2>
-            </div>
+      {/* Destinations Section */}
+      <section ref={destinationsRef} id="destinations" className="py-16 bg-white scroll-mt-12">
+        <div className="container mx-auto px-4 lg:px-12">
+          <div className="mb-12 text-center lg:text-left">
+             <span className="text-amber-500 font-black uppercase tracking-widest text-[11px] mb-2 block">Our Destinations</span>
+             <h2 className="text-3xl md:text-4xl font-black text-[#1A1F2C]">Your Future, Globalized</h2>
           </div>
 
-          <div className="space-y-20">
+          <div className="space-y-16">
             {regions.map((region) => (
               <div key={region} className="relative">
-                <div className="flex justify-between items-center mb-10 border-l-4 border-[#1A1F2C] pl-6">
-                  <h3 className="text-2xl md:text-3xl font-black text-[#1A1F2C]">{region}</h3>
-                  <div className="flex items-center space-x-3">
-                    <button 
-                      onClick={() => scrollContainer(region, 'left')}
-                      className="w-10 h-10 md:w-12 md:h-12 border border-slate-200 rounded-full flex items-center justify-center hover:bg-[#1A1F2C] hover:text-white transition-all text-slate-400"
-                    >
-                      <i className="fa-solid fa-chevron-left text-sm"></i>
-                    </button>
-                    <button 
-                      onClick={() => scrollContainer(region, 'right')}
-                      className="w-10 h-10 md:w-12 md:h-12 border border-slate-200 rounded-full flex items-center justify-center hover:bg-[#1A1F2C] hover:text-white transition-all text-slate-400"
-                    >
-                      <i className="fa-solid fa-chevron-right text-sm"></i>
-                    </button>
+                <div className="flex justify-between items-center mb-6 border-l-4 border-amber-500 pl-4">
+                  <h3 className="text-2xl font-black text-[#1A1F2C]">{region}</h3>
+                  <div className="flex gap-2">
+                    <button onClick={() => scrollContainer(region, 'left')} className="w-10 h-10 border border-slate-200 rounded-full flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all"><i className="fa-solid fa-chevron-left text-xs"></i></button>
+                    <button onClick={() => scrollContainer(region, 'right')} className="w-10 h-10 border border-slate-200 rounded-full flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all"><i className="fa-solid fa-chevron-right text-xs"></i></button>
                   </div>
                 </div>
 
                 <div 
                   ref={(el) => { scrollRefs.current[region] = el; }}
-                  className="flex overflow-x-auto scrollbar-hide space-x-6 md:space-x-8 pb-10 px-2 scroll-smooth"
+                  className="flex overflow-x-auto scrollbar-hide space-x-6 pb-6 px-2 snap-x snap-mandatory"
                 >
                   {DESTINATIONS.filter(d => d.region === region).map((dest) => (
-                    <div key={dest.id} className="min-w-[280px] md:min-w-[340px] group relative bg-white rounded-[2.5rem] overflow-hidden p-8 hover:shadow-2xl hover:shadow-amber-100 transition-all duration-500 border border-slate-100 hover:border-amber-100">
-                      <div className="flex justify-between items-start mb-8">
-                         <div className="w-12 h-12 md:w-14 md:h-14 bg-slate-50 rounded-2xl shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i className={`${dest.icon} text-xl md:text-2xl`} style={{ color: dest.color }}></i>
+                    <div key={dest.id} className="min-w-[280px] md:min-w-[360px] snap-center bg-slate-50 rounded-3xl p-8 hover:bg-white hover:shadow-xl transition-all duration-300 border border-transparent hover:border-amber-100">
+                      <div className="flex justify-between items-start mb-6">
+                         <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                            <i className={`${dest.icon} text-2xl`} style={{ color: dest.color }}></i>
                          </div>
-                         <div className="w-10 h-6 md:w-12 md:h-8 rounded-lg shadow-md overflow-hidden border border-slate-100 bg-white p-0.5">
-                            <img src={dest.image} alt={dest.name} className="w-full h-full object-cover rounded-[3px]" />
-                         </div>
+                         <img src={dest.image} alt={dest.name} className="w-10 h-6 object-cover rounded shadow-sm border border-white" />
                       </div>
-                      <h3 className="text-xl md:text-2xl font-black mb-3 text-[#1A1F2C]">{dest.name}</h3>
-                      <p className="text-slate-500 text-xs md:text-sm leading-relaxed mb-10 min-h-[3.5rem]">
-                        {dest.description}
-                      </p>
-                      <div className="flex items-center gap-2 text-[#1A1F2C] font-black text-[10px] uppercase tracking-[0.25em] group-hover:text-amber-500 transition-colors">
-                        <span>Explore Unis</span>
-                        <i className="fa-solid fa-arrow-right translate-x-0 group-hover:translate-x-2 transition-transform"></i>
-                      </div>
+                      <h3 className="text-xl font-black text-[#1A1F2C] mb-3">{dest.name}</h3>
+                      <p className="text-slate-500 text-sm leading-relaxed mb-6">{dest.description}</p>
+                      <button className="text-[10px] font-black uppercase tracking-widest text-amber-600 flex items-center gap-2">
+                         Learn More <i className="fa-solid fa-arrow-right"></i>
+                      </button>
                     </div>
                   ))}
                 </div>
               </div>
             ))}
           </div>
-
-          <div className="mt-24 text-center">
-            <button 
-              onClick={() => setAllVisible(!allVisible)}
-              className="px-12 py-5 bg-[#1A1F2C] text-white rounded-full font-black text-xs uppercase tracking-[0.3em] hover:bg-amber-500 transition-all flex items-center gap-4 mx-auto shadow-2xl"
-            >
-              <span>{allVisible ? 'Show Less' : 'View All Destinations'}</span>
-              <i className={`fa-solid ${allVisible ? 'fa-minus' : 'fa-arrow-right-long'}`}></i>
-            </button>
-          </div>
         </div>
       </section>
 
-      {/* Stories Section */}
-      <section id="stories" className="py-24 bg-white">
+      {/* Services Section */}
+      <section id="services" className="py-16 bg-slate-50 scroll-mt-12">
         <div className="container mx-auto px-4 lg:px-12 text-center">
-          <span className="text-amber-500 font-black uppercase tracking-[0.3em] text-xs mb-4 block">Success Stories</span>
-          <h2 className="text-4xl font-black text-[#1A1F2C] mb-16">See where our students are now</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="bg-slate-50 p-8 rounded-[3rem] text-left border border-slate-100">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-14 h-14 bg-slate-200 rounded-full overflow-hidden">
-                    <img src={`https://i.pravatar.cc/150?u=${i}`} alt="Student" />
-                  </div>
-                  <div>
-                    <h4 className="font-black text-[#1A1F2C]">Student Name</h4>
-                    <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">University of Warwick, UK</p>
-                  </div>
+          <h2 className="text-3xl font-black text-[#1A1F2C] mb-12 uppercase tracking-widest">Our Services</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { title: 'Profile Analysis', icon: 'fa-user-graduate', desc: 'Holistic evaluation of your credentials to find the best match.' },
+              { title: 'University Selection', icon: 'fa-building-columns', desc: 'Precise matching with globally recognized partner universities.' },
+              { title: 'Visa Consultancy', icon: 'fa-passport', desc: 'Flawless documentation and mock sessions for visa success.' }
+            ].map((s, i) => (
+              <div key={i} className="bg-white p-10 rounded-3xl shadow-sm hover:shadow-lg transition-all border border-slate-100">
+                <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <i className={`fa-solid ${s.icon} text-2xl text-amber-500`}></i>
                 </div>
-                <p className="text-slate-500 text-sm italic leading-relaxed">
-                  "The support I received from Gradway was exceptional. They guided me through every step of the visa process with such patience."
-                </p>
+                <h3 className="text-xl font-black text-[#1A1F2C] mb-4">{s.title}</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Talk to a counsellor / Contact Section */}
-      <section id="contact" className="relative py-24 md:py-32 bg-gradient-to-br from-[#7799FF] via-[#88AAFF] to-[#DDAAFF] overflow-hidden">
-         <div className="container mx-auto px-4 text-center text-white relative z-10">
-            <h2 className="text-4xl md:text-7xl font-bold mb-6 drop-shadow-sm">Talk to a counsellor</h2>
-            <p className="text-lg md:text-xl font-medium opacity-90 mb-16">Tell us your story and we will sketch realistic routes together</p>
-
-            <div className="flex flex-col items-center mb-24">
-               <a 
-                 href="https://wa.me/94775009929"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 className="bg-white/20 backdrop-blur-md px-12 py-5 rounded-full flex items-center space-x-4 border border-white/30 hover:bg-white/30 transition-all shadow-2xl group"
-               >
-                 <i className="fa-brands fa-whatsapp text-2xl text-green-300"></i>
-                 <span className="text-xl font-bold text-white">Chat on <span className="text-green-300">WhatsApp</span></span>
-                 <i className="fa-solid fa-arrow-right text-sm group-hover:translate-x-1 transition-transform"></i>
-               </a>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-16 max-w-4xl mx-auto text-white">
-               <div className="relative">
-                  <button 
-                    onClick={() => setShowPhoneOptions(!showPhoneOptions)}
-                    className="group flex flex-col items-center"
-                  >
-                    <div className="flex items-center space-x-3 mb-4">
-                       <i className="fa-solid fa-phone text-lg"></i>
-                       <span className="text-lg font-bold uppercase tracking-wider">Call Us</span>
-                    </div>
-                    <span className="text-xl font-medium group-hover:text-amber-200 transition-colors">+94 77 500 9929</span>
-                  </button>
-                  
-                  {showPhoneOptions && (
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-6 w-56 bg-white rounded-3xl p-2 shadow-2xl border border-blue-100 z-50">
-                       <a href="tel:+94775009929" className="flex items-center space-x-4 p-4 hover:bg-slate-50 rounded-2xl transition-colors">
-                          <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
-                             <i className="fa-solid fa-phone"></i>
-                          </div>
-                          <span className="text-slate-800 font-bold text-sm">Call Now</span>
-                       </a>
-                       <a href="https://wa.me/94775009929" className="flex items-center space-x-4 p-4 hover:bg-green-50 rounded-2xl transition-colors">
-                          <div className="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center">
-                             <i className="fa-brands fa-whatsapp"></i>
-                          </div>
-                          <span className="text-slate-800 font-bold text-sm">WhatsApp</span>
-                       </a>
-                    </div>
-                  )}
-               </div>
-
-               <div className="flex flex-col items-center border-l-0 md:border-l border-white/20">
-                  <div className="flex items-center space-x-3 mb-4">
-                     <i className="fa-solid fa-envelope text-lg"></i>
-                     <span className="text-lg font-bold uppercase tracking-wider">Email Us</span>
-                  </div>
-                  <a href="mailto:info@gradwayedu.com" className="text-xl font-medium hover:text-amber-200 transition-colors">info@gradwayedu.com</a>
-               </div>
-            </div>
-
-            <div className="mt-20 flex flex-col items-center opacity-80">
-               <span className="text-xs font-bold uppercase tracking-[0.3em] mb-3">Working hours:</span>
-               <p className="text-sm font-semibold tracking-wide uppercase">
-                 Mon – Fri: 9.00 AM – 5.00 PM, Sat: 9.00 AM – 2.00 PM
-               </p>
-            </div>
-         </div>
+      {/* Contact Section */}
+      <section id="contact" className="py-20 bg-[#1A1F2C] text-white scroll-mt-12 relative overflow-hidden">
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <h2 className="text-4xl md:text-5xl font-black mb-12 leading-tight">Your Journey Begins Now</h2>
+          <div className="flex flex-col md:flex-row justify-center items-center gap-10">
+             <a href="tel:+94775009929" className="flex flex-col items-center group">
+                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-amber-500 group-hover:text-slate-900 transition-all"><i className="fa-solid fa-phone text-2xl"></i></div>
+                <span className="font-bold text-xl">+94 77 500 9929</span>
+             </a>
+             <a href="mailto:info@gradwayedu.com" className="flex flex-col items-center group">
+                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-amber-500 group-hover:text-slate-900 transition-all"><i className="fa-solid fa-envelope text-2xl"></i></div>
+                <span className="font-bold text-xl">info@gradwayedu.com</span>
+             </a>
+          </div>
+        </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#1A1F2C] text-white py-24">
-        <div className="container mx-auto px-4 lg:px-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-16 mb-20">
-             <div className="sm:col-span-2">
-                <div className="flex items-center space-x-3 mb-8">
-                  <div className="h-14 w-auto flex items-center justify-center">
-                     <img src={ASSETS.logo} alt="Gradway Logo" className="h-full w-auto object-contain invert" />
-                  </div>
-                </div>
-                <p className="text-slate-400 max-w-sm mb-10 leading-relaxed text-lg">
-                  Simplifying global migration and education for Sri Lankan students. Honesty is our only policy.
-                </p>
-                <div className="flex space-x-6">
-                   {['facebook-f', 'instagram', 'linkedin-in', 'whatsapp'].map(social => (
-                     <a key={social} href="#" className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-amber-400 hover:text-[#1A1F2C] hover:border-amber-400 transition-all">
-                       <i className={`fa-brands fa-${social}`}></i>
-                     </a>
-                   ))}
-                </div>
-             </div>
-             <div>
-                <h4 className="font-black uppercase tracking-widest text-amber-400 mb-8 text-xs">Destinations</h4>
-                <ul className="space-y-4 text-slate-400 font-medium">
-                   <li><a href="#destinations" className="hover:text-white transition-colors text-sm">UK</a></li>
-                   <li><a href="#destinations" className="hover:text-white transition-colors text-sm">Australia</a></li>
-                   <li><a href="#destinations" className="hover:text-white transition-colors text-sm">Canada</a></li>
-                   <li><a href="#destinations" className="hover:text-white transition-colors text-sm">Germany</a></li>
-                </ul>
-             </div>
-             <div>
-                <h4 className="font-black uppercase tracking-widest text-amber-400 mb-8 text-xs">Gradway</h4>
-                <ul className="space-y-4 text-slate-400 font-medium text-sm">
-                   <li><a href="#about" className="hover:text-white transition-colors">About Us</a></li>
-                   <li><a href="#services" className="hover:text-white transition-colors">Services</a></li>
-                   <li><a href="#contact" className="hover:text-white transition-colors">Contact</a></li>
-                </ul>
-             </div>
-          </div>
-          <div className="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-             <p>© {new Date().getFullYear()} GradWay (Pvt) Ltd. All Rights Reserved.</p>
-             <p className="mt-4 md:mt-0">Sri Lanka</p>
-          </div>
+      <footer className="bg-black py-12 text-center text-slate-500">
+        <div className="container mx-auto px-4">
+           <div className="w-16 h-16 bg-white rounded-full p-3 mx-auto mb-6 shadow-lg">
+              <img src={LOGO_URL} alt="Logo" className="w-full h-full object-contain" />
+           </div>
+           <p className="text-[10px] font-black uppercase tracking-widest mb-4">© {new Date().getFullYear()} GradWay (Pvt) Ltd. Colombo 05, Sri Lanka.</p>
+           <p className="text-[8px] font-bold">Migration Simplified</p>
         </div>
       </footer>
 
-      {/* AI Chat Widget */}
-      <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-[150]">
+      {/* AI Bot Integration */}
+      <div className="fixed bottom-6 right-6 z-[150]">
         {!chatOpen ? (
-          <button 
-            onClick={() => setChatOpen(true)}
-            className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-[#FBBF24] to-[#F59E0B] rounded-full shadow-2xl flex items-center justify-center text-white text-xl md:text-2xl hover:scale-110 transition-transform"
-          >
-            <i className="fa-solid fa-comment-dots"></i>
+          <button onClick={() => setChatOpen(true)} className="w-14 h-14 bg-amber-500 rounded-full shadow-lg flex items-center justify-center text-[#1A1F2C] text-2xl hover:scale-110 transition-all">
+            <i className="fa-solid fa-headset"></i>
           </button>
         ) : (
-          <div className="bg-white w-[320px] md:w-[350px] h-[500px] md:h-[550px] rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col border border-slate-100 transition-all duration-300">
-            <div className="bg-[#1A1F2C] p-6 md:p-8 text-white flex justify-between items-center">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-amber-400 rounded-full flex items-center justify-center text-[#1A1F2C]">
-                  <i className="fa-solid fa-robot"></i>
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm md:text-base leading-none">GradBot</h4>
-                  <span className="text-[8px] md:text-[10px] opacity-60 font-black uppercase tracking-wider">Online Assistant</span>
-                </div>
-              </div>
-              <button onClick={() => setChatOpen(false)} className="hover:rotate-90 transition-transform text-white/50 hover:text-white">
-                <i className="fa-solid fa-xmark text-xl"></i>
-              </button>
+          <div className="bg-white w-[320px] h-[480px] rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-slate-100 animate-[fadeIn_0.3s_ease-out]">
+            <div className="bg-[#1A1F2C] p-6 text-white flex justify-between items-center">
+              <span className="font-black text-xs uppercase tracking-widest">GradBot AI</span>
+              <button onClick={() => setChatOpen(false)}><i className="fa-solid fa-xmark"></i></button>
             </div>
-            
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 bg-slate-50/50">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 text-sm bg-slate-50">
                {chatHistory.length === 0 && (
-                 <div className="text-center mt-12 space-y-4">
-                    <div className="w-12 h-12 md:w-16 md:h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto text-amber-600 text-xl md:text-2xl">
-                      <i className="fa-solid fa-graduation-cap"></i>
-                    </div>
-                    <p className="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-widest px-4 leading-relaxed">How can I help you today?</p>
-                 </div>
+                 <p className="text-slate-500 text-center mt-8 italic text-xs">"Hi! Ask me anything about studying abroad!"</p>
                )}
-               {chatHistory.map((chat, i) => (
-                 <div key={i} className={`flex ${chat.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] p-3 md:p-4 rounded-2xl text-xs md:text-sm shadow-sm ${chat.role === 'user' ? 'bg-[#1A1F2C] text-white rounded-br-none' : 'bg-white text-slate-700 rounded-bl-none border border-slate-100'}`}>
-                      {chat.text}
-                    </div>
+               {chatHistory.map((c, i) => (
+                 <div key={i} className={`p-4 rounded-2xl ${c.role === 'user' ? 'bg-[#1A1F2C] text-white ml-8 rounded-br-none' : 'bg-white border border-slate-200 mr-8 rounded-bl-none shadow-sm'}`}>
+                   {c.text}
                  </div>
                ))}
-               {isTyping && (
-                 <div className="flex justify-start">
-                    <div className="bg-white p-3 rounded-2xl rounded-bl-none border border-slate-100 shadow-sm flex space-x-1">
-                       <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-bounce"></div>
-                       <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                       <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
-                    </div>
-                 </div>
-               )}
+               {isTyping && <div className="text-amber-500 font-black text-[10px] animate-pulse">GradBot is thinking...</div>}
             </div>
-
-            <form onSubmit={handleChatSubmit} className="p-4 md:p-6 bg-white border-t border-slate-100 flex items-center space-x-2">
-               <input 
-                 type="text" 
-                 value={chatMessage}
-                 onChange={(e) => setChatMessage(e.target.value)}
-                 placeholder="Type your question..."
-                 className="flex-1 bg-slate-100 border-0 rounded-full py-2 md:py-3 px-4 md:px-6 text-xs md:text-sm focus:ring-2 focus:ring-amber-400 outline-none"
-               />
-               <button type="submit" className="w-10 h-10 md:w-12 md:h-12 bg-amber-400 text-[#1A1F2C] rounded-full flex items-center justify-center shadow-lg hover:bg-amber-500 transition-colors">
-                 <i className="fa-solid fa-paper-plane text-xs"></i>
-               </button>
+            <form onSubmit={handleChatSubmit} className="p-4 bg-white border-t flex gap-2">
+               <input type="text" value={chatMessage} onChange={e => setChatMessage(e.target.value)} placeholder="Type a message..." className="flex-1 bg-slate-100 border-0 rounded-full px-4 text-xs py-3 outline-none" />
+               <button type="submit" className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-white"><i className="fa-solid fa-paper-plane text-sm"></i></button>
             </form>
           </div>
         )}
