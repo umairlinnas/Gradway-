@@ -12,6 +12,24 @@ export const DESTINATIONS: Destination[] = [
     image: 'https://flagcdn.com/w160/gb.png'
   },
   {
+    id: 'australia',
+    name: 'Australia',
+    description: 'High quality of life, career focused courses and modern campuses',
+    color: '#8B5CF6',
+    icon: 'fa-solid fa-sun',
+    bgClass: 'bg-purple-50',
+    image: 'https://flagcdn.com/w160/au.png'
+  },
+  {
+    id: 'france',
+    name: 'France',
+    description: 'World-class education in the heart of Europe with rich cultural heritage',
+    color: '#1D4ED8',
+    icon: 'fa-solid fa-archway',
+    bgClass: 'bg-blue-50',
+    image: 'https://flagcdn.com/w160/fr.png'
+  },
+  {
     id: 'germany',
     name: 'Germany',
     description: 'Engineering, technology and applied sciences with strong practical focus and low tuition options',
@@ -30,15 +48,6 @@ export const DESTINATIONS: Destination[] = [
     image: 'https://flagcdn.com/w160/ca.png'
   },
   {
-    id: 'australia',
-    name: 'Australia',
-    description: 'High quality of life, career focused courses and modern campuses',
-    color: '#8B5CF6',
-    icon: 'fa-solid fa-sun',
-    bgClass: 'bg-purple-50',
-    image: 'https://flagcdn.com/w160/au.png'
-  },
-  {
     id: 'ireland',
     name: 'Ireland',
     description: 'A tech and finance hub of Europe with close links to global companies',
@@ -55,6 +64,24 @@ export const DESTINATIONS: Destination[] = [
     icon: 'fa-solid fa-mountain',
     bgClass: 'bg-sky-50',
     image: 'https://flagcdn.com/w160/nz.png'
+  },
+  {
+    id: 'switzerland',
+    name: 'Switzerland',
+    description: 'Global excellence in hospitality, business, and finance education',
+    color: '#DC2626',
+    icon: 'fa-solid fa-mountain-sun',
+    bgClass: 'bg-red-50',
+    image: 'https://flagcdn.com/w160/ch.png'
+  },
+  {
+    id: 'malta',
+    name: 'Malta',
+    description: 'Affordable English-taught programs in a Mediterranean island setting',
+    color: '#64748B',
+    icon: 'fa-solid fa-anchor',
+    bgClass: 'bg-slate-50',
+    image: 'https://flagcdn.com/w160/mt.png'
   },
   {
     id: 'uae',
@@ -82,6 +109,15 @@ export const DESTINATIONS: Destination[] = [
     icon: 'fa-solid fa-school',
     bgClass: 'bg-indigo-50',
     image: 'https://flagcdn.com/w160/my.png'
+  },
+  {
+    id: 'south-korea',
+    name: 'South Korea',
+    description: 'Cutting-edge technology and high-ranking research universities',
+    color: '#000000',
+    icon: 'fa-solid fa-landmark-dome',
+    bgClass: 'bg-gray-50',
+    image: 'https://flagcdn.com/w160/kr.png'
   }
 ];
 
