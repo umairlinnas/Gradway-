@@ -1,27 +1,63 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { DESTINATIONS } from './constants';
+import { DESTINATIONS, SERVICES, SUCCESS_STORIES } from './constants';
 import { getGeminiResponse } from './services/geminiService';
+import { GlowingEffect } from './components/ui/glowing-effect';
+import { ScrollNavigation } from './components/ui/scroll-navigation-menu';
 
 const LOGO_URL = "https://i.ibb.co/3ykG4SjV/logo.png";
 
+const SectionBadge: React.FC<{ text: string; lightVariant?: boolean; amberOutline?: boolean }> = ({ text, lightVariant, amberOutline }) => (
+  <div className={`inline-flex items-center space-x-2 px-4 py-2 rounded-full mb-6 border ${
+    lightVariant 
+      ? 'bg-white/10 border-white/10' 
+      : amberOutline 
+        ? 'bg-amber-100 border-amber-200' 
+        : 'bg-slate-100 border-slate-200'
+  }`}>
+    <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+    <span className={`text-[10px] font-black uppercase tracking-widest ${
+      lightVariant 
+        ? 'text-white' 
+        : amberOutline 
+          ? 'text-amber-600' 
+          : 'text-[#1A1F2C]'
+    }`}>{text}</span>
+  </div>
+);
+
+const LegalModal: React.FC<{ isOpen: boolean; onClose: () => void; title: string; content: React.ReactNode }> = ({ isOpen, onClose, title, content }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
+      <div className="bg-white w-full max-w-2xl max-h-[80vh] rounded-[2.5rem] overflow-hidden flex flex-col shadow-2xl">
+        <div className="p-8 border-b flex justify-between items-center bg-slate-50">
+          <h3 className="text-xl font-black text-[#1A1F2C] uppercase tracking-tight">{title}</h3>
+          <button onClick={onClose} className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
+            <i className="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div className="p-8 overflow-y-auto text-slate-600 text-sm leading-relaxed space-y-4 font-medium">
+          {content}
+        </div>
+        <div className="p-6 border-t bg-slate-50 text-center">
+          <button onClick={onClose} className="bg-[#1A1F2C] text-white px-8 py-3 rounded-full font-black uppercase tracking-widest text-[10px]">Close Document</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const App: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMessage, setChatMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'bot'; text: string }[]>([]);
   const [isTyping, setIsTyping] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [policyModalOpen, setPolicyModalOpen] = useState(false);
+  const [termsModalOpen, setTermsModalOpen] = useState(false);
 
   const destinationsRef = useRef<HTMLDivElement>(null);
   const scrollRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +71,11 @@ const App: React.FC = () => {
     setIsTyping(false);
   };
 
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormSubmitted(true);
+  };
+
   const scrollContainer = (region: string, direction: 'left' | 'right') => {
     const container = scrollRefs.current[region];
     if (container) {
@@ -44,108 +85,33 @@ const App: React.FC = () => {
   };
 
   const regions = ['Europe', 'Americas & Pacific', 'Asia & Other'];
-  const navLinks = ['Home', 'About Us', 'Services', 'Destinations', 'Stories', 'Contact'];
 
   return (
-    <div className={`min-h-screen bg-[#FAFAFA] ${mobileMenuOpen ? 'overflow-hidden' : ''}`} id="top">
+    <div className="min-h-screen bg-[#FAFAFA]" id="top">
       
-      {/* Redesigned Mobile Navigation Drawer */}
-      <div className={`drawer-overlay ${mobileMenuOpen ? 'open' : ''}`}>
-        <div className="flex flex-col h-full p-8">
-          <div className="flex justify-between items-center mb-16">
-            <div className="w-12 h-12 bg-white rounded-full p-2">
-              <img src={LOGO_URL} alt="Gradway" className="w-full h-full object-contain" />
-            </div>
-            <button 
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white text-xl"
-            >
-              <i className="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-          
-          <nav className="flex flex-col space-y-6">
-            {navLinks.map((link, idx) => (
-              <a 
-                key={link} 
-                href={`#${link.toLowerCase().replace(' ', '')}`} 
-                onClick={() => setMobileMenuOpen(false)}
-                className="nav-link-mobile text-3xl font-bold text-white hover:text-amber-500 transition-colors"
-                style={{ transitionDelay: `${0.1 + idx * 0.05}s` }}
-              >
-                {link}
-              </a>
-            ))}
-          </nav>
+      {/* New Navigation System from Prompt */}
+      <ScrollNavigation logoUrl={LOGO_URL} />
 
-          <div className="mt-auto pt-8 border-t border-white/10 text-white/50 space-y-4">
-            <p className="text-xs font-black uppercase tracking-widest text-amber-500">Connect with us</p>
-            <div className="flex space-x-6 text-2xl">
-              <a href="https://wa.me/94775009929" className="hover:text-amber-500 transition-colors"><i className="fa-brands fa-whatsapp"></i></a>
-              <a href="#" className="hover:text-amber-500 transition-colors"><i className="fa-brands fa-facebook"></i></a>
-              <a href="#" className="hover:text-amber-500 transition-colors"><i className="fa-brands fa-instagram"></i></a>
-            </div>
-            <p className="text-[10px] leading-relaxed">Gradway (Pvt) Ltd. Colombo 05, Sri Lanka.<br/>Migration Simplified.</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation - Main */}
-      <nav className={`fixed w-full z-[100] transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md py-2 shadow-md' : 'bg-transparent py-4'}`}>
-        <div className="container mx-auto px-4 lg:px-12 flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <a href="#top" className="relative z-[110] block">
-              <div className={`transition-all duration-300 ease-in-out bg-white rounded-full flex items-center justify-center overflow-hidden shadow-lg
-                ${isScrolled ? 'w-12 h-12' : 'w-16 h-16 md:w-20 md:h-20'}`}>
-                <img src={LOGO_URL} alt="Gradway" className="w-[85%] h-[85%] object-contain" />
-              </div>
-            </a>
-          </div>
-          
-          <div className="hidden lg:flex items-center space-x-8 text-[11px] font-black text-[#1A1F2C]">
-            {navLinks.map(link => (
-              <a key={link} href={`#${link.toLowerCase().replace(' ', '')}`} className="hover:text-amber-500 transition-colors uppercase tracking-widest relative group">
-                {link}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-amber-500 transition-all group-hover:w-full"></span>
-              </a>
-            ))}
-            <button className="bg-amber-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-amber-600 transition-all font-black uppercase tracking-widest text-[10px]">
-              Assessment
-            </button>
-          </div>
-
-          <div className="lg:hidden flex items-center space-x-4">
-             <button onClick={() => setMobileMenuOpen(true)} className="w-10 h-10 flex items-center justify-center bg-white shadow-md rounded-full text-xl text-[#1A1F2C]">
-               <i className="fa-solid fa-bars-staggered"></i>
-             </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section - Redesigned Mobile Layout */}
-      <section className="relative min-h-[100svh] flex flex-col items-center pt-24 lg:pt-0 lg:flex-row overflow-hidden">
-        {/* Fun Background Pattern */}
+      {/* Hero Section */}
+      <section id="home" className="relative min-h-[100svh] flex flex-col items-center pt-32 lg:pt-0 lg:flex-row overflow-hidden">
         <div className="absolute inset-0 hero-pattern opacity-10 pointer-events-none"></div>
         <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-amber-500/5 rounded-full blur-[100px] -z-10"></div>
         
         <div className="container mx-auto px-4 lg:px-12 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-20 relative z-10 flex-1 lg:flex-none">
           <div className="lg:w-1/2 text-center lg:text-left mt-8 md:mt-0">
-            <div className="inline-flex items-center space-x-2 bg-slate-100 px-4 py-2 rounded-full mb-6 border border-slate-200">
-               <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
-               <span className="text-[10px] font-black uppercase tracking-widest text-[#1A1F2C]">Your partner in Education</span>
-            </div>
-            
+            <SectionBadge text="Your partner in Education" />
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-[1.05] mb-6">
               <span className="text-[#1A1F2C] block">Migration</span>
               <span className="text-amber-500 block">Simplified!!</span>
             </h1>
-            
             <p className="text-base md:text-lg text-slate-600 mb-8 max-w-lg mx-auto lg:mx-0 font-medium leading-relaxed">
-              Empowering Sri Lankan students to achieve global academic success with tailored migration strategies and dedicated support.
+              Empowering students to achieve global academic success with tailored migration strategies and dedicated support.
             </p>
-            
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-12 lg:mb-0">
-              <button onClick={() => destinationsRef.current?.scrollIntoView({ behavior: 'smooth' })} className="w-full sm:w-auto bg-[#1A1F2C] text-white px-10 py-4 rounded-full font-black shadow-xl hover:bg-slate-800 transition-all text-[11px] uppercase tracking-widest">
+              <button 
+                onClick={() => destinationsRef.current?.scrollIntoView({ behavior: 'smooth' })} 
+                className="w-full sm:w-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-white px-10 py-4 rounded-full font-black shadow-xl shadow-amber-200/50 hover:from-yellow-400 hover:to-amber-600 hover:scale-105 active:scale-95 transition-all text-[11px] uppercase tracking-widest"
+              >
                 Explore Destinations
               </button>
               <a href="https://wa.me/94775009929" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-[#25D366] text-white px-10 py-4 rounded-full font-black shadow-xl hover:scale-105 transition-all text-[11px] uppercase tracking-widest flex items-center justify-center gap-2">
@@ -154,51 +120,40 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Hero Bubbles - Clustered Group for Mobile */}
           <div className="lg:w-1/2 relative h-[380px] md:h-[650px] w-full max-w-[400px] lg:max-w-none mb-12 lg:mb-0 flex items-center justify-center overflow-visible">
-            <div className="relative w-full h-full animate-float-cluster lg:animate-none">
-              
-              {/* 1. Middle Bubble: Students First */}
+            <div className="relative w-full h-full">
               <div className="hero-bubble hero-bubble-center absolute top-1/2 left-1/2 w-[140px] h-[140px] md:w-[260px] md:h-[260px] bg-white/95 backdrop-blur-md [border-radius:60%_40%_30%_70%/60%_30%_70%_40%] animate-float-center z-20">
                 <div className="flex flex-col items-center justify-center">
                   <span className="text-2xl md:text-4xl mb-1 md:mb-2">❤️</span>
                   <span className="text-[10px] md:text-xl font-black uppercase tracking-tight text-[#1A1F2C]">Students <br/> First</span>
                 </div>
               </div>
-
-              {/* 2. Top Left: 450+ Universities */}
-              <div className="hero-bubble absolute top-[10%] left-[5%] md:top-[10%] md:left-[5%] w-[85px] h-[85px] md:w-[170px] md:h-[170px] bg-amber-400 [border-radius:30%_70%_70%_30%/50%_40%_60%_50%] z-30">
+              <div className="hero-bubble absolute top-[15%] left-[10%] md:top-[10%] md:left-[5%] w-[85px] h-[85px] md:w-[170px] md:h-[170px] bg-amber-400 [border-radius:30%_70%_70%_30%/50%_40%_60%_50%] z-30 animate-float-tl">
                 <div className="flex flex-col items-center justify-center text-white">
                   <span className="text-lg md:text-3xl mb-0.5">🏛️</span>
                   <span className="text-sm md:text-4xl font-black leading-none">450+</span>
                   <span className="text-[6px] md:text-[10px] font-bold uppercase tracking-widest mt-0.5">Universities</span>
                 </div>
               </div>
-              
-              {/* 3. Top Right: 10+ Countries */}
-              <div className="hero-bubble absolute top-[5%] right-[5%] md:top-[5%] md:right-[5%] w-[90px] h-[90px] md:w-[180px] md:h-[180px] bg-white [border-radius:50%_50%_20%_80%/30%_60%_40%_70%] z-10 border-slate-100">
+              <div className="hero-bubble absolute top-[12%] right-[10%] md:top-[5%] md:right-[5%] w-[90px] h-[90px] md:w-[180px] md:h-[180px] bg-white [border-radius:50%_50%_20%_80%/30%_60%_40%_70%] z-10 border-slate-100 animate-float-tr">
                 <div className="flex flex-col items-center justify-center">
                   <span className="text-lg md:text-3xl mb-0.5">🌍</span>
                   <span className="text-sm md:text-3xl font-black text-[#1A1F2C] leading-none">10+</span>
                   <span className="text-[6px] md:text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-0.5">Countries</span>
                 </div>
               </div>
-
-              {/* 4. Bottom Left: 10k+ Programs */}
-              <div className="hero-bubble absolute bottom-[10%] left-[8%] md:bottom-[8%] md:left-[8%] w-[90px] h-[90px] md:w-[180px] md:h-[180px] bg-indigo-600 [border-radius:40%_60%_50%_50%/70%_30%_60%_40%] z-30">
+              <div className="hero-bubble absolute bottom-[15%] left-[12%] md:bottom-[8%] md:left-[8%] w-[90px] h-[90px] md:w-[180px] md:h-[180px] bg-indigo-600 [border-radius:40%_60%_50%_50%/70%_30%_60%_40%] z-30 animate-float-bl">
                 <div className="flex flex-col items-center justify-center text-white">
                   <span className="text-lg md:text-3xl mb-0.5">📚</span>
                   <span className="text-sm md:text-3xl font-black leading-none">10k+</span>
                   <span className="text-[6px] md:text-[10px] font-bold uppercase tracking-widest opacity-80 mt-0.5">Programs</span>
                 </div>
               </div>
-
-              {/* 5. Bottom Right: Application Management */}
-              <div className="hero-bubble absolute bottom-[10%] right-[2%] md:bottom-[10%] md:right-[0%] w-[95px] h-[95px] md:w-[200px] md:h-[200px] bg-[#1A1F2C] [border-radius:70%_30%_30%_70%/60%_70%_30%_40%] z-30">
-                <div className="flex flex-col items-center justify-center text-white px-2">
+              <div className="hero-bubble absolute bottom-[15%] right-[8%] md:bottom-[10%] md:right-[0%] w-[95px] h-[95px] md:w-[200px] md:h-[200px] bg-[#1A1F2C] [border-radius:70%_30%_30%_70%/60%_70%_30%_40%] z-30 animate-float-br">
+                <div className="flex flex-col items-center justify-center text-white px-4 text-center">
                   <span className="text-lg md:text-3xl mb-0.5">🛫</span>
-                  <span className="text-[6px] md:text-[11px] font-black text-amber-500 uppercase tracking-tighter mb-0.5">Application</span>
-                  <span className="text-[8px] md:text-[18px] font-black text-white leading-tight">Management</span>
+                  <span className="text-[6px] md:text-[11px] font-black text-amber-500 uppercase tracking-tighter mb-0.5 leading-tight">End to End Application</span>
+                  <span className="text-[8px] md:text-[18px] font-black text-white leading-tight">management</span>
                 </div>
               </div>
             </div>
@@ -206,14 +161,75 @@ const App: React.FC = () => {
         </div>
       </section>
 
+      {/* About Us Section */}
+      <section id="aboutus" className="py-24 bg-white relative overflow-hidden scroll-mt-24">
+        <div className="container mx-auto px-4 lg:px-12 relative z-10">
+          <div className="flex flex-col lg:flex-row items-center gap-16">
+            <div className="lg:w-1/2">
+              <div className="relative">
+                <div className="absolute -top-10 -left-10 w-40 h-40 bg-amber-100 rounded-full blur-[60px] opacity-60"></div>
+                <img 
+                  src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop" 
+                  alt="About Gradway" 
+                  className="rounded-[2.5rem] shadow-2xl relative z-10 border-8 border-white"
+                />
+              </div>
+            </div>
+            <div className="lg:w-1/2">
+              <SectionBadge text="Our Story" />
+              <h2 className="text-4xl md:text-5xl font-black text-[#1A1F2C] mb-8 leading-tight">Empowering Global Dreams from Sri Lanka.</h2>
+              <p className="text-slate-600 text-lg leading-relaxed mb-12 font-medium">
+                Gradway (Pvt) Ltd is a premier education consultancy based in the heart of Colombo. We bridge the gap between ambitious students and world-class international education providers.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                   <div className="w-12 h-12 bg-amber-500 text-white rounded-xl flex items-center justify-center mb-6 shadow-lg shadow-amber-200 group-hover:scale-110 transition-transform">
+                      <i className="fa-solid fa-bullseye-arrow text-xl"></i>
+                   </div>
+                   <h4 className="font-black text-[#1A1F2C] mb-4 uppercase text-xs tracking-[0.2em]">Our Mission</h4>
+                   <p className="text-sm text-slate-500 leading-relaxed font-medium italic">"To simplify migration and provide transparent, expert guidance for absolute academic success."</p>
+                </div>
+                <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
+                   <div className="w-12 h-12 bg-indigo-600 text-white rounded-xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-200 group-hover:scale-110 transition-transform">
+                      <i className="fa-solid fa-eye text-xl"></i>
+                   </div>
+                   <h4 className="font-black text-[#1A1F2C] mb-4 uppercase text-xs tracking-[0.2em]">Our Vision</h4>
+                   <p className="text-sm text-slate-500 leading-relaxed font-medium italic">"To be the most trusted pathway for Sri Lankan leaders to achieve global recognition and growth."</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Services Section */}
+      <section id="services" className="py-24 bg-slate-50 scroll-mt-24">
+        <div className="container mx-auto px-4 lg:px-12">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <SectionBadge text="Our Comprehensive Process" />
+            <h2 className="text-3xl md:text-5xl font-black text-[#1A1F2C]">Migration Made Simple</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {SERVICES.map((s, i) => (
+              <div key={i} className={`bg-white p-8 rounded-[2rem] shadow-sm hover:shadow-xl transition-all border border-slate-100 group flex flex-col ${i === 6 ? 'lg:col-span-2' : ''}`}>
+                <div className={`${s.iconBg} w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                  <i className={`${s.icon} text-xl ${s.iconColor}`}></i>
+                </div>
+                <h3 className="text-lg font-black text-[#1A1F2C] mb-3 leading-tight">{s.title}</h3>
+                <p className="text-slate-500 text-xs leading-relaxed flex-1 font-medium">{s.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Destinations Section */}
-      <section ref={destinationsRef} id="destinations" className="py-16 bg-white scroll-mt-12">
+      <section ref={destinationsRef} id="destinations" className="py-24 bg-white scroll-mt-24">
         <div className="container mx-auto px-4 lg:px-12">
           <div className="mb-12 text-center lg:text-left">
-             <span className="text-amber-500 font-black uppercase tracking-widest text-[11px] mb-2 block">Our Destinations</span>
-             <h2 className="text-3xl md:text-4xl font-black text-[#1A1F2C]">Your Future, Globalized</h2>
+             <SectionBadge text="Our Global Destinations" />
+             <h2 className="text-3xl md:text-5xl font-black text-[#1A1F2C]">Your Future, Globalized</h2>
           </div>
-
           <div className="space-y-16">
             {regions.map((region) => (
               <div key={region} className="relative">
@@ -224,24 +240,28 @@ const App: React.FC = () => {
                     <button onClick={() => scrollContainer(region, 'right')} className="w-10 h-10 border border-slate-200 rounded-full flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all"><i className="fa-solid fa-chevron-right text-xs"></i></button>
                   </div>
                 </div>
-
                 <div 
                   ref={(el) => { scrollRefs.current[region] = el; }}
                   className="flex overflow-x-auto scrollbar-hide space-x-6 pb-6 px-2 snap-x snap-mandatory"
                 >
                   {DESTINATIONS.filter(d => d.region === region).map((dest) => (
-                    <div key={dest.id} className="min-w-[280px] md:min-w-[360px] snap-center bg-slate-50 rounded-3xl p-8 hover:bg-white hover:shadow-xl transition-all duration-300 border border-transparent hover:border-amber-100">
-                      <div className="flex justify-between items-start mb-6">
-                         <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                            <i className={`${dest.icon} text-2xl`} style={{ color: dest.color }}></i>
-                         </div>
-                         <img src={dest.image} alt={dest.name} className="w-10 h-6 object-cover rounded shadow-sm border border-white" />
+                    <div key={dest.id} className="min-w-[60vw] md:min-w-[360px] snap-center list-none">
+                      <div className="relative h-full rounded-[1.25rem] border-[0.75px] border-transparent p-1 md:p-2">
+                        <GlowingEffect spread={40} glow={true} disabled={false} proximity={150} inactiveZone={0} borderWidth={2.02} />
+                        <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-xl border-[0.75px] bg-slate-50 p-6 md:p-8 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-xl group">
+                          <div className="relative flex h-full flex-col">
+                            <div className="flex justify-between items-start mb-6">
+                               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                                  <i className={`${dest.icon} text-2xl`} style={{ color: dest.color }}></i>
+                               </div>
+                               <img src={dest.image} alt={dest.name} className="w-10 h-6 object-cover rounded shadow-sm border border-white" />
+                            </div>
+                            <h3 className="text-xl font-black text-[#1A1F2C] mb-3">{dest.name}</h3>
+                            <p className="text-slate-500 text-sm leading-relaxed mb-6 flex-1">{dest.description}</p>
+                            <button className="text-[10px] font-black uppercase tracking-widest text-amber-600 flex items-center gap-2 mt-auto">Learn More <i className="fa-solid fa-arrow-right"></i></button>
+                          </div>
+                        </div>
                       </div>
-                      <h3 className="text-xl font-black text-[#1A1F2C] mb-3">{dest.name}</h3>
-                      <p className="text-slate-500 text-sm leading-relaxed mb-6">{dest.description}</p>
-                      <button className="text-[10px] font-black uppercase tracking-widest text-amber-600 flex items-center gap-2">
-                         Learn More <i className="fa-solid fa-arrow-right"></i>
-                      </button>
                     </div>
                   ))}
                 </div>
@@ -251,58 +271,222 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Services Section */}
-      <section id="services" className="py-16 bg-slate-50 scroll-mt-12">
-        <div className="container mx-auto px-4 lg:px-12 text-center">
-          <h2 className="text-3xl font-black text-[#1A1F2C] mb-12 uppercase tracking-widest">Our Services</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { title: 'Profile Analysis', icon: 'fa-user-graduate', desc: 'Holistic evaluation of your credentials to find the best match.' },
-              { title: 'University Selection', icon: 'fa-building-columns', desc: 'Precise matching with globally recognized partner universities.' },
-              { title: 'Visa Consultancy', icon: 'fa-passport', desc: 'Flawless documentation and mock sessions for visa success.' }
-            ].map((s, i) => (
-              <div key={i} className="bg-white p-10 rounded-3xl shadow-sm hover:shadow-lg transition-all border border-slate-100">
-                <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                  <i className={`fa-solid ${s.icon} text-2xl text-amber-500`}></i>
-                </div>
-                <h3 className="text-xl font-black text-[#1A1F2C] mb-4">{s.title}</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">{s.desc}</p>
+      {/* Success Stories Section - Single Row on PC (4 Columns) */}
+      <section id="stories" className="py-24 bg-[#0a0d14] text-white scroll-mt-24 overflow-hidden">
+        <div className="container mx-auto px-4 lg:px-12 text-center mb-16">
+          <SectionBadge text="Student Stories" lightVariant />
+          <h2 className="text-4xl md:text-5xl font-black mb-6">Voices of Global Success</h2>
+          <p className="text-slate-400 max-w-xl mx-auto font-medium">Real results from Sri Lankan students who embarked on their international academic journey with Gradway.</p>
+        </div>
+        <div className="container mx-auto px-4 lg:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {SUCCESS_STORIES.map((story, i) => (
+            <div key={i} className="bg-[#111827] p-8 rounded-[2.5rem] border border-white/5 hover:border-blue-500/30 transition-all group flex flex-col relative overflow-hidden">
+              <div className="absolute top-6 right-8 bg-green-500/10 text-green-500 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border border-green-500/20">Success</div>
+              <div className="flex gap-1 mb-8">
+                {[...Array(5)].map((_, idx) => (
+                  <i key={idx} className="fa-solid fa-star text-yellow-500 text-[10px]"></i>
+                ))}
               </div>
-            ))}
-          </div>
+              <p className="text-slate-200 text-sm leading-relaxed mb-10 flex-1 font-medium italic">"{story.quote}"</p>
+              <div className="mt-auto border-t border-white/5 pt-8">
+                <h4 className="font-black text-lg text-white mb-2">{story.name}</h4>
+                <div className="flex flex-col gap-1">
+                   <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">{story.university}</p>
+                   <p className="text-slate-500 text-[9px] font-black uppercase tracking-tight">{story.tag}</p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 bg-[#1A1F2C] text-white scroll-mt-12 relative overflow-hidden">
-        <div className="container mx-auto px-4 text-center relative z-10">
-          <h2 className="text-4xl md:text-5xl font-black mb-12 leading-tight">Your Journey Begins Now</h2>
-          <div className="flex flex-col md:flex-row justify-center items-center gap-10">
-             <a href="tel:+94775009929" className="flex flex-col items-center group">
-                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-amber-500 group-hover:text-slate-900 transition-all"><i className="fa-solid fa-phone text-2xl"></i></div>
-                <span className="font-bold text-xl">+94 77 500 9929</span>
-             </a>
-             <a href="mailto:info@gradwayedu.com" className="flex flex-col items-center group">
-                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-amber-500 group-hover:text-slate-900 transition-all"><i className="fa-solid fa-envelope text-2xl"></i></div>
-                <span className="font-bold text-xl">info@gradwayedu.com</span>
-             </a>
+      <section id="contact" className="py-24 bg-slate-50 relative scroll-mt-24">
+        <div className="container mx-auto px-4 lg:px-12 flex flex-col gap-12">
+          
+          <div className="text-center max-w-4xl mx-auto mb-4">
+            <SectionBadge text="Let's Chat!" amberOutline />
+            <h2 className="text-4xl md:text-6xl font-black text-[#1A1F2C] mb-2 leading-tight tracking-tight">Got Questions?</h2>
+            <h2 className="text-4xl md:text-6xl font-black text-blue-600 leading-tight tracking-tight">We're all ears.</h2>
+            <p className="text-slate-500 text-lg mt-8 font-medium">Whether you're confused about visas or curious about campus life, our friendly experts are here to help you navigate your journey.</p>
+          </div>
+
+          <div className="max-w-4xl mx-auto w-full relative">
+            <div className="absolute -top-4 -right-4 bg-yellow-400 text-slate-900 px-4 py-2 rounded-lg font-black text-xs shadow-lg rotate-12 z-20">Say Hello! 👋</div>
+            <div className="bg-white p-10 md:p-14 rounded-[3.5rem] shadow-2xl relative z-10 border border-slate-100 overflow-hidden">
+              {!formSubmitted ? (
+                <form className="space-y-8" onSubmit={handleContactSubmit}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                      <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest mb-3">Your Name</label>
+                      <div className="relative">
+                        <i className="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                        <input required type="text" placeholder="John Doe" className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:bg-white outline-none transition-all text-sm font-medium" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest mb-3">Phone Number</label>
+                      <div className="relative">
+                        <i className="fa-solid fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                        <input required type="tel" placeholder="+94 77 500 9929" className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:bg-white outline-none transition-all text-sm font-medium" />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest mb-3">Email ID</label>
+                    <div className="relative">
+                      <i className="fa-solid fa-at absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                      <input required type="email" placeholder="john@example.com" className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:bg-white outline-none transition-all text-sm font-medium" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-black text-slate-700 uppercase tracking-widest mb-3">How can we help?</label>
+                    <div className="relative">
+                      <i className="fa-solid fa-align-left absolute left-4 top-5 text-slate-300"></i>
+                      <textarea required rows={3} placeholder="I'm interested in studying abroad in..." className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:bg-white outline-none transition-all text-sm font-medium resize-none"></textarea>
+                    </div>
+                  </div>
+                  <button type="submit" className="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-xl shadow-blue-200 hover:bg-blue-700 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3">
+                    Send Message <i className="fa-solid fa-paper-plane"></i>
+                  </button>
+                </form>
+              ) : (
+                <div className="py-12 flex flex-col items-center text-center animate-[fadeIn_0.5s_ease-out]">
+                  <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center text-white text-5xl mb-8 shadow-2xl shadow-green-200 animate-[bounce_1s_ease-in-out_infinite]">
+                    <i className="fa-solid fa-check"></i>
+                  </div>
+                  <h3 className="text-4xl font-black text-[#1A1F2C] mb-4">Message Received!</h3>
+                  <p className="text-slate-600 text-xl font-semibold max-w-lg leading-relaxed">
+                    Thank you for reaching out to Gradway! Our academic experts will review your profile and get in touch with you ASAP to kickstart your global journey.
+                  </p>
+                  <button onClick={() => setFormSubmitted(false)} className="mt-12 text-xs font-black uppercase tracking-widest text-amber-600 hover:scale-110 transition-transform">
+                    Send another inquiry
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl mx-auto">
+            <a href="tel:+94775009929" className="flex flex-col items-center gap-5 bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all group">
+              <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-[1.5rem] flex items-center justify-center text-2xl group-hover:bg-blue-600 group-hover:text-white transition-all"><i className="fa-solid fa-phone"></i></div>
+              <div className="text-center">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Call Us</span>
+                <span className="text-sm font-black text-[#1A1F2C] tracking-tight whitespace-nowrap">(+94) 077 500 9929</span>
+              </div>
+            </a>
+            <a href="mailto:info@gradwayedu.com" className="flex flex-col items-center gap-5 bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all group">
+              <div className="w-16 h-16 bg-purple-50 text-purple-500 rounded-[1.5rem] flex items-center justify-center text-2xl group-hover:bg-purple-600 group-hover:text-white transition-all"><i className="fa-solid fa-envelope"></i></div>
+              <div className="text-center">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Email</span>
+                <span className="text-sm font-black text-[#1A1F2C] tracking-tight whitespace-nowrap">info@gradwayedu.com</span>
+              </div>
+            </a>
+            <a href="https://wa.me/94775009929" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-5 bg-white p-10 rounded-[3rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all group">
+              <div className="w-16 h-16 bg-green-50 text-green-500 rounded-[1.5rem] flex items-center justify-center text-2xl group-hover:bg-green-600 group-hover:text-white transition-all"><i className="fa-brands fa-whatsapp"></i></div>
+              <div className="text-center">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">WhatsApp</span>
+                <span className="text-sm font-black text-[#1A1F2C] tracking-tight whitespace-nowrap">(+94) 077 500 9929</span>
+              </div>
+            </a>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-black py-12 text-center text-slate-500">
-        <div className="container mx-auto px-4">
-           <div className="w-16 h-16 bg-white rounded-full p-3 mx-auto mb-6 shadow-lg">
-              <img src={LOGO_URL} alt="Logo" className="w-full h-full object-contain" />
-           </div>
-           <p className="text-[10px] font-black uppercase tracking-widest mb-4">© {new Date().getFullYear()} GradWay (Pvt) Ltd. Colombo 05, Sri Lanka.</p>
-           <p className="text-[8px] font-bold">Migration Simplified</p>
+      <footer className="bg-[#111520] text-white pt-24 pb-12 relative overflow-hidden">
+        <div className="container mx-auto px-4 lg:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
+          <div className="space-y-8">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-white rounded-2xl p-2 flex items-center justify-center shadow-lg">
+                <img src={LOGO_URL} alt="Gradway Logo" className="w-full h-full object-contain" />
+              </div>
+              <h3 className="text-2xl font-black tracking-tighter leading-none uppercase">Gradway (Pvt) Ltd.</h3>
+            </div>
+            <p className="text-slate-400 text-sm leading-relaxed max-w-xs font-medium">Leading the way for Sri Lankan students to achieve global academic excellence and seamless migration with personalized expert mentorship.</p>
+            <div className="flex gap-6 text-2xl">
+               <a href="https://web.facebook.com/p/GradWay-Education-Consultancy-61577557164852/?_rdc=1&_rdr" target="_blank" rel="noopener noreferrer" className="text-[#1877F2] hover:scale-125 transition-all"><i className="fa-brands fa-facebook"></i></a>
+               <a href="https://www.instagram.com/gradway_education?igsh=MXdmMXl5aXUzcW5zNA==" target="_blank" rel="noopener noreferrer" className="text-[#E4405F] hover:scale-125 transition-all"><i className="fa-brands fa-instagram"></i></a>
+               <a href="mailto:info@gradwayedu.com" className="text-[#EA4335] hover:scale-125 transition-all"><i className="fa-solid fa-at"></i></a>
+               <a href="https://www.linkedin.com/company/gradway-pvt-ltd-sl/" target="_blank" rel="noopener noreferrer" className="text-[#0077B5] hover:scale-125 transition-all"><i className="fa-brands fa-linkedin"></i></a>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-black uppercase tracking-widest mb-8 text-white">Study In</h4>
+            <ul className="space-y-4 text-slate-400 text-sm font-bold uppercase tracking-wide">
+              <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> USA</li>
+              <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> UK</li>
+              <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Canada</li>
+              <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Australia</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-black uppercase tracking-widest mb-8 text-white">Company</h4>
+            <ul className="space-y-4 text-slate-400 text-sm font-bold uppercase tracking-wide">
+              <li className="hover:text-white transition-colors cursor-pointer">About Us</li>
+              <li className="hover:text-white transition-colors cursor-pointer">Services</li>
+              <li className="hover:text-white transition-colors cursor-pointer">Events</li>
+              <li className="hover:text-white transition-colors cursor-pointer">Careers</li>
+            </ul>
+          </div>
+
+          <div className="space-y-8">
+            <div className="bg-slate-800/30 p-8 rounded-[2.5rem] border border-white/5 space-y-6">
+              <h4 className="text-sm font-black uppercase tracking-widest text-white">Stay Updated</h4>
+              <p className="text-[11px] text-slate-400 font-medium">Get the latest scholarship alerts and visa news delivered to your inbox.</p>
+              <div className="relative">
+                <input type="email" placeholder="Enter your email" className="w-full bg-[#0a0d14] border-0 rounded-2xl px-6 py-4 text-xs outline-none focus:ring-2 focus:ring-blue-500 font-medium" />
+                <button className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-700 transition-all shadow-lg"><i className="fa-solid fa-arrow-right"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 lg:px-12 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">© 2025 Gradway (Pvt) Ltd. All rights reserved.</p>
+          <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest text-slate-500">
+             <button onClick={() => setPolicyModalOpen(true)} className="hover:text-white transition-colors underline-offset-4 hover:underline">Privacy Policy</button>
+             <button onClick={() => setTermsModalOpen(true)} className="hover:text-white transition-colors underline-offset-4 hover:underline">Terms of Service</button>
+          </div>
+          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="bg-white/5 border border-white/10 px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.25em] hover:bg-white/10 transition-all flex items-center gap-3 group">
+             Back to Top <i className="fa-solid fa-arrow-up group-hover:-translate-y-1 transition-transform"></i>
+          </button>
         </div>
       </footer>
 
-      {/* AI Bot Integration */}
-      <div className="fixed bottom-6 right-6 z-[150]">
+      <LegalModal 
+        isOpen={policyModalOpen} 
+        onClose={() => setPolicyModalOpen(false)} 
+        title="Privacy Policy" 
+        content={(
+          <div className="space-y-4">
+            <p className="font-bold text-slate-900">Privacy Policy for Gradway (Pvt) Ltd.</p>
+            <p><strong>1. Information Collection:</strong> We collect personal data such as full name, email, contact number, and academic qualifications when you fill out our assessment or contact forms. This is essential for providing tailored educational consultancy.</p>
+            <p><strong>2. Use of Information:</strong> Your data is used exclusively to facilitate university applications, migration documentation, and to communicate relevant study abroad opportunities.</p>
+            <p><strong>3. Data Sharing:</strong> Gradway (Pvt) Ltd shares your information only with official partner universities and relevant immigration authorities. We never sell your data to marketing third parties.</p>
+            <p><strong>4. Security:</strong> We employ industry-standard security measures to ensure your personal information is stored securely.</p>
+            <p><strong>5. Your Rights:</strong> You have the right to request a copy of the data we hold about you or ask for its deletion at any time by contacting us at info@gradwayedu.com.</p>
+          </div>
+        )} 
+      />
+      <LegalModal 
+        isOpen={termsModalOpen} 
+        onClose={() => setTermsModalOpen(false)} 
+        title="Terms of Service" 
+        content={(
+          <div className="space-y-4">
+            <p className="font-bold text-slate-900">Terms of Service for Gradway (Pvt) Ltd.</p>
+            <p><strong>1. Scope of Services:</strong> Gradway (Pvt) Ltd provides expert consultancy for international higher education, including university selection, application management, and visa advisory.</p>
+            <p><strong>2. Accuracy of Data:</strong> Clients are responsible for ensuring all documentation provided is authentic and accurate.</p>
+            <p><strong>3. Application Outcomes:</strong> While we maintain a high success rate, the final decision for university admission or visa issuance rests solely with the educational institution and respective government.</p>
+            <p><strong>4. Fees and Refunds:</strong> Any service fees charged by Gradway (Pvt) Ltd are clearly communicated and subject to individual service agreements.</p>
+            <p><strong>5. Limitation of Liability:</strong> Gradway (Pvt) Ltd is not liable for changes in international migration laws that may occur during the process.</p>
+          </div>
+        )} 
+      />
+
+      <div className="fixed bottom-6 right-6 z-[250]">
         {!chatOpen ? (
           <button onClick={() => setChatOpen(true)} className="w-14 h-14 bg-amber-500 rounded-full shadow-lg flex items-center justify-center text-[#1A1F2C] text-2xl hover:scale-110 transition-all">
             <i className="fa-solid fa-headset"></i>
@@ -325,7 +509,7 @@ const App: React.FC = () => {
                {isTyping && <div className="text-amber-500 font-black text-[10px] animate-pulse">GradBot is thinking...</div>}
             </div>
             <form onSubmit={handleChatSubmit} className="p-4 bg-white border-t flex gap-2">
-               <input type="text" value={chatMessage} onChange={e => setChatMessage(e.target.value)} placeholder="Type a message..." className="flex-1 bg-slate-100 border-0 rounded-full px-4 text-xs py-3 outline-none" />
+               <input type="text" value={chatMessage} onChange={e => setChatMessage(e.target.value)} placeholder="Type a message..." className="flex-1 bg-slate-100 border-0 rounded-full px-4 text-xs py-3 outline-none font-medium" />
                <button type="submit" className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-white"><i className="fa-solid fa-paper-plane text-sm"></i></button>
             </form>
           </div>

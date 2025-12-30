@@ -1,7 +1,7 @@
-
 import { Destination, Service, SuccessStory } from './types';
 
 export const DESTINATIONS: Destination[] = [
+  // Europe
   {
     id: 'uk',
     name: 'United Kingdom',
@@ -43,15 +43,26 @@ export const DESTINATIONS: Destination[] = [
     region: 'Europe'
   },
   {
-    id: 'uae',
-    name: 'UAE',
-    description: 'A global hub for business and innovation in the heart of the Middle East.',
-    color: '#00732F',
-    icon: 'fa-solid fa-city',
-    bgClass: 'bg-emerald-50',
-    image: 'https://flagcdn.com/w160/ae.png',
-    region: 'Americas & Pacific'
+    id: 'switzerland',
+    name: 'Switzerland',
+    description: 'World-class hospitality and finance programs in a stunning alpine setting.',
+    color: '#D52B1E',
+    icon: 'fa-solid fa-mountain-sun',
+    bgClass: 'bg-red-50',
+    image: 'https://flagcdn.com/w160/ch.png',
+    region: 'Europe'
   },
+  {
+    id: 'malta',
+    name: 'Malta',
+    description: 'Affordable English-speaking education in the heart of the Mediterranean.',
+    color: '#D62828',
+    icon: 'fa-solid fa-sun-bright',
+    bgClass: 'bg-orange-50',
+    image: 'https://flagcdn.com/w160/mt.png',
+    region: 'Europe'
+  },
+  // Americas & Pacific
   {
     id: 'canada',
     name: 'Canada',
@@ -82,6 +93,7 @@ export const DESTINATIONS: Destination[] = [
     image: 'https://flagcdn.com/w160/nz.png',
     region: 'Americas & Pacific'
   },
+  // Asia & Other
   {
     id: 'singapore',
     name: 'Singapore',
@@ -90,16 +102,6 @@ export const DESTINATIONS: Destination[] = [
     icon: 'fa-solid fa-landmark',
     bgClass: 'bg-pink-50',
     image: 'https://flagcdn.com/w160/sg.png',
-    region: 'Asia & Other'
-  },
-  {
-    id: 'switzerland',
-    name: 'Switzerland',
-    description: 'World-class hospitality and finance programs in a stunning alpine setting.',
-    color: '#D52B1E',
-    icon: 'fa-solid fa-mountain-sun',
-    bgClass: 'bg-red-50',
-    image: 'https://flagcdn.com/w160/ch.png',
     region: 'Asia & Other'
   },
   {
@@ -121,67 +123,109 @@ export const DESTINATIONS: Destination[] = [
     bgClass: 'bg-gray-50',
     image: 'https://flagcdn.com/w160/kr.png',
     region: 'Asia & Other'
+  },
+  {
+    id: 'uae',
+    name: 'UAE',
+    description: 'A global hub for business and innovation in the heart of the Middle East.',
+    color: '#00732F',
+    icon: 'fa-solid fa-city',
+    bgClass: 'bg-emerald-50',
+    image: 'https://flagcdn.com/w160/ae.png',
+    region: 'Asia & Other'
   }
 ];
 
 export const SERVICES: Service[] = [
   {
     id: 1,
-    title: 'Career Counseling',
-    description: 'Personalized guidance to find the right course and university that matches your career aspirations.',
-    icon: 'fa-solid fa-lightbulb',
+    title: 'Profile Review & Counselling',
+    description: 'We carefully assess your academics, English, finances and goals to craft a personalized roadmap.',
+    icon: 'fa-solid fa-user-graduate',
     iconBg: 'bg-blue-50',
     iconColor: 'text-blue-500'
   },
   {
     id: 2,
-    title: 'Test Prep',
-    description: 'Expert coaching for IELTS, TOEFL, GRE, and GMAT with high-score guaranteed strategies.',
-    icon: 'fa-solid fa-graduation-cap',
-    iconBg: 'bg-purple-50',
-    iconColor: 'text-purple-500'
+    title: 'Course & University Mapping',
+    description: 'Find your perfect academic home from our extensive network of elite global partners.',
+    icon: 'fa-solid fa-map-location-dot',
+    iconBg: 'bg-amber-50',
+    iconColor: 'text-amber-500'
   },
   {
     id: 3,
-    title: 'Application Support',
-    description: 'End-to-end support for SOP writing, LORs, and university applications to ensure acceptance.',
-    icon: 'fa-solid fa-file-contract',
-    iconBg: 'bg-orange-50',
-    iconColor: 'text-orange-500'
+    title: 'Application & Documentation',
+    description: 'Precision-perfect paperwork and SOP guidance to maximize your admission chances.',
+    icon: 'fa-solid fa-file-lines',
+    iconBg: 'bg-indigo-50',
+    iconColor: 'text-indigo-500'
   },
   {
     id: 4,
-    title: 'Visa Assistance',
-    description: 'Hassle-free visa filing, financial document preparation, and mock interview sessions.',
-    icon: 'fa-solid fa-plane-up',
-    iconBg: 'bg-green-50',
-    iconColor: 'text-green-500'
+    title: 'Interview Preparation & Queries',
+    description: 'Face admissions committees and visa officers with absolute confidence through expert drills.',
+    icon: 'fa-solid fa-comments-question',
+    iconBg: 'bg-emerald-50',
+    iconColor: 'text-emerald-500'
+  },
+  {
+    id: 5,
+    title: 'Visa Application & Preparation',
+    description: 'Navigate the complex landscape of international migration laws with our seasoned experts.',
+    icon: 'fa-solid fa-passport',
+    iconBg: 'bg-rose-50',
+    iconColor: 'text-rose-500'
+  },
+  {
+    id: 6,
+    title: 'Multiple Program Routes',
+    description: 'From foundation years to post-grad, we unlock every possible entry point for your success.',
+    icon: 'fa-solid fa-route',
+    iconBg: 'bg-violet-50',
+    iconColor: 'text-violet-500'
+  },
+  {
+    id: 7,
+    title: 'Pre-Departure & After-Arrival',
+    description: 'Total support from the moment you leave home until you settle comfortably in your new country.',
+    icon: 'fa-solid fa-plane-arrival',
+    iconBg: 'bg-teal-50',
+    iconColor: 'text-teal-500'
   }
 ];
 
 export const SUCCESS_STORIES: SuccessStory[] = [
   {
     id: 1,
-    name: 'Sarah Jenkins',
-    university: 'Imperial College London',
-    quote: '"Gradway made my dream of studying in London a reality. Their counseling was spot on, and the visa process was seamless."',
-    image: 'https://i.pravatar.cc/150?u=sarah',
-    tag: 'MSc Data Science'
+    name: 'Dinuka Perera',
+    university: 'United Kingdom',
+    quote: "Honestly super thankful to Gradway. I had no idea where to start, but they guided me so well from Day 1. Today I'm finally in the UK because of them. Highly recommend!",
+    image: 'https://i.pravatar.cc/150?u=dinuka',
+    tag: 'Msc in Business Management'
   },
   {
     id: 2,
-    name: 'Michael Chen',
-    university: 'University of Toronto',
-    quote: '"The test prep coaches were incredible. I improved my IELTS score significantly, which opened doors to scholarships I didn\'t think possible."',
-    image: 'https://i.pravatar.cc/150?u=michael',
-    tag: 'B.Eng'
+    name: 'Hashini Jayawardena',
+    university: 'United Kingdom',
+    quote: "Big thanks to the Gradway team. They handled my application, visa, everything without any stress for me. Really appreciate the support machan, thank you so much!",
+    image: 'https://i.pravatar.cc/150?u=hashini',
+    tag: 'MA in Global Business And Management'
   },
   {
     id: 3,
-    name: 'Priya Patel',
-    university: 'University of Melbourne',
-    quote: '"They helped me navigate the complex application system in Australia. I felt supported every step of the way, even after arriving."',
-    image: 'https://i.pravatar.cc/150?u=priya',
-    tag: 'MBA'
+    name: 'Tharusha Fernando',
+    university: 'United Kingdom',
+    quote: "I'm so happy. Never thought I'd actually make it to the UK, but they kept pushing me and helping with every small detail.",
+    image: 'https://i.pravatar.cc/150?u=tharusha',
+    tag: 'Bsc in Computer Sciece'
+  },
+  {
+    id: 4,
+    name: 'Isuru Jayasuriya',
+    university: 'United Kingdom',
+    quote: "Very friendly staff, quick replies, and they know exactly what to do. Thanks a lot for helping me achieve this dream!",
+    image: 'https://i.pravatar.cc/150?u=isuru',
+    tag: 'Bsc in Civil Engineering'
   }
 ];
