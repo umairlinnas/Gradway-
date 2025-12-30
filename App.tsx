@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { DESTINATIONS, SERVICES, SUCCESS_STORIES, MAIN_FAQ, FULL_FAQ } from './constants';
 import { getGeminiResponse } from './services/geminiService';
@@ -8,7 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 
 const LOGO_URL = "https://i.ibb.co/3ykG4SjV/logo.png";
 
-type ViewState = 'main' | 'careers' | 'faq-full';
+type ViewState = 'main' | 'careers' | 'faq-full' | 'services-full';
 
 const SectionBadge: React.FC<{ text: string; lightVariant?: boolean; amberOutline?: boolean }> = ({ text, lightVariant, amberOutline }) => (
   <div className={`inline-flex items-center space-x-2 px-4 py-2 rounded-full mb-6 border ${
@@ -121,6 +120,20 @@ const App: React.FC = () => {
   };
 
   const scrollToId = (id: string) => {
+    // If it's a service link, route to services page
+    if (id.startsWith('service-')) {
+      setView('services-full');
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          const offset = 80;
+          const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({ top: elementPosition - offset, behavior: 'smooth' });
+        }
+      }, 150);
+      return;
+    }
+
     if (view !== 'main') {
       setView('main');
       setTimeout(() => {
@@ -133,7 +146,7 @@ const App: React.FC = () => {
           const offsetPosition = elementPosition - offset;
           window.scrollTo({ top: id === 'top' ? 0 : offsetPosition, behavior: 'smooth' });
         }
-      }, 100);
+      }, 150);
       return;
     }
     const element = document.getElementById(id);
@@ -158,7 +171,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Fix: Define the missing 'regions' variable for the destinations mapping.
   const regions: ("Europe" | "Americas & Pacific" | "Asia & Other")[] = ['Europe', 'Americas & Pacific', 'Asia & Other'];
 
   const Footer = () => (
@@ -183,10 +195,10 @@ const App: React.FC = () => {
         <div>
           <h4 className="text-sm font-black uppercase tracking-widest mb-8 text-white">Services</h4>
           <ul className="space-y-4 text-slate-400 text-sm font-bold uppercase tracking-wide">
-            <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Counselling</li>
-            <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Course Selection</li>
-            <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Visa Application</li>
-            <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Pre Departure</li>
+            <li onClick={() => scrollToId('service-counselling')} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Counselling</li>
+            <li onClick={() => scrollToId('service-mapping')} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Course Selection</li>
+            <li onClick={() => scrollToId('service-visa')} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Visa Application</li>
+            <li onClick={() => scrollToId('service-departure')} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Pre Departure</li>
           </ul>
         </div>
 
@@ -260,7 +272,7 @@ const App: React.FC = () => {
   if (view === 'careers') {
     return (
       <div className="min-h-screen bg-[#FAFAFA]">
-        <ScrollNavigation logoUrl={LOGO_URL} />
+        <ScrollNavigation logoUrl={LOGO_URL} onNavigate={scrollToId} />
         <main className="pt-32 pb-24 px-6 md:px-12 flex flex-col items-center justify-center text-center animate-[fadeIn_0.5s_ease-out]">
           <div className="max-w-4xl space-y-12">
             <SectionBadge text="Careers @ Gradway" amberOutline />
@@ -305,10 +317,61 @@ const App: React.FC = () => {
     );
   }
 
+  if (view === 'services-full') {
+    const detailedServices = [
+      { id: 'service-counselling', title: 'Profile Review & Counselling', desc: 'Our journey begins with understanding you. We don\'t just look at your grades; we look at your aspirations, your budget, and your career trajectory. Our expert counsellors provide a 360-degree evaluation of your academic profile to recommend the best possible pathways across the globe.', icon: 'fa-user-graduate', color: 'bg-blue-500' },
+      { id: 'service-mapping', title: 'Course & University Mapping', desc: 'Finding the right university is a science. We map your profile against 450+ global partner institutions to find the perfect match for your degree. We consider ranking, faculty expertise, location, and post-study opportunities to ensure your investment yields the best returns.', icon: 'fa-map-location-dot', color: 'bg-amber-500' },
+      { id: 'service-app', title: 'Application & Documentation', desc: 'Precision is key in international admissions. We manage the entire application process, from gathering transcripts to crafting compelling Statements of Purpose (SOP) that capture the attention of admissions committees. Our zero-error policy ensures your application is processed swiftly.', icon: 'fa-file-lines', color: 'bg-indigo-500' },
+      { id: 'service-interview', title: 'Interview Preparation', desc: 'Confidence comes from preparation. We conduct rigorous mock interview sessions that simulate real university and visa interviews. Our experts provide constructive feedback on your communication, body language, and response strategy to ensure you excel.', icon: 'fa-comments-question', color: 'bg-emerald-500' },
+      { id: 'service-visa', title: 'Visa Application & Preparation', desc: 'Navigating international migration laws can be daunting. We take the stress out of visa processing by managing your documentation, financial proof checks, and online applications. Our team stays updated with the latest policy changes in the UK, Canada, Australia, and Europe to provide accurate guidance.', icon: 'fa-passport', color: 'bg-rose-500' },
+      { id: 'service-routes', title: 'Multiple Program Routes', desc: 'If one path is closed, we find another. Whether it\'s a direct entry, foundation year, pre-masters, or professional certification route, we provide multiple academic entry points to suit your current qualifications and future goals.', icon: 'fa-route', color: 'bg-violet-500' },
+      { id: 'service-departure', title: 'Pre-Departure & After-Arrival', desc: 'We don\'t say goodbye at the airport. Our pre-departure sessions cover everything from packing essentials and flight logistics to cultural adaptation. Once you land, we assist with airport pickups, initial accommodation, and setting up local essentials like bank accounts and SIM cards.', icon: 'fa-plane-arrival', color: 'bg-teal-500' },
+    ];
+
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <ScrollNavigation logoUrl={LOGO_URL} onNavigate={scrollToId} />
+        <main className="pt-32 pb-24 animate-[fadeIn_0.5s_ease-out]">
+          <div className="container mx-auto px-4 lg:px-12">
+            <div className="max-w-4xl mx-auto mb-20 text-center">
+              <SectionBadge text="Comprehensive Expertise" amberOutline />
+              <h1 className="text-5xl md:text-7xl font-black text-[#1A1F2C] leading-tight tracking-tighter mb-8">Your Global Academic Roadmap.</h1>
+              <p className="text-slate-500 text-xl font-medium leading-relaxed">Everything you need to move from Colombo to your dream campus, managed by experts who care.</p>
+            </div>
+            
+            <div className="space-y-12">
+              {detailedServices.map((ds) => (
+                <section key={ds.id} id={ds.id} className="bg-white p-10 md:p-16 rounded-[3.5rem] shadow-xl border border-slate-100 flex flex-col md:flex-row gap-10 items-start hover:shadow-2xl transition-all scroll-mt-32">
+                  <div className={`w-20 h-20 ${ds.color} text-white rounded-3xl flex items-center justify-center text-4xl shrink-0 shadow-lg`}>
+                    <i className={`fa-solid ${ds.icon}`}></i>
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-black text-[#1A1F2C] mb-6">{ds.title}</h2>
+                    <p className="text-slate-600 text-lg leading-relaxed font-medium mb-8">{ds.desc}</p>
+                    <div className="flex gap-4">
+                       <button onClick={() => scrollToId('contact')} className="bg-slate-50 hover:bg-amber-500 hover:text-white text-slate-400 px-6 py-3 rounded-full font-black text-[10px] uppercase tracking-widest transition-all">Start this process</button>
+                    </div>
+                  </div>
+                </section>
+              ))}
+            </div>
+
+            <div className="mt-24 bg-amber-500 rounded-[4rem] p-12 md:p-20 text-center">
+               <h2 className="text-4xl md:text-5xl font-black text-[#1A1F2C] mb-8">Ready to simplify your journey?</h2>
+               <button onClick={() => scrollToId('contact')} className="bg-[#1A1F2C] text-white px-12 py-5 rounded-full font-black uppercase tracking-widest text-xs hover:scale-105 transition-all shadow-2xl">Book Your Free Consultation</button>
+            </div>
+          </div>
+        </main>
+        <Footer />
+        <ChatWidget />
+      </div>
+    );
+  }
+
   if (view === 'faq-full') {
     return (
       <div className="min-h-screen bg-slate-50">
-        <ScrollNavigation logoUrl={LOGO_URL} />
+        <ScrollNavigation logoUrl={LOGO_URL} onNavigate={scrollToId} />
         <main className="py-32 animate-[fadeIn_0.5s_ease-out]">
           <div className="container mx-auto px-4 lg:px-12">
             <div className="max-w-4xl mx-auto">
@@ -353,7 +416,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FAFAFA]" id="top">
       
-      <ScrollNavigation logoUrl={LOGO_URL} />
+      <ScrollNavigation logoUrl={LOGO_URL} onNavigate={scrollToId} />
 
       {/* Hero Section */}
       <section id="home" className="relative min-h-[100svh] flex flex-col items-center pt-32 lg:pt-0 lg:flex-row overflow-hidden scroll-mt-[76px]">
@@ -447,7 +510,7 @@ const App: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-all group">
                    <div className="w-12 h-12 bg-amber-500 text-white rounded-xl flex items-center justify-center mb-6 shadow-lg shadow-amber-200 group-hover:scale-110 transition-transform">
-                      <i className="fa-solid fa-bullseye-arrow text-xl"></i>
+                      <i className="fa-solid fa-bullseye text-xl"></i>
                    </div>
                    <h4 className="font-black text-[#1A1F2C] mb-4 uppercase text-xs tracking-[0.2em]">Our Mission</h4>
                    <p className="text-sm text-slate-500 leading-relaxed font-medium italic">"To simplify migration and provide transparent, expert guidance for absolute academic success."</p>
@@ -473,15 +536,22 @@ const App: React.FC = () => {
             <h2 className="text-3xl md:text-5xl font-black text-[#1A1F2C]">Migration Made Simple</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {SERVICES.map((s, i) => (
-              <div key={i} className={`bg-white p-8 rounded-[2rem] shadow-sm hover:shadow-xl transition-all border border-slate-100 group flex flex-col ${i === 6 ? 'lg:col-span-2' : ''}`}>
-                <div className={`${s.iconBg} w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                  <i className={`${s.icon} text-xl ${s.iconColor}`}></i>
+            {SERVICES.map((s, i) => {
+              const serviceIds = ['service-counselling', 'service-mapping', 'service-app', 'service-interview', 'service-visa', 'service-routes', 'service-departure'];
+              return (
+                <div 
+                  key={i} 
+                  onClick={() => scrollToId(serviceIds[i])}
+                  className={`bg-white p-8 rounded-[2rem] shadow-sm hover:shadow-xl transition-all border border-slate-100 group flex flex-col cursor-pointer ${i === 6 ? 'lg:col-span-2' : ''}`}
+                >
+                  <div className={`${s.iconBg} w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                    <i className={`${s.icon} text-xl ${s.iconColor}`}></i>
+                  </div>
+                  <h3 className="text-lg font-black text-[#1A1F2C] mb-3 leading-tight">{s.title}</h3>
+                  <p className="text-slate-500 text-xs leading-relaxed flex-1 font-medium">{s.description}</p>
                 </div>
-                <h3 className="text-lg font-black text-[#1A1F2C] mb-3 leading-tight">{s.title}</h3>
-                <p className="text-slate-500 text-xs leading-relaxed flex-1 font-medium">{s.description}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

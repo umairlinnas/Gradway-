@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "motion/react"
@@ -16,6 +15,7 @@ interface ScrollNavbarProps {
   menuItems?: MenuItem[]
   className?: string
   logoUrl?: string
+  onNavigate?: (id: string) => void
 }
 
 const defaultMenuItems: MenuItem[] = [
@@ -30,7 +30,8 @@ const defaultMenuItems: MenuItem[] = [
 export const ScrollNavigation: React.FC<ScrollNavbarProps> = ({ 
   menuItems = defaultMenuItems,
   className = "",
-  logoUrl = ""
+  logoUrl = "",
+  onNavigate
 }) => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -54,9 +55,14 @@ export const ScrollNavigation: React.FC<ScrollNavbarProps> = ({
 
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
+    if (onNavigate) {
+      onNavigate(id);
+      setIsMenuOpen(false);
+      return;
+    }
     const element = document.getElementById(id);
     if (element) {
-      const offset = 60; // Updated from 70 to 60
+      const offset = 60;
       const bodyRect = document.body.getBoundingClientRect().top;
       const elementRect = element.getBoundingClientRect().top;
       const elementPosition = elementRect - bodyRect;
@@ -79,7 +85,6 @@ export const ScrollNavigation: React.FC<ScrollNavbarProps> = ({
     return () => { document.body.style.overflow = 'unset'; };
   }, [isMenuOpen]);
 
-  // Fix: Use 'as const' on transition types to satisfy TypeScript's strict animation generator types.
   const menuVariants = {
     closed: {
       opacity: 0,
