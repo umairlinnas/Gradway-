@@ -1,4 +1,4 @@
-import { Destination, Service, SuccessStory } from './types';
+import { Destination, Service, SuccessStory, FAQ } from './types';
 
 export const DESTINATIONS: Destination[] = [
   // Europe
@@ -227,5 +227,114 @@ export const SUCCESS_STORIES: SuccessStory[] = [
     quote: "Very friendly staff, quick replies, and they know exactly what to do. Thanks a lot for helping me achieve this dream!",
     image: 'https://i.pravatar.cc/150?u=isuru',
     tag: 'Bsc in Civil Engineering'
+  }
+];
+
+export const MAIN_FAQ: FAQ[] = [
+  {
+    id: 1,
+    category: 'General',
+    question: "How do I start my study abroad journey with Gradway?",
+    answer: "The best way is to book a free initial consultation. We'll review your academic background, career goals, and financial preferences to map out the best countries and universities for you."
+  },
+  {
+    id: 2,
+    category: 'General',
+    question: "Do you charge any consultation fees for students?",
+    answer: "No, Gradway provides free initial profile reviews and counselling for all Sri Lankan students. We are committed to making global education accessible."
+  },
+  {
+    id: 3,
+    category: 'Visa',
+    question: "What is the typical success rate for student visas?",
+    answer: "While final decisions rest with embassy officials, Gradway boasts a very high success rate due to our meticulous documentation process and personalized interview preparation."
+  },
+  {
+    id: 4,
+    category: 'General',
+    question: "Can I work while studying in the UK or Canada?",
+    answer: "Yes, most student visas allow part-time work (typically up to 20 hours per week during term time and full-time during holidays) to help cover living expenses."
+  },
+  {
+    id: 5,
+    category: 'General',
+    question: "What English language tests do I need to take?",
+    answer: "Most universities require IELTS, PTE, or TOEFL scores. The required score varies by university and course level (undergraduate vs postgraduate)."
+  },
+  {
+    id: 6,
+    category: 'General',
+    question: "Do you assist with scholarship applications?",
+    answer: "Absolutely! We identify potential university-specific and government-funded scholarships that match your profile and guide you through the application process."
+  },
+  {
+    id: 7,
+    category: 'General',
+    question: "How long does the entire application process take?",
+    answer: "On average, it takes 4 to 6 months from the initial consultation to getting your visa. We recommend starting early to ensure all document deadlines are met."
+  },
+  {
+    id: 8,
+    category: 'General',
+    question: "Can I bring my spouse or dependents with me?",
+    answer: "Dependency rules vary significantly by country and level of study (e.g., Master's vs. Undergraduate). We provide specific advice based on the destination you choose."
+  }
+];
+
+export const FULL_FAQ: FAQ[] = [
+  ...MAIN_FAQ,
+  {
+    id: 9,
+    category: 'Niche',
+    question: "What if I have a gap in my education?",
+    answer: "A gap is not a dealbreaker. We help you document work experience, internships, or certifications that explain the period and strengthen your application."
+  },
+  {
+    id: 10,
+    category: 'Niche',
+    question: "Do you help with finding student accommodation?",
+    answer: "Yes, as part of our after-arrival support, we help you find university dorms or private rentals and guide you on the safest and most affordable areas to live."
+  },
+  {
+    id: 11,
+    category: 'Visa',
+    question: "What are 'Proof of Funds' requirements for the UK?",
+    answer: "For the UK, you generally need to show you have enough money to pay for your tuition fees for one year and monthly living costs for up to 9 months."
+  },
+  {
+    id: 12,
+    category: 'Niche',
+    question: "Can I transfer credits from my current Sri Lankan degree?",
+    answer: "It depends on the university's 'Recognition of Prior Learning' policy. We can facilitate communication with universities to see if your current credits can be transferred."
+  },
+  {
+    id: 13,
+    category: 'Niche',
+    question: "Is health insurance mandatory for international students?",
+    answer: "Yes, almost all major study destinations require students to have international student health insurance (like OSHC in Australia or the IHS in the UK)."
+  },
+  {
+    id: 14,
+    category: 'General',
+    question: "What is a Statement of Purpose (SOP)?",
+    answer: "An SOP is a critical essay describing your background, goals, and why you chose a specific course. We provide expert feedback to make your SOP stand out."
+  },
+  {
+    id: 15,
+    category: 'Visa',
+    question: "What is a 'Conditional Offer' vs an 'Unconditional Offer'?",
+    answer: "A Conditional Offer means you must meet certain requirements (like a final IELTS score). An Unconditional Offer means you have been fully accepted."
+  },
+  {
+    id: 16,
+    category: 'Niche',
+    question: "Are there age limits for studying abroad?",
+    answer: "Education has no age limit! While some visas have specific conditions, many universities welcome mature students for postgraduate and professional courses."
+  },
+  {
+    id: 17,
+    category: 'General',
+    question: "Do I need to pay tuition fees before the visa?",
+    answer: "Most universities require a tuition deposit or the first semester's fees to issue the CAS (UK) or COE (Australia) needed for the visa application."
   }
 ];

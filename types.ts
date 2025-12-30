@@ -1,4 +1,3 @@
-
 export interface Destination {
   id: string;
   name: string;
@@ -29,8 +28,10 @@ export interface SuccessStory {
 }
 
 export interface FAQ {
+  id: number;
   question: string;
   answer: string;
+  category: 'General' | 'Visa' | 'Niche';
 }
 
 export interface Testimonial {
