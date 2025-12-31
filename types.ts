@@ -33,11 +33,3 @@ export interface FAQ {
   answer: string;
   category: 'General' | 'Visa' | 'Niche';
 }
-
-export interface Testimonial {
-  name: string;
-  location: string;
-  quote: string;
-  image: string;
-  verified: boolean;
-}
