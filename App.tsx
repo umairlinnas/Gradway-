@@ -1,16 +1,73 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { DESTINATIONS, SERVICES, SUCCESS_STORIES, MAIN_FAQ, FULL_FAQ } from './constants';
 import { getGeminiResponse } from './services/geminiService';
 import { ScrollNavigation } from './components/ui/scroll-navigation-menu';
 import { motion, AnimatePresence } from 'motion/react';
-import { Destination } from './types';
+import { Destination, Service } from './types';
 import { GlowingEffect } from './components/ui/glowing-effect';
-import { Telescope, Linkedin, Instagram, Facebook, Mail, Phone, MessageSquare, GraduationCap, Globe, Layers, CheckCircle2 } from 'lucide-react';
+import { 
+  Telescope, 
+  Linkedin, 
+  Instagram, 
+  Facebook, 
+  Mail, 
+  Phone, 
+  MessageSquare, 
+  GraduationCap, 
+  Globe, 
+  Layers, 
+  CheckCircle2, 
+  Users, 
+  Check, 
+  ShieldCheck, 
+  Zap,
+  Heart
+} from 'lucide-react';
 import { cn } from './lib/utils';
 
 const LOGO_URL = "https://i.ibb.co/3ykG4SjV/logo.png";
 
 type ViewState = 'main' | 'careers' | 'faq-full' | 'services-full';
+
+// Helper for Service details in the routed page
+const SERVICE_DETAILS: Record<number, { whatIsIt: string; howWeHelp: string; benefits: string }> = {
+  1: {
+    whatIsIt: "A deep-dive assessment of your academic credentials, language skills, and financial standing.",
+    howWeHelp: "We analyze your profile against global admission standards to identify the most viable pathways for your success.",
+    benefits: "Accurate eligibility check, saving time and money on mismatched applications."
+  },
+  2: {
+    whatIsIt: "Strategically matching your career aspirations with the right course and university globally.",
+    howWeHelp: "Our experts leverage a network of 450+ universities to find programs that align with your long-term goals.",
+    benefits: "Personalized education plan that maximizes career ROI and employability."
+  },
+  3: {
+    whatIsIt: "The technical process of compiling, reviewing, and submitting high-impact application files.",
+    howWeHelp: "We provide meticulous editing for SOPs and ensure every document meets specific university requirements.",
+    benefits: "Higher acceptance rates through professional, error-free presentation."
+  },
+  4: {
+    whatIsIt: "Intensive training sessions designed to prepare you for university and visa interviews.",
+    howWeHelp: "Mock interviews and detailed feedback on communication, confidence, and content.",
+    benefits: "Reduced anxiety and polished responses that impress admission officers."
+  },
+  5: {
+    whatIsIt: "End-to-end management of the complex student visa application process.",
+    howWeHelp: "We navigate changing migration laws and ensure financial documentation is strictly compliant.",
+    benefits: "Peace of mind and high visa success rates through expert legal oversight."
+  },
+  6: {
+    whatIsIt: "Alternative pathways including Foundation, Diploma, and Pre-Masters for students meeting specific criteria.",
+    howWeHelp: "Identifying flexible entry points if direct admission requirements are not initially met.",
+    benefits: "Accessibility to top-tier universities regardless of previous academic hurdles."
+  },
+  7: {
+    whatIsIt: "Comprehensive logistics support covering everything from flight booking to finding your first home abroad.",
+    howWeHelp: "Orientation on local culture, bank accounts, and part-time work regulations in your destination.",
+    benefits: "A smooth, stress-free transition from your home in Sri Lanka to your global campus."
+  }
+};
 
 const SectionBadge: React.FC<{ text: string; lightVariant?: boolean; amberOutline?: boolean }> = ({ text, lightVariant, amberOutline }) => (
   <div className={`inline-flex items-center space-x-2 px-4 py-2 rounded-full mb-6 border ${
@@ -290,23 +347,52 @@ const App: React.FC = () => {
               <p className="text-slate-500 text-xl font-medium leading-relaxed">A comprehensive guide to the professional services we provide for Sri Lankan students.</p>
             </div>
             <div className="grid grid-cols-1 gap-12 max-w-5xl mx-auto">
-              {SERVICES.map((s) => (
-                <div key={s.id} className="bg-white p-10 md:p-16 rounded-[3.5rem] shadow-xl border border-slate-100 flex flex-col md:row gap-10 items-start hover:shadow-2xl transition-all">
-                  <div className={`w-20 h-20 ${s.iconBg} ${s.iconColor} rounded-[2.5rem] flex items-center justify-center text-4xl shrink-0 shadow-lg border border-white`}>
-                    <i className={`fa-solid ${s.icon}`}></i>
-                  </div>
-                  <div className="flex-1">
-                    <h2 className="text-3xl font-black text-[#1A1F2C] mb-6 uppercase tracking-tight">{s.title}</h2>
-                    <div className="space-y-4 text-slate-600 text-lg leading-relaxed font-medium mb-10">
-                      <p>Our {s.title.toLowerCase()} service at Gradway (Private) Limited is tailored specifically to your unique academic and professional needs.</p>
-                      <p><strong>What it is:</strong> We provide structured guidance that covers every minute detail of your journey.</p>
-                      <p><strong>How we help:</strong> By leveraging our deep network of global university partners and migration expertise, we remove the guesswork from your application.</p>
-                      <p><strong>Benefits:</strong> You gain peace of mind, professional paperwork, and significantly higher success rates for both admissions and visas.</p>
+              {SERVICES.map((s) => {
+                const details = SERVICE_DETAILS[s.id];
+                return (
+                  <div key={s.id} className="bg-white p-10 md:p-16 rounded-[3.5rem] shadow-xl border border-slate-100 flex flex-col md:flex-row gap-12 items-start hover:shadow-2xl transition-all overflow-hidden group">
+                    <div className={`w-24 h-24 ${s.iconBg} ${s.iconColor} rounded-[2.5rem] flex items-center justify-center text-5xl shrink-0 shadow-lg border border-white group-hover:scale-110 transition-transform`}>
+                      <i className={`fa-solid ${s.icon}`}></i>
                     </div>
-                    <button onClick={() => scrollToId('contact')} className="bg-[#1A1F2C] text-white px-10 py-5 rounded-full font-black text-[11px] uppercase tracking-widest shadow-xl hover:bg-amber-500 active:scale-95 transition-all">Start Your Process</button>
+                    <div className="flex-1 space-y-10">
+                      <div>
+                        <h2 className="text-4xl font-black text-[#1A1F2C] mb-4 uppercase tracking-tight">{s.title}</h2>
+                        <div className="h-1.5 w-24 bg-amber-500 rounded-full mb-8"></div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3 text-amber-600">
+                             <ShieldCheck size={20} />
+                             <span className="text-[10px] font-black uppercase tracking-widest">What is it?</span>
+                          </div>
+                          <p className="text-slate-600 text-sm leading-relaxed font-medium">{details?.whatIsIt || s.description}</p>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3 text-indigo-600">
+                             <Zap size={20} />
+                             <span className="text-[10px] font-black uppercase tracking-widest">How we help?</span>
+                          </div>
+                          <p className="text-slate-600 text-sm leading-relaxed font-medium">{details?.howWeHelp || "Direct expertise tailored to your goals."}</p>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3 text-emerald-600">
+                             <Check size={20} />
+                             <span className="text-[10px] font-black uppercase tracking-widest">The Benefit?</span>
+                          </div>
+                          <p className="text-slate-600 text-sm leading-relaxed font-medium">{details?.benefits || "Successful global academic entry."}</p>
+                        </div>
+                      </div>
+
+                      <button onClick={() => scrollToId('contact')} className="bg-[#1A1F2C] text-white px-10 py-5 rounded-full font-black text-[11px] uppercase tracking-widest shadow-xl hover:bg-amber-500 active:scale-95 transition-all inline-flex items-center gap-3">
+                         Book a Consultation <i className="fa-solid fa-arrow-right"></i>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </main>
@@ -362,47 +448,53 @@ const App: React.FC = () => {
 
           <div className="lg:w-1/2 relative h-[500px] md:h-[650px] w-full flex items-center justify-center">
              <div className="relative w-full h-full max-w-[600px]">
-               <div className="hero-bubble absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160px] h-[160px] md:w-[260px] md:h-[260px] bg-white/95 backdrop-blur-md z-20 flex flex-col items-center justify-center shadow-2xl animate-float-center hero-bubble-center p-8">
-                  <span className="text-3xl md:text-5xl mb-2">❤️</span>
-                  <span className="text-[10px] md:text-xl font-black uppercase tracking-tight text-[#1A1F2C]">Students <br/> First</span>
+               {/* STUDENTS FIRST BUBBLE (CENTER) */}
+               <div className="hero-bubble absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160px] h-[160px] md:w-[260px] md:h-[260px] bg-white z-20 flex flex-col items-center justify-center shadow-2xl animate-float-center hero-bubble-center p-8 text-slate-900">
+                  <Heart size={48} className="mb-2 md:mb-4 fill-red-500 text-red-600" />
+                  <span className="text-[12px] md:text-xl font-black uppercase tracking-widest leading-none">Students</span>
+                  <span className="text-[12px] md:text-xl font-black uppercase tracking-widest leading-none">First</span>
                </div>
                
-               {/* Bubble 1: 450+ Universities */}
-               <div className="hero-bubble absolute top-[15%] left-[5%] lg:top-[8%] lg:left-[2%] w-[100px] h-[100px] md:w-[170px] md:h-[170px] bg-amber-400 z-30 animate-float-tl p-4">
+               {/* Bubble 1: 450+ UNIVERSITIES (TOP-LEFT) */}
+               <div className="hero-bubble absolute top-[15%] left-[5%] lg:top-[8%] lg:left-[2%] w-[100px] h-[100px] md:w-[170px] md:h-[170px] bg-[#FFB800] z-30 animate-float-tl p-4 text-[#1A1F2C]">
                   <GraduationCap size={40} className="mb-2 hidden md:block" />
                   <GraduationCap size={20} className="mb-1 md:hidden" />
-                  <span className="text-xl md:text-4xl font-black">450+</span>
-                  <span className="text-[7px] md:text-[11px] font-bold uppercase tracking-widest">Universities</span>
+                  <span className="text-xl md:text-4xl font-black leading-none">450+</span>
+                  <span className="text-[7px] md:text-[11px] font-black uppercase tracking-widest opacity-80">Universities</span>
                </div>
                
-               {/* Bubble 2: 10+ Countries */}
-               <div className="hero-bubble absolute top-[10%] right-[5%] lg:top-[5%] lg:right-[2%] w-[110px] h-[110px] md:w-[180px] md:h-[180px] bg-white z-10 border border-slate-100 shadow-lg animate-float-tr p-4">
-                  <Globe size={40} className="mb-2 hidden md:block text-amber-500" />
-                  <Globe size={20} className="mb-1 md:hidden text-amber-500" />
-                  <span className="text-xl md:text-4xl font-black text-[#1A1F2C]">10+</span>
-                  <span className="text-[7px] md:text-[11px] font-bold uppercase text-slate-400">Countries</span>
+               {/* Bubble 2: 10+ COUNTRIES (TOP-RIGHT) */}
+               <div className="hero-bubble absolute top-[10%] right-[5%] lg:top-[5%] lg:right-[2%] w-[110px] h-[110px] md:w-[180px] md:h-[180px] bg-white z-10 animate-float-tr p-4 border border-slate-100">
+                  <Globe size={40} className="mb-2 hidden md:block text-[#FFB800]" />
+                  <Globe size={20} className="mb-1 md:hidden text-[#FFB800]" />
+                  <span className="text-xl md:text-4xl font-black text-[#1A1F2C] leading-none">10+</span>
+                  <span className="text-[7px] md:text-[11px] font-black uppercase tracking-widest text-slate-400">Countries</span>
                </div>
                
-               {/* Bubble 3: 10k+ Programs - MOVED LEFT & SPREAD OUT */}
-               <div className="hero-bubble absolute bottom-[15%] left-[2%] lg:bottom-[15%] lg:left-[-10%] w-[110px] h-[110px] md:w-[180px] md:h-[180px] bg-indigo-600 z-30 animate-float-bl p-4 text-white">
+               {/* Bubble 3: 10k+ PROGRAMS (BOTTOM-LEFT) */}
+               <div className="hero-bubble absolute bottom-[15%] left-[2%] lg:bottom-[15%] lg:left-[-10%] w-[110px] h-[110px] md:w-[180px] md:h-[180px] bg-[#4F46E5] z-30 animate-float-bl p-4 text-white">
                   <Layers size={40} className="mb-2 hidden md:block" />
                   <Layers size={20} className="mb-1 md:hidden" />
-                  <span className="text-xl md:text-4xl font-black">10k+</span>
-                  <span className="text-[7px] md:text-[11px] font-bold uppercase tracking-widest">Programs</span>
+                  <span className="text-xl md:text-4xl font-black leading-none">10k+</span>
+                  <span className="text-[7px] md:text-[11px] font-black uppercase tracking-widest opacity-80">Programs</span>
                </div>
                
-               {/* Bubble 4: End to End Management - MOVED UP & SPREAD OUT */}
-               <div className="hero-bubble absolute bottom-[5%] right-[2%] lg:bottom-[15%] lg:right-[-10%] w-[110px] h-[110px] md:w-[190px] md:h-[190px] bg-black z-20 animate-float-br p-4 text-white border-white/20">
-                  <CheckCircle2 size={40} className="mb-2 hidden md:block" />
-                  <CheckCircle2 size={20} className="mb-1 md:hidden" />
-                  <span className="text-[6px] md:text-[10px] font-black uppercase tracking-widest leading-tight">End to End <br/> Application <br/> Management</span>
+               {/* Bubble 4: APPLICATION MANAGEMENT (BOTTOM-RIGHT) */}
+               <div className="hero-bubble absolute bottom-[5%] right-[2%] lg:bottom-[15%] lg:right-[-10%] w-[110px] h-[110px] md:w-[200px] md:h-[200px] bg-black z-20 animate-float-br p-6 text-white text-center">
+                  <CheckCircle2 size={40} className="mb-2 hidden md:block text-white" />
+                  <CheckCircle2 size={20} className="mb-1 md:hidden text-white" />
+                  <div className="flex flex-col items-center">
+                    <span className="text-[6px] md:text-[9px] font-black uppercase tracking-widest leading-tight">End to End</span>
+                    <span className="text-[6px] md:text-[9px] font-black uppercase tracking-widest leading-tight">Application</span>
+                    <span className="text-[6px] md:text-[9px] font-black uppercase tracking-widest leading-tight">Management</span>
+                  </div>
                </div>
              </div>
           </div>
         </div>
       </section>
 
-      {/* About Section - Restoration of what was there before Help Centre */}
+      {/* About Section */}
       <section id="aboutus" className="py-24 bg-white relative overflow-hidden scroll-mt-[76px]">
         <div className="container mx-auto px-4 lg:px-12 flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2">
@@ -431,7 +523,7 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Our Expertise (Formerly Services) */}
+      {/* Our Services Section */}
       <section id="services" className="py-24 bg-slate-50 scroll-mt-[76px]">
         <div className="container mx-auto px-4 lg:px-12">
           <div className="text-center max-w-2xl mx-auto mb-16">
@@ -462,7 +554,7 @@ const App: React.FC = () => {
                   <h3 className="text-lg font-black text-[#1A1F2C] mb-4 leading-tight relative z-10 uppercase">{s.title}</h3>
                   <p className={cn(
                     "text-slate-500 text-xs leading-relaxed mb-6 flex-1 font-medium relative z-10",
-                    isLast ? "line-clamp-2 md:line-clamp-none max-w-lg" : "line-clamp-1"
+                    isLast ? "max-w-lg" : ""
                   )}>
                     {s.description}
                   </p>
@@ -476,41 +568,43 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Destinations */}
+      {/* Destinations Section */}
       <section id="destinations" className="py-24 bg-white scroll-mt-[76px]">
         <div className="container mx-auto px-4 lg:px-12">
-          <div className="mb-6 text-center lg:text-left">
+          <div className="mb-10 text-center lg:text-left">
              <SectionBadge text="World Map" />
              <h2 className="text-3xl md:text-6xl font-black text-[#1A1F2C] tracking-tighter uppercase">Our Global Destinations</h2>
           </div>
           {['Europe', 'Americas & Pacific', 'Asia & Other'].map((region) => (
-            <div key={region} className="mb-10">
-              <div className="flex justify-between items-center mb-4 border-l-4 border-amber-500 pl-6">
+            <div key={region} className="mb-12">
+              <div className="flex justify-between items-center mb-6 border-l-4 border-amber-500 pl-6">
                 <h3 className="text-2xl font-black text-[#1A1F2C] uppercase tracking-widest text-sm">{region}</h3>
                 <div className="flex gap-2">
                   <button onClick={() => scrollContainer(region, 'left')} className="w-10 h-10 border border-slate-200 rounded-full flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all"><i className="fa-solid fa-chevron-left text-xs"></i></button>
                   <button onClick={() => scrollContainer(region, 'right')} className="w-10 h-10 border border-slate-200 rounded-full flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all"><i className="fa-solid fa-chevron-right text-xs"></i></button>
                 </div>
               </div>
-              <div ref={(el) => { scrollRefs.current[region] = el; }} className="flex overflow-x-auto scrollbar-hide space-x-6 pb-6 px-2 snap-x snap-mandatory">
+              <div ref={(el) => { scrollRefs.current[region] = el; }} className="flex overflow-x-auto scrollbar-hide space-x-6 pb-8 px-2 snap-x snap-mandatory">
                 {DESTINATIONS.filter(d => d.region === region).map((dest) => (
                   <div key={dest.id} className="min-w-[75vw] md:min-w-[340px] snap-center">
-                    <div className="relative h-full rounded-[3.5rem] border-[0.75px] border-transparent p-2">
+                    <div className="relative h-full rounded-[3.5rem] border-[1px] border-transparent p-4 overflow-visible">
                       <GlowingEffect
-                        spread={40}
+                        spread={50}
                         glow={true}
                         disabled={false}
-                        proximity={64}
+                        proximity={100}
                         inactiveZone={0.01}
-                        borderWidth={3}
+                        borderWidth={4}
                       />
-                      <div className="relative flex h-[300px] flex-col justify-between overflow-hidden rounded-[3.25rem] border bg-slate-50 p-10 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-2xl group cursor-pointer">
-                        <div className="flex justify-between items-start mb-6 relative z-10">
-                           <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform"><i className={`${dest.icon} text-2xl`} style={{ color: dest.color }}></i></div>
-                           <img src={dest.image} alt={dest.name} className="w-12 h-7 object-cover rounded shadow-sm border border-white" />
+                      <div className="relative flex h-[380px] flex-col justify-between overflow-hidden rounded-[3.25rem] border bg-white p-10 shadow-sm transition-all duration-300 hover:shadow-2xl group cursor-pointer border-slate-100">
+                        <div className="flex justify-between items-start mb-8 relative z-10">
+                           <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.05)] group-hover:scale-110 transition-transform border border-slate-50">
+                              <i className={`${dest.icon} text-4xl`} style={{ color: dest.color }}></i>
+                           </div>
+                           <img src={dest.image} alt={dest.name} className="w-16 h-10 object-cover rounded shadow-md border-[0.5px] border-black/10" />
                         </div>
-                        <h3 className="text-2xl font-black text-[#1A1F2C] mb-4 relative z-10 uppercase">{dest.name}</h3>
-                        <p className="text-slate-500 text-xs leading-relaxed mb-8 flex-1 font-medium relative z-10">{dest.description}</p>
+                        <h3 className="text-3xl font-black text-[#1A1F2C] mb-4 relative z-10 uppercase tracking-tighter">{dest.name}</h3>
+                        <p className="text-slate-500 text-sm leading-relaxed mb-8 flex-1 font-medium relative z-10">{dest.description}</p>
                         <button onClick={() => scrollToId('contact')} className="text-[10px] font-black uppercase tracking-widest text-amber-600 flex items-center gap-2 group-hover:translate-x-2 transition-transform relative z-10">Learn More <i className="fa-solid fa-arrow-right"></i></button>
                       </div>
                     </div>
@@ -522,7 +616,7 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Stories */}
+      {/* Stories Section */}
       <section id="stories" className="py-24 bg-[#0a0d14] text-white scroll-mt-[76px]">
         <div className="container mx-auto px-4 lg:px-12 text-center mb-16">
           <SectionBadge text="Real Stories" lightVariant />

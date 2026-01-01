@@ -1,6 +1,8 @@
+
 "use client";
 
-import { memo, useCallback, useEffect, useRef } from "react";
+// Import React explicitly to fix 'Cannot find namespace React' errors
+import React, { memo, useCallback, useEffect, useRef } from "react";
 import { cn } from "../../lib/utils";
 import { animate } from "motion/react";
 
@@ -142,20 +144,20 @@ const GlowingEffect = memo(
                 variant === "white"
                   ? `repeating-conic-gradient(
                   from 236.84deg at 50% 50%,
-                  var(--black),
-                  var(--black) calc(25% / var(--repeating-conic-gradient-times))
+                  #000,
+                  #000 calc(25% / var(--repeating-conic-gradient-times))
                 )`
-                  : `radial-gradient(circle, #dd7bbb 10%, #dd7bbb00 20%),
-                radial-gradient(circle at 40% 40%, #d79f1e 5%, #d79f1e00 15%),
-                radial-gradient(circle at 60% 60%, #5a922c 10%, #5a922c00 20%), 
-                radial-gradient(circle at 40% 60%, #4c7894 10%, #4c789400 20%),
+                  : `radial-gradient(circle, #fbbf24 10%, #fbbf2400 20%),
+                radial-gradient(circle at 40% 40%, #f59e0b 5%, #f59e0b00 15%),
+                radial-gradient(circle at 60% 60%, #4f46e5 10%, #4f46e500 20%), 
+                radial-gradient(circle at 40% 60%, #1A1F2C 10%, #1A1F2C00 20%),
                 repeating-conic-gradient(
                   from 236.84deg at 50% 50%,
-                  #dd7bbb 0%,
-                  #d79f1e calc(25% / var(--repeating-conic-gradient-times)),
-                  #5a922c calc(50% / var(--repeating-conic-gradient-times)), 
-                  #4c7894 calc(75% / var(--repeating-conic-gradient-times)),
-                  #dd7bbb calc(100% / var(--repeating-conic-gradient-times))
+                  #fbbf24 0%,
+                  #f59e0b calc(25% / var(--repeating-conic-gradient-times)),
+                  #4f46e5 calc(50% / var(--repeating-conic-gradient-times)), 
+                  #1A1F2C calc(75% / var(--repeating-conic-gradient-times)),
+                  #fbbf24 calc(100% / var(--repeating-conic-gradient-times))
                 )`,
             } as React.CSSProperties
           }
