@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "motion/react"
@@ -18,13 +19,18 @@ interface ScrollNavbarProps {
   onNavigate?: (id: string) => void
 }
 
+const TIKTOK_URL = "https://www.tiktok.com/@gradway_education?_r=1&_t=ZS-92huBpIVt6y";
+const WA_PHONE = "94775009929";
+const WA_PREFILLED_MSG = encodeURIComponent("Hi, I’m interested in studying abroad.\n\nName:\nPreferred Study Country:\nIntended Program / Level:\n\nThank you.");
+const WA_LINK = `https://wa.me/${WA_PHONE}?text=${WA_PREFILLED_MSG}`;
+
 const defaultMenuItems: MenuItem[] = [
-  { id: 1, title: "Home", url: "top", icon: <Home className="w-3.5 h-3.5" /> },
-  { id: 2, title: "About Us", url: "aboutus", icon: <User className="w-3.5 h-3.5" /> },
-  { id: 3, title: "Services", url: "services", icon: <Settings className="w-3.5 h-3.5" /> },
-  { id: 4, title: "Destinations", url: "destinations", icon: <Info className="w-3.5 h-3.5" /> },
-  { id: 5, title: "Stories", url: "stories", icon: <Quote className="w-3.5 h-3.5" /> },
-  { id: 6, title: "Contact", url: "contact", icon: <Mail className="w-3.5 h-3.5" /> }
+  { id: 1, title: "Home", url: "top", icon: <Home className="w-4 h-4" /> },
+  { id: 2, title: "About Us", url: "aboutus", icon: <User className="w-4 h-4" /> },
+  { id: 3, title: "Services", url: "services", icon: <Settings className="w-4 h-4" /> },
+  { id: 4, title: "Destinations", url: "destinations", icon: <Info className="w-4 h-4" /> },
+  { id: 5, title: "Stories", url: "stories", icon: <Quote className="w-4 h-4" /> },
+  { id: 6, title: "Contact", url: "contact", icon: <Mail className="w-4 h-4" /> }
 ]
 
 export const ScrollNavigation: React.FC<ScrollNavbarProps> = ({ 
@@ -211,39 +217,39 @@ export const ScrollNavigation: React.FC<ScrollNavbarProps> = ({
               initial="closed"
               animate="open"
               exit="closed"
-              className="relative w-full max-w-[280px] bg-white border border-slate-50 rounded-[2.5rem] shadow-[0_32px_80px_-12px_rgba(0,0,0,0.6)] z-[310] flex flex-col overflow-hidden max-h-[85vh]"
+              className="relative w-full max-w-[310px] bg-white border border-slate-100 rounded-[3rem] shadow-[0_32px_80px_-12px_rgba(0,0,0,0.6)] z-[310] flex flex-col overflow-hidden max-h-[95vh]"
             >
-              <div className="p-5 flex flex-col items-center overflow-y-auto scrollbar-hide">
+              <div className="p-6 flex flex-col items-center">
                 <motion.button
                   onClick={toggleMenu}
-                  className="absolute top-4 right-4 p-1.5 text-slate-300 hover:text-red-500 rounded-full hover:bg-slate-50 transition-colors z-[320]"
+                  className="absolute top-5 right-5 p-2 text-slate-300 hover:text-red-500 rounded-full hover:bg-slate-50 transition-colors z-[320]"
                   whileHover={{ scale: 1.1, rotate: 90 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-5 h-5" />
                 </motion.button>
 
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md p-1.5 border border-slate-50 mb-4 mt-2">
+                <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-md p-2 border border-slate-50 mb-6 mt-2">
                   <img src={logoUrl} alt="Logo" className="w-full h-full object-contain" />
                 </div>
 
-                <div className="w-full space-y-1">
+                <div className="w-full space-y-1.5">
                   {menuItems.map((item) => (
                     <motion.div
                       key={item.id}
                       variants={itemVariants}
-                      whileHover={{ scale: 1.02, x: 3 }}
+                      whileHover={{ scale: 1.02, x: 4 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       <a
                         href={`#${item.url}`}
                         onClick={(e) => scrollToSection(e, item.url)}
-                        className="flex items-center space-x-3.5 px-4 py-2.5 rounded-[1.25rem] bg-slate-50/80 hover:bg-amber-50 border border-transparent hover:border-amber-100 transition-all group"
+                        className="flex items-center space-x-4 px-5 py-3 rounded-[1.5rem] bg-slate-50/80 hover:bg-amber-50 border border-transparent hover:border-amber-100 transition-all group"
                       >
-                        <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center text-amber-500 shadow-sm group-hover:bg-amber-500 group-hover:text-white transition-all duration-300">
+                        <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center text-amber-500 shadow-sm group-hover:bg-amber-500 group-hover:text-white transition-all duration-300">
                           {item.icon}
                         </div>
-                        <span className="text-[8.5px] font-black uppercase tracking-[0.2em] text-[#1A1F2C]">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#1A1F2C]">
                           {item.title}
                         </span>
                       </a>
@@ -251,17 +257,17 @@ export const ScrollNavigation: React.FC<ScrollNavbarProps> = ({
                   ))}
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-slate-100 w-full flex flex-col items-center">
-                  <div className="flex justify-center gap-4 mb-4">
+                <div className="mt-6 pt-6 border-t border-slate-100 w-full flex flex-col items-center">
+                  <div className="flex flex-row items-center justify-center gap-5 mb-6 flex-nowrap overflow-visible">
                     <motion.a 
-                      href="https://wa.me/94775009929" 
+                      href={WA_LINK} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-[#25D366]"
                       whileHover={{ scale: 1.3, y: -5 }}
                       whileTap={{ scale: 0.9 }}
                     >
-                      <i className="fa-brands fa-whatsapp text-xl"></i>
+                      <i className="fa-brands fa-whatsapp text-2xl"></i>
                     </motion.a>
                     <motion.a 
                       href="https://web.facebook.com/p/GradWay-Education-Consultancy-61577557164852" 
@@ -271,7 +277,7 @@ export const ScrollNavigation: React.FC<ScrollNavbarProps> = ({
                       whileHover={{ scale: 1.3, y: -5 }}
                       whileTap={{ scale: 0.9 }}
                     >
-                      <i className="fa-brands fa-facebook text-xl"></i>
+                      <i className="fa-brands fa-facebook text-2xl"></i>
                     </motion.a>
                     <motion.a 
                       href="https://www.instagram.com/gradway_education" 
@@ -281,7 +287,17 @@ export const ScrollNavigation: React.FC<ScrollNavbarProps> = ({
                       whileHover={{ scale: 1.3, y: -5 }}
                       whileTap={{ scale: 0.9 }}
                     >
-                      <i className="fa-brands fa-instagram text-xl"></i>
+                      <i className="fa-brands fa-instagram text-2xl"></i>
+                    </motion.a>
+                    <motion.a 
+                      href={TIKTOK_URL} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-black"
+                      whileHover={{ scale: 1.3, y: -5 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <i className="fa-brands fa-tiktok text-2xl"></i>
                     </motion.a>
                     <motion.a 
                       href="https://www.linkedin.com/company/gradway-pvt-ltd-sl/" 
@@ -291,13 +307,13 @@ export const ScrollNavigation: React.FC<ScrollNavbarProps> = ({
                       whileHover={{ scale: 1.3, y: -5 }}
                       whileTap={{ scale: 0.9 }}
                     >
-                      <i className="fa-brands fa-linkedin text-xl"></i>
+                      <i className="fa-brands fa-linkedin text-2xl"></i>
                     </motion.a>
                   </div>
                   
                   <div className="flex flex-col items-center leading-tight">
-                    <span className="text-[8px] font-black text-[#1A1F2C] uppercase tracking-[0.3em]">Migration</span>
-                    <span className="text-[8px] font-black text-amber-500 uppercase tracking-[0.3em]">Simplified!!</span>
+                    <span className="text-[10px] font-black text-[#1A1F2C] uppercase tracking-[0.3em]">Migration</span>
+                    <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em]">Simplified!!</span>
                   </div>
                 </div>
               </div>

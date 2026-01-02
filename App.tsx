@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { DESTINATIONS, SERVICES, SUCCESS_STORIES, MAIN_FAQ, FULL_FAQ } from './constants';
 import { getGeminiResponse } from './services/geminiService';
 import { ScrollNavigation } from './components/ui/scroll-navigation-menu';
@@ -22,15 +22,29 @@ import {
   Check, 
   ShieldCheck, 
   Zap,
-  Heart
+  Star,
+  Trophy,
+  Heart,
+  X,
+  FileText,
+  ShieldAlert,
+  ArrowUp
 } from 'lucide-react';
 import { cn } from './lib/utils';
 
 const LOGO_URL = "https://i.ibb.co/3ykG4SjV/logo.png";
+const TIKTOK_URL = "https://www.tiktok.com/@gradway_education?_r=1&_t=ZS-92huBpIVt6y";
+const WA_PHONE = "94775009929";
+const WA_PREFILLED_MSG = encodeURIComponent("Hi, I’m interested in studying abroad.\n\nName:\nPreferred Study Country:\nIntended Program / Level:\n\nThank you.");
+const WA_LINK = `https://wa.me/${WA_PHONE}?text=${WA_PREFILLED_MSG}`;
 
 type ViewState = 'main' | 'careers' | 'faq-full' | 'services-full';
+type ModalType = 'none' | 'privacy' | 'terms';
 
-// Helper for Service details in the routed page
+const StudentsFirstIcon = ({ className }: { className?: string }) => (
+  <Heart className={cn("w-full h-full text-[#FF4D4D] fill-[#FF4D4D]", className)} strokeWidth={1} />
+);
+
 const SERVICE_DETAILS: Record<number, { whatIsIt: string; howWeHelp: string; benefits: string }> = {
   1: {
     whatIsIt: "A deep-dive assessment of your academic credentials, language skills, and financial standing.",
@@ -53,7 +67,7 @@ const SERVICE_DETAILS: Record<number, { whatIsIt: string; howWeHelp: string; ben
     benefits: "Reduced anxiety and polished responses that impress admission officers."
   },
   5: {
-    whatIsIt: "End-to-end management of the complex student visa application process.",
+    whatIsIt: "Expert guidance through international student visa and immigration laws, tailored to global study destinations.",
     howWeHelp: "We navigate changing migration laws and ensure financial documentation is strictly compliant.",
     benefits: "Peace of mind and high visa success rates through expert legal oversight."
   },
@@ -124,8 +138,396 @@ const FAQAccordion: React.FC<{ items: typeof MAIN_FAQ }> = ({ items }) => {
   );
 };
 
+const NumberedSection: React.FC<{ num: string | number; title: string; color?: 'amber' | 'indigo' | 'blue' }> = ({ num, title, color = 'amber' }) => (
+  <h4 className="font-black text-[#1A1F2C] text-sm uppercase tracking-widest mb-4 flex items-center gap-3">
+    <span className={cn(
+      "w-8 h-8 rounded-lg text-white flex items-center justify-center text-[10px] shrink-0 transition-colors",
+      color === 'amber' ? "bg-amber-500" : color === 'blue' ? "bg-blue-600" : "bg-indigo-500"
+    )}>{num}</span>
+    {title}
+  </h4>
+);
+
+const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, onClose }) => {
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [onClose]);
+
+  if (type === 'none') return null;
+
+  const LegalFooter = ({ colorClass = 'text-amber-500', sectionNum = "12", sectionColor = "blue" }: { colorClass?: string; sectionNum?: string; sectionColor?: 'blue' | 'amber' }) => (
+    <section className="pt-10 border-t border-slate-100 text-center space-y-8 pb-16">
+      <div>
+        <NumberedSection num={sectionNum} title="Contact Information" color={sectionColor} />
+        <p className={cn("font-black uppercase tracking-tighter text-2xl mb-1", sectionColor === 'amber' ? "text-amber-500" : "text-[#1A1F2C]")}>Gradway (Pvt) Limited</p>
+        <p className="font-bold text-slate-600 text-[13px] mb-8">Reach us at info@gradwayedu.com</p>
+      </div>
+      
+      <hr className="border-slate-100 w-full mx-auto" />
+
+      <div className="flex flex-row justify-center items-center gap-6 md:gap-10 px-4">
+        <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="text-[#25D366] hover:scale-125 transition-all text-3xl"><i className="fa-brands fa-whatsapp"></i></a>
+        <a href="https://web.facebook.com/p/GradWay-Education-Consultancy-61577557164852" target="_blank" rel="noopener noreferrer" className="text-[#1877F2] hover:scale-125 transition-all text-3xl"><i className="fa-brands fa-facebook"></i></a>
+        <a href="https://www.instagram.com/gradway_education" target="_blank" rel="noopener noreferrer" className="text-[#E4405F] hover:scale-125 transition-all text-3xl"><i className="fa-brands fa-instagram"></i></a>
+        <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" className="text-black hover:scale-125 transition-all text-3xl"><i className="fa-brands fa-tiktok"></i></a>
+        <a href="https://www.linkedin.com/company/gradway-pvt-ltd-sl/" target="_blank" rel="noopener noreferrer" className="text-[#0077B5] hover:scale-125 transition-all text-3xl"><i className="fa-brands fa-linkedin"></i></a>
+      </div>
+
+      <div className="flex flex-col items-center leading-tight pt-4">
+        <span className="text-[10px] font-black text-[#1A1F2C] uppercase tracking-[0.3em]">Migration</span>
+        <span className={cn("text-[10px] font-black uppercase tracking-[0.3em]", colorClass)}>Simplified!!</span>
+      </div>
+    </section>
+  );
+
+  const privacyBody = (
+    <div className="space-y-12 text-slate-600 text-[13px] md:text-sm leading-relaxed font-medium">
+      <div className="text-center border-b border-slate-100 pb-10">
+        <h4 className="text-4xl font-black text-[#1A1F2C] uppercase tracking-tighter mb-2">Privacy Policy</h4>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600">Gradway (Private) Limited</p>
+        <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase">Education Consultancy Services – Sri Lanka</p>
+        <p className="text-[10px] font-bold text-slate-400 mt-6 bg-slate-50 inline-block px-4 py-1.5 rounded-full">Last Updated: 01/01/2026</p>
+      </div>
+
+      <p className="text-base font-semibold text-[#1A1F2C]">
+        Gradway (Private) Limited (“Gradway”, “we”, “our”, or “us”) is committed to protecting the privacy, confidentiality, and security of personal data entrusted to us.
+      </p>
+
+      <p>
+        This Privacy Policy explains how personal data is collected, used, disclosed, stored, and protected in accordance with the <strong>Personal Data Protection Act No. 9 of 2022 of Sri Lanka</strong>, and in line with internationally accepted data protection principles.
+        By accessing our website, submitting enquiries, or engaging our services, you acknowledge that you have read and understood this Privacy Policy and consent to the practices described herein.
+      </p>
+
+      <section>
+        <NumberedSection num="1" title="Information Collection" />
+        <p className="mb-4">We collect personal data only where it is lawful, necessary, and proportionate for the provision of education consultancy services.</p>
+        <p className="mb-6 font-bold text-[#1A1F2C]">The categories of personal data we may collect include:</p>
+        
+        <div className="space-y-8 ml-4">
+          <div className="py-1">
+            <h5 className="font-black text-[#1A1F2C] text-[11px] uppercase tracking-widest mb-3 underline underline-offset-4 decoration-blue-500/30">Personal and Contact Information</h5>
+            <ul className="list-disc ml-6 space-y-2">
+              <li>Full name, date of birth, and nationality</li>
+              <li>Residential address, email address, and phone number</li>
+              <li>Passport and identification details (where required)</li>
+            </ul>
+          </div>
+          
+          <div className="py-1">
+            <h5 className="font-black text-[#1A1F2C] text-[11px] uppercase tracking-widest mb-3 underline underline-offset-4 decoration-blue-500/30">Academic and Professional Information</h5>
+            <ul className="list-disc ml-6 space-y-2">
+              <li>Academic history, qualifications, transcripts, and certificates</li>
+              <li>English language test results (IELTS, TOEFL, etc.)</li>
+              <li>Employment history, curriculum vitae, portfolios, and references (where applicable)</li>
+            </ul>
+          </div>
+          
+          <div className="py-1">
+            <h5 className="font-black text-[#1A1F2C] text-[11px] uppercase tracking-widest mb-3 underline underline-offset-4 decoration-blue-500/30">Financial and Compliance Information</h5>
+            <ul className="list-disc ml-6 space-y-2">
+              <li>Proof of financial capacity and sponsorship details</li>
+              <li>Payment records</li>
+              <li>Visa and immigration documentation and police clearance certificates</li>
+              <li>Health-related information strictly where required for applications</li>
+            </ul>
+          </div>
+          
+          <div className="py-1">
+            <h5 className="font-black text-[#1A1F2C] text-[11px] uppercase tracking-widest mb-3 underline underline-offset-4 decoration-blue-500/30">Communication and Technical Information</h5>
+            <ul className="list-disc ml-6 space-y-2">
+              <li>Records of consultations and correspondence</li>
+              <li>IP address, browser and device details</li>
+              <li>Website usage data, cookies, and analytics information used to ensure functionality, security, and service improvement</li>
+            </ul>
+          </div>
+        </div>
+        <p className="mt-6 font-medium italic text-slate-400">We do not collect personal data that is unrelated to the delivery of our services.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="2" title="Consent" />
+        <p className="mb-6">Personal data is collected and processed with your explicit and informed consent, except where processing is otherwise permitted or required by law.</p>
+        
+        <div className="space-y-6">
+          <div className="space-y-4">
+            <p className="font-bold text-[#1A1F2C] uppercase text-[10px] tracking-widest border-b border-slate-100 pb-2">Consent is deemed provided when you:</p>
+            <ul className="list-disc ml-8 space-y-2">
+              <li>Submit enquiry or application forms</li>
+              <li>Contact us via email, phone, or messaging platforms</li>
+              <li>Book or attend consultations</li>
+              <li>Provide documentation for academic or visa processing</li>
+              <li>Proceed with or confirm engagement of our services</li>
+            </ul>
+          </div>
+          <div className="space-y-4">
+            <p className="font-bold text-[#1A1F2C] uppercase text-[10px] tracking-widest border-b border-slate-100 pb-2">You acknowledge that:</p>
+            <ul className="list-disc ml-8 space-y-2">
+              <li>Certain personal data is essential to assess eligibility and process applications</li>
+              <li>Processing is required to comply with institutional, immigration, and regulatory obligations</li>
+              <li>Withdrawal of consent may restrict or prevent continuation of services where processing is necessary to fulfil those obligations</li>
+            </ul>
+          </div>
+        </div>
+        <p className="mt-6 text-[12px]">You may withdraw consent at any time by contacting us in writing. Withdrawal will not affect processing already lawfully carried out.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="3" title="Use of Personal Data" />
+        <p className="mb-4">Personal data collected by Gradway is used solely for lawful and specified purposes, including:</p>
+        <ul className="list-disc ml-8 space-y-2 mb-8">
+          <li>Academic assessment and education pathway planning</li>
+          <li>Course, institution, and destination recommendations</li>
+          <li>Preparation and submission of applications</li>
+          <li>Visa and immigration guidance and documentation support</li>
+          <li>Communication of updates, requirements, and outcomes</li>
+          <li>Internal record-keeping for compliance, quality assurance, and dispute resolution</li>
+        </ul>
+        
+        <div className="space-y-6">
+          <NumberedSection num="3.1" title="Marketing & Success Announcements" color="amber" />
+          <p>Gradway may share general success updates related to admissions or visa outcomes for informational and promotional purposes, to demonstrate service experience and track record.</p>
+          <p>Such disclosures are limited, proportionate, and handled responsibly.</p>
+          <p className="font-bold">Without additional consent, Gradway may share only general, non-sensitive information, including:</p>
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 list-disc ml-8 mb-6">
+            <li>Name of applicant</li>
+            <li>Confirmation that a visa or admission has been granted</li>
+            <li>Destination country</li>
+            <li>Name of the institution and programme applied for</li>
+            <li>Type or level of programme or visa</li>
+            <li>Date on which the visa or admission was granted</li>
+            <li>Validity period of the visa, where applicable</li>
+          </ul>
+          
+          <div className="space-y-4">
+            <p className="font-bold mb-1">With explicit prior consent, we may additionally share:</p>
+            <ul className="list-disc ml-8 space-y-1">
+              <li>Photographs or videos taken for promotional or marketing purposes</li>
+              <li>Testimonials or statements provided voluntarily by the student</li>
+            </ul>
+            <p className="mt-4 text-[11px] leading-relaxed text-slate-400"><strong>Gradway does not publish</strong> passport numbers, identification numbers, full dates of birth, contact details, financial information, academic records, immigration documents, or any other sensitive personal data.</p>
+          </div>
+          <p>Consent for promotional use is obtained separately and may be withdrawn at any time. Withdrawal will apply only to future promotional use and will not affect content already lawfully published. Personal data is not used for purposes incompatible with those stated above.</p>
+        </div>
+      </section>
+
+      <section>
+        <NumberedSection num="4" title="Disclosure to Third Parties" />
+        <p className="mb-4">Personal data is disclosed only where necessary and lawful, and only to authorized parties directly involved in the study abroad process, including:</p>
+        <ul className="list-disc ml-8 space-y-2">
+          <li>Universities, colleges, and education providers</li>
+          <li>Embassies, visa offices, and immigration authorities</li>
+          <li>Official application, verification, and compliance platforms</li>
+          <li>Authorized service providers supporting documentation or processing</li>
+        </ul>
+        <p className="mt-4 font-bold text-[#1A1F2C]">Gradway does not sell, rent, trade, or disclose personal data to marketing agencies, advertisers, or unrelated third parties.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="5" title="Cross-Border Data Transfers" />
+        <p>As an international education consultancy, personal data may be transferred outside Sri Lanka to institutions or authorities in destination countries. Such transfers occur only where required for admissions or visa processing and are carried out with appropriate safeguards to ensure data protection.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="6" title="Data Retention" />
+        <div className="space-y-4">
+          <p>Personal data is retained only for as long as necessary to:</p>
+          <ul className="list-disc ml-8 space-y-2">
+            <li>Deliver consultancy services</li>
+            <li>Meet institutional, regulatory, or legal requirements</li>
+            <li>Maintain records for compliance and dispute resolution</li>
+          </ul>
+          <p>Once no longer required, data is securely deleted, anonymised, or archived in accordance with lawful retention practices.</p>
+        </div>
+      </section>
+
+      <section>
+        <NumberedSection num="7" title="Data Security" />
+        <p>We implement appropriate technical and administrative measures to protect personal data, including controlled document handling and access limited to authorised personnel only. While reasonable measures are taken, no system can be guaranteed to be entirely secure.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="8" title="Cookies & Website Usage" color="amber" />
+        <p>Our website may use cookies and analytics tools to improve performance, understand user interaction, and enhance user experience. Users may manage cookie preferences through their browser settings.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="9" title="Rights of Data Subjects" color="amber" />
+        <div className="space-y-4">
+          <p>In accordance with applicable law, you may request:</p>
+          <ul className="list-disc ml-8 space-y-2">
+            <li>Access to personal data held by us</li>
+            <li>Correction of inaccurate or incomplete data</li>
+            <li>Deletion of personal data, subject to legal and service obligations</li>
+            <li>Restriction of certain processing activities</li>
+          </ul>
+          <p>Requests may be made using the contact details below. Identity verification may be required.</p>
+        </div>
+      </section>
+
+      <section>
+        <NumberedSection num="10" title="Children and Minors" color="amber" />
+        <p>Where services are provided to individuals under 18 years of age, verifiable parental or guardian consent is required. Only personal data necessary for service delivery is processed, and parents or guardians may request access to or correction of the minor’s data.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="11" title="Third-Party Websites" color="amber" />
+        <p>Our website may contain links to external websites. Gradway is not responsible for the content, security, or privacy practices of third-party sites.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="12" title="Changes to This Policy" color="amber" />
+        <p>This Privacy Policy may be updated periodically to reflect legal, regulatory, or operational changes. Updated versions will be published on our website. Continued use of our services constitutes acceptance of the revised policy.</p>
+      </section>
+
+      <LegalFooter colorClass="text-amber-500" sectionNum="13" sectionColor="amber" />
+    </div>
+  );
+
+  const tosBody = (
+    <div className="space-y-12 text-slate-600 text-[13px] md:text-sm leading-relaxed font-medium">
+      <div className="text-center border-b border-slate-100 pb-10">
+        <h4 className="text-4xl font-black text-[#1A1F2C] uppercase tracking-tighter mb-2">Terms of Service</h4>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">Gradway (Private) Limited</p>
+        <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase">Education Consultancy Services – Sri Lanka</p>
+        <p className="text-[10px] font-bold text-slate-400 mt-6 bg-slate-50 inline-block px-4 py-1.5 rounded-full">Effective Date: 01/01/2026</p>
+      </div>
+
+      <p className="text-base font-semibold text-[#1A1F2C]">
+        These Terms of Service (“Terms”) govern the access to and use of services provided by Gradway (Private) Limited (“Gradway”, “we”, “our”, or “us”). By accessing our website, engaging in consultations, submitting information, or using any of our services, you agree to be bound by these Terms in their entirety.
+      </p>
+
+      <section>
+        <NumberedSection num="1" title="Scope of Services" color="indigo" />
+        <p className="mb-4">Gradway provides professional education consultancy services, which may include:</p>
+        <ul className="list-disc ml-8 space-y-2 mb-6">
+          <li>Academic profile assessment and counselling</li>
+          <li>Course, institution, and destination guidance</li>
+          <li>Application preparation and submission support</li>
+          <li>Student visa and migration-related documentation guidance</li>
+          <li>Pre-departure and post-arrival advisory support</li>
+        </ul>
+        <p>Gradway acts solely as an advisory and facilitation service provider. All final decisions regarding admissions, visas, immigration approvals, scholarships, enrolment conditions, or timelines are made exclusively by universities, colleges, embassies, and immigration authorities.</p>
+        <p className="mt-4 font-bold">Gradway does not have the authority to influence, guarantee, or override such decisions.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="2" title="Client Responsibilities" color="indigo" />
+        <p className="mb-4">Clients are solely responsible for ensuring that all information and documentation provided to Gradway is accurate, complete, and truthful.</p>
+        <p className="mb-4 font-bold text-[#1A1F2C]">This includes:</p>
+        <ul className="list-disc ml-8 space-y-2 mb-6">
+          <li>Academic records, certificates, and transcripts</li>
+          <li>Financial documents and proof of sponsorship</li>
+          <li>Identity documents and visa-related history</li>
+        </ul>
+        <p>Submission of false, misleading, altered, or fraudulent information may result in immediate termination of services without refund, and Gradway reserves the right to withdraw representation without further obligation. Gradway shall not be liable for outcomes arising from inaccurate, incomplete, or delayed information provided by the client.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="3" title="No Guarantee of Outcomes" color="indigo" />
+        <p>While Gradway provides professional guidance and maintains quality standards, no guarantees are made or implied regarding admission offers, visa approvals, processing timelines, scholarships, or post-study work outcomes. Outcomes are subject to external factors beyond Gradway’s control, including institutional criteria, immigration regulations, and individual applicant profiles.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="4" title="Fees and Third-Party Costs" color="indigo" />
+        <p>Consultancy fees, where applicable, will be communicated separately and are generally non-refundable. Third-party costs (application fees, visa fees, medical tests, courier charges, and institutional deposits) are payable by the client and are not controlled by Gradway. Gradway is not responsible for changes in third-party fees or refund policies.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="5" title="Limitation of Liability" color="indigo" />
+        <p>To the fullest extent permitted by law, Gradway shall not be liable for indirect, incidental, consequential, or economic losses. Gradway’s liability shall be limited to the amount paid to Gradway for consultancy services. Gradway shall not be responsible for losses arising from visa refusals, admission denials, or policy changes by universities or embassies.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="6" title="Confidentiality and Data Use" color="indigo" />
+        <p>Gradway handles personal information in accordance with its Privacy Policy. Client data is used strictly for service delivery, compliance, communication, and lawful operational purposes. Clients consent to the sharing of necessary information with relevant institutions and authorities as required to provide services.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="7" title="Intellectual Property" color="indigo" />
+        <p>All original content created by Gradway, including website text, layouts, graphics, and proprietary materials, is the intellectual property of Gradway (Private) Limited. Unauthorized reproduction or misuse is prohibited.</p>
+        
+        <div className="mt-8">
+          <NumberedSection num="7.1" title="Logo Usage and Fair Use Disclaimer" color="blue" />
+          <p className="mt-4">University names, logos, trademarks, and crests displayed on this website are the property of their respective owners. Such logos are used solely for informational and reference purposes to identify destinations and institutions. Use does not imply official partnership or endorsement. Usage is intended to fall within fair use; rights holders may contact us for review or removal.</p>
+        </div>
+      </section>
+
+      <section>
+        <NumberedSection num="8" title="Suspension or Termination" color="indigo" />
+        <p>Gradway reserves the right to suspend or terminate services where false information is provided, documents are withheld, terms are violated, or client conduct is abusive or obstructive. Termination does not relieve the client of outstanding obligations.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="9" title="Amendments" color="indigo" />
+        <p>Gradway reserves the right to modify these Terms at any time. Updated versions will be published on our website and take effect immediately. Continued use of services constitutes acceptance.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="10" title="Governing Law" color="indigo" />
+        <p>These Terms shall be governed by the laws of the Democratic Socialist Republic of Sri Lanka. Any disputes shall be subject to the exclusive jurisdiction of the courts of Colombo, Sri Lanka.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="11" title="Acceptance" color="indigo" />
+        <p>Engaging with Gradway staff, booking consultations, or submitting documents constitutes full and unconditional acceptance of these Terms of Service.</p>
+      </section>
+
+      <LegalFooter colorClass="text-indigo-600" sectionNum="12" sectionColor="blue" />
+    </div>
+  );
+
+  const content = type === 'privacy' ? {
+    title: "Privacy Policy",
+    icon: <ShieldAlert className="text-amber-500" size={32} />,
+    body: privacyBody
+  } : {
+    title: "Terms of Service",
+    icon: <FileText className="text-indigo-500" size={32} />,
+    body: tosBody
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      className="fixed inset-0 z-[500] flex items-center justify-center p-6 bg-[#0a0d14]/80 backdrop-blur-xl cursor-pointer"
+    >
+      <motion.div 
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 20 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white w-full max-w-3xl rounded-[3.5rem] shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh] cursor-default"
+      >
+        <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-white relative z-10 shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center">
+              {content.icon}
+            </div>
+            <h3 className="text-2xl font-black text-[#1A1F2C] uppercase tracking-tighter">{content.title}</h3>
+          </div>
+          <button onClick={onClose} className="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
+            <X size={20} className="text-slate-400" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-8 md:p-14 custom-scrollbar mb-4">
+          {content.body}
+          <div className="h-12 w-full shrink-0"></div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('main');
+  const [modal, setModal] = useState<ModalType>('none');
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMessage, setChatMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'bot'; text: string }[]>([]);
@@ -137,6 +539,14 @@ const App: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [view]);
+
+  useEffect(() => {
+    if (modal !== 'none') {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [modal]);
 
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -207,9 +617,11 @@ const App: React.FC = () => {
             <h3 className="text-2xl font-black tracking-tighter leading-none uppercase">Gradway (Pvt) Ltd.</h3>
           </div>
           <p className="text-slate-400 text-sm leading-relaxed max-w-xs font-medium">Empowering the next generation of Sri Lankan leaders through world-class global education pathways and ethical migration consultancy.</p>
-          <div className="flex gap-6 text-2xl">
+          <div className="flex flex-row items-center gap-5 text-2xl flex-nowrap overflow-visible">
+             <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="text-[#25D366] hover:scale-125 transition-all"><i className="fa-brands fa-whatsapp"></i></a>
              <a href="https://web.facebook.com/p/GradWay-Education-Consultancy-61577557164852" target="_blank" rel="noopener noreferrer" className="text-[#1877F2] hover:scale-125 transition-all"><i className="fa-brands fa-facebook"></i></a>
              <a href="https://www.instagram.com/gradway_education" target="_blank" rel="noopener noreferrer" className="text-[#E4405F] hover:scale-125 transition-all"><i className="fa-brands fa-instagram"></i></a>
+             <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" className="text-white hover:scale-125 transition-all"><i className="fa-brands fa-tiktok"></i></a>
              <a href="mailto:info@gradwayedu.com" className="text-[#EA4335] hover:scale-125 transition-all"><i className="fa-solid fa-at"></i></a>
              <a href="https://www.linkedin.com/company/gradway-pvt-ltd-sl/" target="_blank" rel="noopener noreferrer" className="text-[#0077B5] hover:scale-125 transition-all"><i className="fa-brands fa-linkedin"></i></a>
           </div>
@@ -218,7 +630,7 @@ const App: React.FC = () => {
         <div>
           <h4 className="text-sm font-black uppercase tracking-widest mb-8 text-white">Services</h4>
           <ul className="space-y-4 text-slate-400 text-sm font-bold uppercase tracking-wide">
-            <li onClick={() => setView('services-full')} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer hover:translate-x-1 duration-200"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Course & University Mapping</li>
+            <li onClick={() => setView('services-full')} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer hover:translate-x-1 duration-200"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Course & University Selection</li>
             <li onClick={() => setView('services-full')} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer hover:translate-x-1 duration-200"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Visa Application & Support</li>
             <li onClick={() => setView('services-full')} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer hover:translate-x-1 duration-200"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Departure & After Arrival Support</li>
           </ul>
@@ -250,11 +662,14 @@ const App: React.FC = () => {
       <div className="container mx-auto px-4 lg:px-12 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">© 2025 Gradway (Private) Limited. All rights reserved.</p>
         <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest text-slate-500">
-           <button className="hover:text-white transition-colors">Privacy Policy</button>
-           <button className="hover:text-white transition-colors">Terms of Service</button>
+           <button onClick={() => setModal('privacy')} className="hover:text-white transition-colors">Privacy Policy</button>
+           <button onClick={() => setModal('terms')} className="hover:text-white transition-colors">Terms of Service</button>
         </div>
-        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="bg-white/5 border border-white/10 px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.25em] hover:bg-white/10 transition-all flex items-center gap-3">
-           Scroll Up <i className="fa-solid fa-arrow-up"></i>
+        <button 
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+          className="bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 text-white px-10 py-5 rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:scale-110 active:scale-95 transition-all flex items-center gap-3 shadow-[0_10px_30px_rgba(244,63,94,0.3)] group"
+        >
+           Back to the Top <ArrowUp size={16} className="group-hover:-translate-y-1 transition-transform" />
         </button>
       </div>
     </footer>
@@ -308,21 +723,29 @@ const App: React.FC = () => {
             <h3 className="text-2xl font-black mb-4 uppercase tracking-tighter text-slate-400">Current Opportunities</h3>
             <p className="text-slate-800 font-bold text-xl mb-8 leading-tight">Currently, there are no open positions.</p>
             <p className="text-slate-500 mb-8 font-medium">All future openings will be announced first on our LinkedIn page.</p>
-            <a href="https://www.linkedin.com/company/gradway-pvt-ltd-sl/" target="_blank" className="inline-block bg-[#1A1F2C] text-white px-10 py-5 rounded-full font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all">Visit LinkedIn Page</a>
+            <a href="https://www.linkedin.com/company/gradway-pvt-ltd-sl/" target="_blank" rel="noopener noreferrer" className="inline-block bg-[#1A1F2C] text-white px-10 py-5 rounded-full font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all">Visit LinkedIn Page</a>
           </div>
 
-          <div className="w-full max-w-4xl pt-20 border-t border-slate-200">
+          <div className="w-full max-w-5xl pt-20 border-t border-slate-200">
             <h2 className="text-3xl font-black mb-12 text-[#1A1F2C] uppercase tracking-tighter">Join the Community</h2>
-            <div className="flex justify-center gap-10">
-              <a href="https://www.linkedin.com/company/gradway-pvt-ltd-sl/" target="_blank" className="flex flex-col items-center gap-4 group">
+            <div className="flex flex-row flex-wrap justify-center gap-6 md:gap-10">
+              <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-4 group">
+                <div className="w-16 h-16 bg-white shadow-lg rounded-3xl flex items-center justify-center text-[#25D366] group-hover:bg-[#25D366] group-hover:text-white transition-all"><i className="fa-brands fa-whatsapp text-3xl"></i></div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">WhatsApp</span>
+              </a>
+              <a href="https://www.linkedin.com/company/gradway-pvt-ltd-sl/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-4 group">
                 <div className="w-16 h-16 bg-white shadow-lg rounded-3xl flex items-center justify-center text-blue-700 group-hover:bg-blue-700 group-hover:text-white transition-all"><Linkedin /></div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">LinkedIn</span>
               </a>
-              <a href="https://www.instagram.com/gradway_education" target="_blank" className="flex flex-col items-center gap-4 group">
+              <a href="https://www.instagram.com/gradway_education" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-4 group">
                 <div className="w-16 h-16 bg-white shadow-lg rounded-3xl flex items-center justify-center text-pink-600 group-hover:bg-pink-600 group-hover:text-white transition-all"><Instagram /></div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Instagram</span>
               </a>
-              <a href="https://web.facebook.com/p/GradWay-Education-Consultancy-61577557164852" target="_blank" className="flex flex-col items-center gap-4 group">
+              <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-4 group">
+                <div className="w-16 h-16 bg-white shadow-lg rounded-3xl flex items-center justify-center text-black group-hover:bg-black group-hover:text-white transition-all"><i className="fa-brands fa-tiktok text-3xl"></i></div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">TikTok</span>
+              </a>
+              <a href="https://web.facebook.com/p/GradWay-Education-Consultancy-61577557164852" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-4 group">
                 <div className="w-16 h-16 bg-white shadow-lg rounded-3xl flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all"><Facebook /></div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Facebook</span>
               </a>
@@ -331,6 +754,9 @@ const App: React.FC = () => {
         </main>
         <Footer />
         <ChatWidget />
+        <AnimatePresence>
+          {modal !== 'none' && <LegalModal type={modal} onClose={() => setModal('none')} />}
+        </AnimatePresence>
       </div>
     );
   }
@@ -398,6 +824,9 @@ const App: React.FC = () => {
         </main>
         <Footer />
         <ChatWidget />
+        <AnimatePresence>
+          {modal !== 'none' && <LegalModal type={modal} onClose={() => setModal('none')} />}
+        </AnimatePresence>
       </div>
     );
   }
@@ -406,7 +835,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50">
         <ScrollNavigation logoUrl={LOGO_URL} onNavigate={scrollToId} />
-        <main className="py-32 animate-[fadeIn_0.5s_ease-out]">
+        <main className="pt-32 animate-[fadeIn_0.5s_ease-out]">
           <div className="container mx-auto px-4 lg:px-12">
             <div className="max-w-4xl mx-auto">
               <SectionBadge text="Knowledge Base" amberOutline />
@@ -417,6 +846,9 @@ const App: React.FC = () => {
         </main>
         <Footer />
         <ChatWidget />
+        <AnimatePresence>
+          {modal !== 'none' && <LegalModal type={modal} onClose={() => setModal('none')} />}
+        </AnimatePresence>
       </div>
     );
   }
@@ -440,7 +872,7 @@ const App: React.FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <button onClick={() => scrollToId('destinations')} className="w-full sm:w-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-white px-12 py-5 rounded-full font-black shadow-2xl shadow-amber-200/50 hover:scale-105 active:scale-95 transition-all text-[11px] uppercase tracking-widest">Explore Destinations</button>
-              <a href="https://wa.me/94775009929" target="_blank" className="w-full sm:w-auto bg-[#25D366] text-white px-12 py-5 rounded-full font-black shadow-xl hover:scale-105 transition-all text-[11px] uppercase tracking-widest flex items-center justify-center gap-2">
+              <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto bg-[#25D366] text-white px-12 py-5 rounded-full font-black shadow-xl hover:scale-105 transition-all text-[11px] uppercase tracking-widest flex items-center justify-center gap-2">
                 <i className="fa-brands fa-whatsapp text-xl"></i> WhatsApp Us
               </a>
             </div>
@@ -450,7 +882,7 @@ const App: React.FC = () => {
              <div className="relative w-full h-full max-w-[600px]">
                {/* STUDENTS FIRST BUBBLE (CENTER) */}
                <div className="hero-bubble absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160px] h-[160px] md:w-[260px] md:h-[260px] bg-white z-20 flex flex-col items-center justify-center shadow-2xl animate-float-center hero-bubble-center p-8 text-slate-900">
-                  <Heart size={48} className="mb-2 md:mb-4 fill-red-500 text-red-600" />
+                  <StudentsFirstIcon className="mb-2 md:mb-4 w-12 h-12 md:w-20 md:h-20" />
                   <span className="text-[12px] md:text-xl font-black uppercase tracking-widest leading-none">Students</span>
                   <span className="text-[12px] md:text-xl font-black uppercase tracking-widest leading-none">First</span>
                </div>
@@ -460,7 +892,7 @@ const App: React.FC = () => {
                   <GraduationCap size={40} className="mb-2 hidden md:block" />
                   <GraduationCap size={20} className="mb-1 md:hidden" />
                   <span className="text-xl md:text-4xl font-black leading-none">450+</span>
-                  <span className="text-[7px] md:text-[11px] font-black uppercase tracking-widest opacity-80">Universities</span>
+                  <span className="text-[7px] md:text-[11px] font-black uppercase tracking-widest opacity-80 text-black">UNIVERSITIES</span>
                </div>
                
                {/* Bubble 2: 10+ COUNTRIES (TOP-RIGHT) */}
@@ -468,7 +900,7 @@ const App: React.FC = () => {
                   <Globe size={40} className="mb-2 hidden md:block text-[#FFB800]" />
                   <Globe size={20} className="mb-1 md:hidden text-[#FFB800]" />
                   <span className="text-xl md:text-4xl font-black text-[#1A1F2C] leading-none">10+</span>
-                  <span className="text-[7px] md:text-[11px] font-black uppercase tracking-widest text-slate-400">Countries</span>
+                  <span className="text-[7px] md:text-[11px] font-black uppercase tracking-widest text-slate-400">COUNTRIES</span>
                </div>
                
                {/* Bubble 3: 10k+ PROGRAMS (BOTTOM-LEFT) */}
@@ -476,7 +908,7 @@ const App: React.FC = () => {
                   <Layers size={40} className="mb-2 hidden md:block" />
                   <Layers size={20} className="mb-1 md:hidden" />
                   <span className="text-xl md:text-4xl font-black leading-none">10k+</span>
-                  <span className="text-[7px] md:text-[11px] font-black uppercase tracking-widest opacity-80">Programs</span>
+                  <span className="text-[7px] md:text-[11px] font-black uppercase tracking-widest opacity-80">PROGRAMS</span>
                </div>
                
                {/* Bubble 4: APPLICATION MANAGEMENT (BOTTOM-RIGHT) */}
@@ -484,9 +916,9 @@ const App: React.FC = () => {
                   <CheckCircle2 size={40} className="mb-2 hidden md:block text-white" />
                   <CheckCircle2 size={20} className="mb-1 md:hidden text-white" />
                   <div className="flex flex-col items-center">
-                    <span className="text-[6px] md:text-[9px] font-black uppercase tracking-widest leading-tight">End to End</span>
-                    <span className="text-[6px] md:text-[9px] font-black uppercase tracking-widest leading-tight">Application</span>
-                    <span className="text-[6px] md:text-[9px] font-black uppercase tracking-widest leading-tight">Management</span>
+                    <span className="text-[6px] md:text-[9px] font-black uppercase tracking-widest leading-tight">END TO END</span>
+                    <span className="text-[6px] md:text-[9px] font-black uppercase tracking-widest leading-tight">APPLICATION</span>
+                    <span className="text-[6px] md:text-[9px] font-black uppercase tracking-widest leading-tight">MANAGEMENT</span>
                   </div>
                </div>
              </div>
@@ -506,7 +938,7 @@ const App: React.FC = () => {
           <div className="lg:w-1/2">
             <SectionBadge text="About us" />
             <h2 className="text-4xl md:text-5xl font-black text-[#1A1F2C] mb-8 leading-tight">Guiding Ambitions Beyond Borders</h2>
-            <p className="text-slate-600 text-lg leading-relaxed mb-12 font-medium">Gradway (Private) Limited is a premier education consultancy based in Colombo. We bridge the gap between ambitious Sri Lankan talent and world-class international institutions through transparent and expert partnership.</p>
+            <p className="text-slate-600 text-lg leading-relaxed mb-12 font-medium">Gradway (Pvt) Limited is a premier education consultancy based in Colombo. We bridge the gap between ambitious Sri Lankan students and world-class international institutions through transparent and expert partnerships.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 group hover:shadow-md transition-all">
                 <div className="w-12 h-12 bg-amber-500 text-white rounded-xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform"><i className="fa-solid fa-bullseye"></i></div>
@@ -551,10 +983,10 @@ const App: React.FC = () => {
                   )}>
                     <i className={`${s.icon} text-xl ${s.iconColor}`}></i>
                   </div>
-                  <h3 className="text-lg font-black text-[#1A1F2C] mb-4 leading-tight relative z-10 uppercase">{s.title}</h3>
+                  <h3 className="text-lg font-black text-[#1A1F2C] mb-4 leading-tight relative z-10 uppercase whitespace-nowrap lg:whitespace-normal">{s.title}</h3>
                   <p className={cn(
                     "text-slate-500 text-xs leading-relaxed mb-6 flex-1 font-medium relative z-10",
-                    isLast ? "max-w-lg" : ""
+                    isLast ? "max-w-none" : ""
                   )}>
                     {s.description}
                   </p>
@@ -584,15 +1016,15 @@ const App: React.FC = () => {
                   <button onClick={() => scrollContainer(region, 'right')} className="w-10 h-10 border border-slate-200 rounded-full flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all"><i className="fa-solid fa-chevron-right text-xs"></i></button>
                 </div>
               </div>
-              <div ref={(el) => { scrollRefs.current[region] = el; }} className="flex overflow-x-auto scrollbar-hide space-x-6 pb-8 px-2 snap-x snap-mandatory">
+              <div ref={(el) => { scrollRefs.current[region] = el; }} className="flex overflow-x-auto scrollbar-hide space-x-6 pt-24 pb-20 px-4 snap-x snap-mandatory">
                 {DESTINATIONS.filter(d => d.region === region).map((dest) => (
                   <div key={dest.id} className="min-w-[75vw] md:min-w-[340px] snap-center">
                     <div className="relative h-full rounded-[3.5rem] border-[1px] border-transparent p-4 overflow-visible">
                       <GlowingEffect
-                        spread={50}
+                        spread={60}
                         glow={true}
                         disabled={false}
-                        proximity={100}
+                        proximity={300} 
                         inactiveZone={0.01}
                         borderWidth={4}
                       />
@@ -676,8 +1108,8 @@ const App: React.FC = () => {
             )}
           </div>
 
-          <div className="flex flex-wrap justify-center gap-6 w-full max-w-4xl">
-            <a href="https://wa.me/94775009929" target="_blank" className="bg-white p-6 rounded-3xl border border-slate-100 shadow-lg flex items-center gap-4 group hover:border-[#25D366] transition-all min-w-[240px]">
+          <div className="flex flex-row flex-wrap justify-center gap-6 w-full max-w-4xl px-4">
+            <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="bg-white p-6 rounded-3xl border border-slate-100 shadow-lg flex items-center gap-4 group hover:border-[#25D366] transition-all min-w-[240px]">
               <div className="w-12 h-12 bg-[#25D366] text-white rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-md group-hover:scale-110 transition-transform"><MessageSquare /></div>
               <div className="text-left">
                 <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest">WhatsApp</span>
@@ -719,6 +1151,9 @@ const App: React.FC = () => {
 
       <Footer />
       <ChatWidget />
+      <AnimatePresence>
+        {modal !== 'none' && <LegalModal type={modal} onClose={() => setModal('none')} />}
+      </AnimatePresence>
     </div>
   );
 };

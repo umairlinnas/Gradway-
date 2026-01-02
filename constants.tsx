@@ -1,3 +1,4 @@
+
 import { Destination, Service, SuccessStory, FAQ } from './types';
 
 export const DESTINATIONS: Destination[] = [
@@ -147,7 +148,7 @@ export const SERVICES: Service[] = [
   },
   {
     id: 2,
-    title: 'Course & University Mapping',
+    title: 'Course & University Selection',
     description: 'Find your perfect academic home from our extensive network of elite global partners.',
     icon: 'fa-solid fa-map-location-dot',
     iconBg: 'bg-amber-50',
@@ -172,7 +173,7 @@ export const SERVICES: Service[] = [
   {
     id: 5,
     title: 'Visa Application & Preparation',
-    description: 'Navigate the complex landscape of international migration laws with our seasoned experts.',
+    description: 'Expert guidance through international student visa and immigration laws, tailored to global study destinations.',
     icon: 'fa-solid fa-passport',
     iconBg: 'bg-rose-50',
     iconColor: 'text-rose-500'
@@ -241,7 +242,7 @@ export const MAIN_FAQ: FAQ[] = [
     id: 2,
     category: 'General',
     question: "Do I need to pay a consultation fee at Gradway?",
-    answer: "No, Gradway (Private) Limited provides initial profile reviews and professional counselling completely free of charge. We believe in providing transparent guidance to all ambitious Sri Lankan students."
+    answer: "No, Gradway (Pvt) Limited provides initial profile reviews and professional counselling completely free of charge. We believe in providing transparent guidance to all ambitious Sri Lankan students."
   },
   {
     id: 3,

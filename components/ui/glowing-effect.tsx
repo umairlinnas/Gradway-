@@ -1,10 +1,9 @@
 
 "use client";
 
-// Import React explicitly to fix 'Cannot find namespace React' errors
 import React, { memo, useCallback, useEffect, useRef } from "react";
 import { cn } from "../../lib/utils";
-import { animate } from "motion/react";
+import { animate, AnimationPlaybackControls } from "motion/react";
 
 interface GlowingEffectProps {
   blur?: number;
@@ -22,22 +21,23 @@ interface GlowingEffectProps {
 const GlowingEffect = memo(
   ({
     blur = 0,
-    inactiveZone = 0.7,
-    proximity = 0,
-    spread = 20,
+    inactiveZone = 0.01,
+    proximity = 350,
+    spread = 40,
     variant = "default",
     glow = false,
     className,
-    movementDuration = 2,
-    borderWidth = 1,
-    disabled = true,
+    movementDuration = 0.8, // Reduced for much better responsiveness
+    borderWidth = 2,
+    disabled = false,
   }: GlowingEffectProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const lastPosition = useRef({ x: 0, y: 0 });
     const animationFrameRef = useRef<number>(0);
+    const controlsRef = useRef<AnimationPlaybackControls | null>(null);
 
     const handleMove = useCallback(
-      (e?: MouseEvent | { x: number; y: number }) => {
+      (e?: PointerEvent | { x: number; y: number }) => {
         if (!containerRef.current) return;
 
         if (animationFrameRef.current) {
@@ -49,8 +49,8 @@ const GlowingEffect = memo(
           if (!element) return;
 
           const { left, top, width, height } = element.getBoundingClientRect();
-          const mouseX = e?.x ?? lastPosition.current.x;
-          const mouseY = e?.y ?? lastPosition.current.y;
+          const mouseX = e && 'x' in e ? e.x : lastPosition.current.x;
+          const mouseY = e && 'y' in e ? e.y : lastPosition.current.y;
 
           if (e) {
             lastPosition.current = { x: mouseX, y: mouseY };
@@ -61,6 +61,7 @@ const GlowingEffect = memo(
             mouseX - center[0],
             mouseY - center[1]
           );
+          
           const inactiveRadius = 0.5 * Math.min(width, height) * inactiveZone;
 
           if (distanceFromCenter < inactiveRadius) {
@@ -85,12 +86,18 @@ const GlowingEffect = memo(
               Math.PI +
             90;
 
+          // Normalize angles to find the shortest path
           const angleDiff = ((targetAngle - currentAngle + 180) % 360) - 180;
           const newAngle = currentAngle + angleDiff;
 
-          animate(currentAngle, newAngle, {
+          // Stop previous animation to prevent stacking/delay
+          if (controlsRef.current) {
+            controlsRef.current.stop();
+          }
+
+          controlsRef.current = animate(currentAngle, newAngle, {
             duration: movementDuration,
-            ease: [0.16, 1, 0.3, 1],
+            ease: [0.23, 1, 0.32, 1], // snappier curve
             onUpdate: (value) => {
               element.style.setProperty("--start", String(value));
             },
@@ -103,20 +110,22 @@ const GlowingEffect = memo(
     useEffect(() => {
       if (disabled) return;
 
-      const handleScroll = () => handleMove();
       const handlePointerMove = (e: PointerEvent) => handleMove(e);
+      const handleScroll = () => handleMove();
 
-      window.addEventListener("scroll", handleScroll, { passive: true });
-      document.body.addEventListener("pointermove", handlePointerMove, {
-        passive: true,
-      });
+      // Using capture: true on document allows us to catch scrolls from the horizontal containers
+      document.addEventListener("pointermove", handlePointerMove, { passive: true });
+      document.addEventListener("scroll", handleScroll, { passive: true, capture: true });
 
       return () => {
         if (animationFrameRef.current) {
           cancelAnimationFrame(animationFrameRef.current);
         }
-        window.removeEventListener("scroll", handleScroll);
-        document.body.removeEventListener("pointermove", handlePointerMove);
+        if (controlsRef.current) {
+          controlsRef.current.stop();
+        }
+        document.removeEventListener("pointermove", handlePointerMove);
+        document.removeEventListener("scroll", handleScroll, { capture: true } as any);
       };
     }, [handleMove, disabled]);
 
@@ -147,16 +156,15 @@ const GlowingEffect = memo(
                   #000,
                   #000 calc(25% / var(--repeating-conic-gradient-times))
                 )`
-                  : `radial-gradient(circle, #fbbf24 10%, #fbbf2400 20%),
-                radial-gradient(circle at 40% 40%, #f59e0b 5%, #f59e0b00 15%),
-                radial-gradient(circle at 60% 60%, #4f46e5 10%, #4f46e500 20%), 
-                radial-gradient(circle at 40% 60%, #1A1F2C 10%, #1A1F2C00 20%),
+                  : `radial-gradient(circle at 50% 50%, #fbbf24 15%, transparent 40%),
+                radial-gradient(circle at 40% 40%, #f59e0b 8%, transparent 20%),
+                radial-gradient(circle at 60% 60%, #4f46e5 12%, transparent 25%), 
                 repeating-conic-gradient(
                   from 236.84deg at 50% 50%,
                   #fbbf24 0%,
-                  #f59e0b calc(25% / var(--repeating-conic-gradient-times)),
-                  #4f46e5 calc(50% / var(--repeating-conic-gradient-times)), 
-                  #1A1F2C calc(75% / var(--repeating-conic-gradient-times)),
+                  #f59e0b calc(20% / var(--repeating-conic-gradient-times)),
+                  #4f46e5 calc(40% / var(--repeating-conic-gradient-times)), 
+                  #111827 calc(60% / var(--repeating-conic-gradient-times)),
                   #fbbf24 calc(100% / var(--repeating-conic-gradient-times))
                 )`,
             } as React.CSSProperties
