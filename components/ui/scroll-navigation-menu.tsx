@@ -29,8 +29,7 @@ const defaultMenuItems: MenuItem[] = [
   { id: 2, title: "About Us", url: "aboutus", icon: <User className="w-4 h-4" /> },
   { id: 3, title: "Services", url: "services", icon: <Settings className="w-4 h-4" /> },
   { id: 4, title: "Destinations", url: "destinations", icon: <Info className="w-4 h-4" /> },
-  { id: 5, title: "Stories", url: "stories", icon: <Quote className="w-4 h-4" /> },
-  { id: 6, title: "Contact", url: "contact", icon: <Mail className="w-4 h-4" /> }
+  { id: 5, title: "Stories", url: "stories", icon: <Quote className="w-4 h-4" /> }
 ]
 
 export const ScrollNavigation: React.FC<ScrollNavbarProps> = ({ 
@@ -183,7 +182,7 @@ export const ScrollNavigation: React.FC<ScrollNavbarProps> = ({
                 onClick={(e) => scrollToSection(e, 'contact')}
                 className="ml-4 bg-amber-500 text-white px-6 py-2.5 rounded-full shadow-lg shadow-amber-200/40 hover:bg-amber-600 hover:scale-105 active:scale-95 transition-all font-black uppercase tracking-widest text-[9px]"
               >
-                Assessment
+                Contact us for assessment
               </a>
             </div>
 
@@ -255,6 +254,24 @@ export const ScrollNavigation: React.FC<ScrollNavbarProps> = ({
                       </a>
                     </motion.div>
                   ))}
+                  <motion.div
+                    variants={itemVariants}
+                    whileHover={{ scale: 1.02, x: 4 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <a
+                      href="#contact"
+                      onClick={(e) => scrollToSection(e, 'contact')}
+                      className="flex items-center space-x-4 px-5 py-3 rounded-[1.5rem] bg-amber-500 hover:bg-amber-600 border border-transparent transition-all group"
+                    >
+                      <div className="w-9 h-9 bg-white rounded-xl flex items-center justify-center text-amber-500 shadow-sm">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <span className="text-[9px] font-black uppercase tracking-[0.1em] text-white">
+                        Contact us for assessment
+                      </span>
+                    </a>
+                  </motion.div>
                 </div>
 
                 <div className="mt-6 pt-6 border-t border-slate-100 w-full flex flex-col items-center">

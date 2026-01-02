@@ -1,10 +1,10 @@
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DESTINATIONS, SERVICES, SUCCESS_STORIES, MAIN_FAQ, FULL_FAQ } from './constants';
 import { getGeminiResponse } from './services/geminiService';
 import { ScrollNavigation } from './components/ui/scroll-navigation-menu';
 import { motion, AnimatePresence } from 'motion/react';
-import { Destination, Service } from './types';
+import { Service } from './types';
 import { GlowingEffect } from './components/ui/glowing-effect';
 import { 
   Telescope, 
@@ -18,17 +18,22 @@ import {
   Globe, 
   Layers, 
   CheckCircle2, 
-  Users, 
   Check, 
-  ShieldCheck, 
   Zap,
-  Star,
-  Trophy,
   Heart,
   X,
   FileText,
   ShieldAlert,
-  ArrowUp
+  ArrowUp,
+  RefreshCcw,
+  Shield,
+  MapPin,
+  Clock,
+  TrendingUp,
+  Target,
+  BookOpen,
+  ChevronDown,
+  Loader2
 } from 'lucide-react';
 import { cn } from './lib/utils';
 
@@ -38,50 +43,47 @@ const WA_PHONE = "94775009929";
 const WA_PREFILLED_MSG = encodeURIComponent("Hi, I’m interested in studying abroad.\n\nName:\nPreferred Study Country:\nIntended Program / Level:\n\nThank you.");
 const WA_LINK = `https://wa.me/${WA_PHONE}?text=${WA_PREFILLED_MSG}`;
 
+// GOOGLE FORM CONFIGURATION - Locked to your latest pre-filled link structure
+const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe0osLal3ZHqpy3mMBrtIvA0Xf0TkEFJ8aieLX3bFefI-8pAQ/formResponse";
+const FORM_ENTRIES = {
+  name: "entry.2104636556",
+  phone: "entry.1820781302",
+  email: "entry.1675582797",
+  programLevel: "entry.1976373844",
+  countries: "entry.1757388082", // Google expects this repeated for each selected checkbox
+  fieldOfStudy: "entry.1764432255",
+  intake: "entry.957759174",
+  message: "entry.1508256747"
+};
+
 type ViewState = 'main' | 'careers' | 'faq-full' | 'services-full';
-type ModalType = 'none' | 'privacy' | 'terms';
+type ModalType = 'none' | 'privacy' | 'terms' | 'refund';
+
+const FIELDS_OF_STUDY = [
+  "Medicine & Health Sciences",
+  "Engineering & Technology",
+  "Business & Management",
+  "Information Technology & Computer Science",
+  "Law & Legal Studies",
+  "Arts & Humanities",
+  "Social Sciences",
+  "Natural Sciences",
+  "Architecture & Design",
+  "Education & Teaching",
+  "Hospitality & Tourism",
+  "Other"
+];
+
+const PROGRAM_LEVELS = [
+  "Foundation",
+  "Undergraduate",
+  "Pre Master",
+  "Postgraduate"
+];
 
 const StudentsFirstIcon = ({ className }: { className?: string }) => (
   <Heart className={cn("w-full h-full text-[#FF4D4D] fill-[#FF4D4D]", className)} strokeWidth={1} />
 );
-
-const SERVICE_DETAILS: Record<number, { whatIsIt: string; howWeHelp: string; benefits: string }> = {
-  1: {
-    whatIsIt: "A deep-dive assessment of your academic credentials, language skills, and financial standing.",
-    howWeHelp: "We analyze your profile against global admission standards to identify the most viable pathways for your success.",
-    benefits: "Accurate eligibility check, saving time and money on mismatched applications."
-  },
-  2: {
-    whatIsIt: "Strategically matching your career aspirations with the right course and university globally.",
-    howWeHelp: "Our experts leverage a network of 450+ universities to find programs that align with your long-term goals.",
-    benefits: "Personalized education plan that maximizes career ROI and employability."
-  },
-  3: {
-    whatIsIt: "The technical process of compiling, reviewing, and submitting high-impact application files.",
-    howWeHelp: "We provide meticulous editing for SOPs and ensure every document meets specific university requirements.",
-    benefits: "Higher acceptance rates through professional, error-free presentation."
-  },
-  4: {
-    whatIsIt: "Intensive training sessions designed to prepare you for university and visa interviews.",
-    howWeHelp: "Mock interviews and detailed feedback on communication, confidence, and content.",
-    benefits: "Reduced anxiety and polished responses that impress admission officers."
-  },
-  5: {
-    whatIsIt: "Expert guidance through international student visa and immigration laws, tailored to global study destinations.",
-    howWeHelp: "We navigate changing migration laws and ensure financial documentation is strictly compliant.",
-    benefits: "Peace of mind and high visa success rates through expert legal oversight."
-  },
-  6: {
-    whatIsIt: "Alternative pathways including Foundation, Diploma, and Pre-Masters for students meeting specific criteria.",
-    howWeHelp: "Identifying flexible entry points if direct admission requirements are not initially met.",
-    benefits: "Accessibility to top-tier universities regardless of previous academic hurdles."
-  },
-  7: {
-    whatIsIt: "Comprehensive logistics support covering everything from flight booking to finding your first home abroad.",
-    howWeHelp: "Orientation on local culture, bank accounts, and part-time work regulations in your destination.",
-    benefits: "A smooth, stress-free transition from your home in Sri Lanka to your global campus."
-  }
-};
 
 const SectionBadge: React.FC<{ text: string; lightVariant?: boolean; amberOutline?: boolean }> = ({ text, lightVariant, amberOutline }) => (
   <div className={`inline-flex items-center space-x-2 px-4 py-2 rounded-full mb-6 border ${
@@ -138,11 +140,14 @@ const FAQAccordion: React.FC<{ items: typeof MAIN_FAQ }> = ({ items }) => {
   );
 };
 
-const NumberedSection: React.FC<{ num: string | number; title: string; color?: 'amber' | 'indigo' | 'blue' }> = ({ num, title, color = 'amber' }) => (
+const NumberedSection: React.FC<{ num: string | number; title: string; color?: 'amber' | 'indigo' | 'blue' | 'emerald' }> = ({ num, title, color = 'amber' }) => (
   <h4 className="font-black text-[#1A1F2C] text-sm uppercase tracking-widest mb-4 flex items-center gap-3">
     <span className={cn(
       "w-8 h-8 rounded-lg text-white flex items-center justify-center text-[10px] shrink-0 transition-colors",
-      color === 'amber' ? "bg-amber-500" : color === 'blue' ? "bg-blue-600" : "bg-indigo-500"
+      color === 'amber' ? "bg-amber-500" : 
+      color === 'blue' ? "bg-blue-600" : 
+      color === 'emerald' ? "bg-emerald-600" : 
+      "bg-indigo-500"
     )}>{num}</span>
     {title}
   </h4>
@@ -159,11 +164,14 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
 
   if (type === 'none') return null;
 
-  const LegalFooter = ({ colorClass = 'text-amber-500', sectionNum = "12", sectionColor = "blue" }: { colorClass?: string; sectionNum?: string; sectionColor?: 'blue' | 'amber' }) => (
+  const LegalFooter = ({ colorClass = 'text-amber-500', sectionNum = "12", sectionColor = "blue" }: { colorClass?: string; sectionNum?: string; sectionColor?: 'blue' | 'amber' | 'emerald' }) => (
     <section className="pt-10 border-t border-slate-100 text-center space-y-8 pb-16">
       <div>
         <NumberedSection num={sectionNum} title="Contact Information" color={sectionColor} />
-        <p className={cn("font-black uppercase tracking-tighter text-2xl mb-1", sectionColor === 'amber' ? "text-amber-500" : "text-[#1A1F2C]")}>Gradway (Pvt) Limited</p>
+        <p className={cn("font-black uppercase tracking-tighter text-2xl mb-1", 
+          sectionColor === 'amber' ? "text-amber-500" : 
+          sectionColor === 'emerald' ? "text-emerald-600" : 
+          "text-[#1A1F2C]")}>Gradway (Pvt) Limited</p>
         <p className="font-bold text-slate-600 text-[13px] mb-8">Reach us at info@gradwayedu.com</p>
       </div>
       
@@ -203,13 +211,13 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
       </p>
 
       <section>
-        <NumberedSection num="1" title="Information Collection" />
+        <NumberedSection num="1" title="Information Collection" color="amber" />
         <p className="mb-4">We collect personal data only where it is lawful, necessary, and proportionate for the provision of education consultancy services.</p>
         <p className="mb-6 font-bold text-[#1A1F2C]">The categories of personal data we may collect include:</p>
         
         <div className="space-y-8 ml-4">
           <div className="py-1">
-            <h5 className="font-black text-[#1A1F2C] text-[11px] uppercase tracking-widest mb-3 underline underline-offset-4 decoration-blue-500/30">Personal and Contact Information</h5>
+            <h5 className="font-black text-[#1A1F2C] text-[11px] uppercase tracking-widest mb-3 underline underline-offset-4 decoration-amber-500/30">Personal and Contact Information</h5>
             <ul className="list-disc ml-6 space-y-2">
               <li>Full name, date of birth, and nationality</li>
               <li>Residential address, email address, and phone number</li>
@@ -218,7 +226,7 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
           </div>
           
           <div className="py-1">
-            <h5 className="font-black text-[#1A1F2C] text-[11px] uppercase tracking-widest mb-3 underline underline-offset-4 decoration-blue-500/30">Academic and Professional Information</h5>
+            <h5 className="font-black text-[#1A1F2C] text-[11px] uppercase tracking-widest mb-3 underline underline-offset-4 decoration-amber-500/30">Academic and Professional Information</h5>
             <ul className="list-disc ml-6 space-y-2">
               <li>Academic history, qualifications, transcripts, and certificates</li>
               <li>English language test results (IELTS, TOEFL, etc.)</li>
@@ -227,7 +235,7 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
           </div>
           
           <div className="py-1">
-            <h5 className="font-black text-[#1A1F2C] text-[11px] uppercase tracking-widest mb-3 underline underline-offset-4 decoration-blue-500/30">Financial and Compliance Information</h5>
+            <h5 className="font-black text-[#1A1F2C] text-[11px] uppercase tracking-widest mb-3 underline underline-offset-4 decoration-amber-500/30">Financial and Compliance Information</h5>
             <ul className="list-disc ml-6 space-y-2">
               <li>Proof of financial capacity and sponsorship details</li>
               <li>Payment records</li>
@@ -237,7 +245,7 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
           </div>
           
           <div className="py-1">
-            <h5 className="font-black text-[#1A1F2C] text-[11px] uppercase tracking-widest mb-3 underline underline-offset-4 decoration-blue-500/30">Communication and Technical Information</h5>
+            <h5 className="font-black text-[#1A1F2C] text-[11px] uppercase tracking-widest mb-3 underline underline-offset-4 decoration-amber-500/30">Communication and Technical Information</h5>
             <ul className="list-disc ml-6 space-y-2">
               <li>Records of consultations and correspondence</li>
               <li>IP address, browser and device details</li>
@@ -249,7 +257,7 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
       </section>
 
       <section>
-        <NumberedSection num="2" title="Consent" />
+        <NumberedSection num="2" title="Consent" color="amber" />
         <p className="mb-6">Personal data is collected and processed with your explicit and informed consent, except where processing is otherwise permitted or required by law.</p>
         
         <div className="space-y-6">
@@ -276,11 +284,11 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
       </section>
 
       <section>
-        <NumberedSection num="3" title="Use of Personal Data" />
+        <NumberedSection num="3" title="Use of Personal Data" color="amber" />
         <p className="mb-4">Personal data collected by Gradway is used solely for lawful and specified purposes, including:</p>
         <ul className="list-disc ml-8 space-y-2 mb-8">
           <li>Academic assessment and education pathway planning</li>
-          <li>Course, institution, and destination recommendations</li>
+          <li>Course, institution, and destination guidance</li>
           <li>Preparation and submission of applications</li>
           <li>Visa and immigration guidance and documentation support</li>
           <li>Communication of updates, requirements, and outcomes</li>
@@ -315,7 +323,7 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
       </section>
 
       <section>
-        <NumberedSection num="4" title="Disclosure to Third Parties" />
+        <NumberedSection num="4" title="Disclosure to Third Parties" color="amber" />
         <p className="mb-4">Personal data is disclosed only where necessary and lawful, and only to authorized parties directly involved in the study abroad process, including:</p>
         <ul className="list-disc ml-8 space-y-2">
           <li>Universities, colleges, and education providers</li>
@@ -327,12 +335,12 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
       </section>
 
       <section>
-        <NumberedSection num="5" title="Cross-Border Data Transfers" />
+        <NumberedSection num="5" title="Cross-Border Data Transfers" color="amber" />
         <p>As an international education consultancy, personal data may be transferred outside Sri Lanka to institutions or authorities in destination countries. Such transfers occur only where required for admissions or visa processing and are carried out with appropriate safeguards to ensure data protection.</p>
       </section>
 
       <section>
-        <NumberedSection num="6" title="Data Retention" />
+        <NumberedSection num="6" title="Data Retention" color="amber" />
         <div className="space-y-4">
           <p>Personal data is retained only for as long as necessary to:</p>
           <ul className="list-disc ml-8 space-y-2">
@@ -345,7 +353,7 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
       </section>
 
       <section>
-        <NumberedSection num="7" title="Data Security" />
+        <NumberedSection num="7" title="Data Security" color="amber" />
         <p>We implement appropriate technical and administrative measures to protect personal data, including controlled document handling and access limited to authorised personnel only. While reasonable measures are taken, no system can be guaranteed to be entirely secure.</p>
       </section>
 
@@ -391,7 +399,7 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
     <div className="space-y-12 text-slate-600 text-[13px] md:text-sm leading-relaxed font-medium">
       <div className="text-center border-b border-slate-100 pb-10">
         <h4 className="text-4xl font-black text-[#1A1F2C] uppercase tracking-tighter mb-2">Terms of Service</h4>
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600">Gradway (Private) Limited</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">Gradway (Private) Limited</p>
         <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase">Education Consultancy Services – Sri Lanka</p>
         <p className="text-[10px] font-bold text-slate-400 mt-6 bg-slate-50 inline-block px-4 py-1.5 rounded-full">Effective Date: 01/01/2026</p>
       </div>
@@ -401,7 +409,7 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
       </p>
 
       <section>
-        <NumberedSection num="1" title="Scope of Services" color="indigo" />
+        <NumberedSection num="1" title="Scope of Services" color="blue" />
         <p className="mb-4">Gradway provides professional education consultancy services, which may include:</p>
         <ul className="list-disc ml-8 space-y-2 mb-6">
           <li>Academic profile assessment and counselling</li>
@@ -415,7 +423,7 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
       </section>
 
       <section>
-        <NumberedSection num="2" title="Client Responsibilities" color="indigo" />
+        <NumberedSection num="2" title="Client Responsibilities" color="blue" />
         <p className="mb-4">Clients are solely responsible for ensuring that all information and documentation provided to Gradway is accurate, complete, and truthful.</p>
         <p className="mb-4 font-bold text-[#1A1F2C]">This includes:</p>
         <ul className="list-disc ml-8 space-y-2 mb-6">
@@ -427,27 +435,27 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
       </section>
 
       <section>
-        <NumberedSection num="3" title="No Guarantee of Outcomes" color="indigo" />
-        <p>While Gradway provides professional guidance and maintains quality standards, no guarantees are made or implied regarding admission offers, visa approvals, processing timelines, scholarships, or post-study work outcomes. Outcomes are subject to external factors beyond Gradway’s control, including institutional criteria, immigration regulations, and individual applicant profiles.</p>
+        <NumberedSection num="3" title="No Guarantee of Outcomes" color="blue" />
+        <p>While Gradway provides professional guidance and maintains quality standards, no guarantees are made or implied regarding admission outcomes, visa approvals, processing timelines, scholarships, or post-study work outcomes. Outcomes are subject to external factors beyond Gradway’s control, including institutional criteria, immigration regulations, and individual applicant profiles.</p>
       </section>
 
       <section>
-        <NumberedSection num="4" title="Fees and Third-Party Costs" color="indigo" />
+        <NumberedSection num="4" title="Fees and Third-Party Costs" color="blue" />
         <p>Consultancy fees, where applicable, will be communicated separately and are generally non-refundable. Third-party costs (application fees, visa fees, medical tests, courier charges, and institutional deposits) are payable by the client and are not controlled by Gradway. Gradway is not responsible for changes in third-party fees or refund policies.</p>
       </section>
 
       <section>
-        <NumberedSection num="5" title="Limitation of Liability" color="indigo" />
+        <NumberedSection num="5" title="Limitation of Liability" color="blue" />
         <p>To the fullest extent permitted by law, Gradway shall not be liable for indirect, incidental, consequential, or economic losses. Gradway’s liability shall be limited to the amount paid to Gradway for consultancy services. Gradway shall not be responsible for losses arising from visa refusals, admission denials, or policy changes by universities or embassies.</p>
       </section>
 
       <section>
-        <NumberedSection num="6" title="Confidentiality and Data Use" color="indigo" />
+        <NumberedSection num="6" title="Confidentiality and Data Use" color="blue" />
         <p>Gradway handles personal information in accordance with its Privacy Policy. Client data is used strictly for service delivery, compliance, communication, and lawful operational purposes. Clients consent to the sharing of necessary information with relevant institutions and authorities as required to provide services.</p>
       </section>
 
       <section>
-        <NumberedSection num="7" title="Intellectual Property" color="indigo" />
+        <NumberedSection num="7" title="Intellectual Property" color="blue" />
         <p>All original content created by Gradway, including website text, layouts, graphics, and proprietary materials, is the intellectual property of Gradway (Private) Limited. Unauthorized reproduction or misuse is prohibited.</p>
         
         <div className="mt-8">
@@ -457,26 +465,125 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
       </section>
 
       <section>
-        <NumberedSection num="8" title="Suspension or Termination" color="indigo" />
+        <NumberedSection num="8" title="Suspension or Termination" color="blue" />
         <p>Gradway reserves the right to suspend or terminate services where false information is provided, documents are withheld, terms are violated, or client conduct is abusive or obstructive. Termination does not relieve the client of outstanding obligations.</p>
       </section>
 
       <section>
-        <NumberedSection num="9" title="Amendments" color="indigo" />
+        <NumberedSection num="9" title="Amendments" color="blue" />
         <p>Gradway reserves the right to modify these Terms at any time. Updated versions will be published on our website and take effect immediately. Continued use of services constitutes acceptance.</p>
       </section>
 
       <section>
-        <NumberedSection num="10" title="Governing Law" color="indigo" />
+        <NumberedSection num="10" title="Governing Law" color="blue" />
         <p>These Terms shall be governed by the laws of the Democratic Socialist Republic of Sri Lanka. Any disputes shall be subject to the exclusive jurisdiction of the courts of Colombo, Sri Lanka.</p>
       </section>
 
       <section>
-        <NumberedSection num="11" title="Acceptance" color="indigo" />
+        <NumberedSection num="11" title="Acceptance" color="blue" />
         <p>Engaging with Gradway staff, booking consultations, or submitting documents constitutes full and unconditional acceptance of these Terms of Service.</p>
       </section>
 
-      <LegalFooter colorClass="text-indigo-600" sectionNum="12" sectionColor="blue" />
+      <LegalFooter colorClass="text-blue-600" sectionNum="12" sectionColor="blue" />
+    </div>
+  );
+
+  const refundBody = (
+    <div className="space-y-12 text-slate-600 text-[13px] md:text-sm leading-relaxed font-medium">
+      <div className="text-center border-b border-slate-100 pb-10">
+        <h4 className="text-4xl font-black text-[#1A1F2C] uppercase tracking-tighter mb-2">Refund & Cancellation</h4>
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600">Gradway (Private) Limited</p>
+        <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase">Education Consultancy Services – Sri Lanka</p>
+        <p className="text-[10px] font-bold text-slate-400 mt-6 bg-slate-50 inline-block px-4 py-1.5 rounded-full">Effective Date: 01/01/2026</p>
+      </div>
+
+      <p className="text-base font-semibold text-[#1A1F2C]">
+        This Refund & Cancellation Policy outlines the conditions under which refunds, cancellations, and service withdrawals are handled by Gradway (Private) Limited (“Gradway”, “we”, “our”, or “us”).
+        By engaging our services, you acknowledge and agree to the terms set out below.
+      </p>
+
+      <section>
+        <NumberedSection num="1" title="Nature of Consultancy Services" color="emerald" />
+        <p className="mb-4">Gradway provides professional education consultancy and advisory services. These services involve time, expertise, planning, document review, communication with institutions, and strategic guidance.</p>
+        <div className="space-y-4">
+          <p className="font-bold text-[#1A1F2C] uppercase text-[10px] tracking-widest border-b border-slate-100 pb-2">As such:</p>
+          <ul className="list-disc ml-8 space-y-2">
+            <li>Consultancy services are intangible and time-based</li>
+            <li>Value is delivered progressively from the commencement of engagement</li>
+            <li>Outcomes are influenced by third parties such as universities and embassies</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <NumberedSection num="2" title="Refund Policy" color="emerald" />
+        
+        <div className="space-y-8">
+          <div>
+            <h5 className="font-black text-[#1A1F2C] text-[11px] uppercase tracking-widest mb-3 underline underline-offset-4 decoration-emerald-500/30">2.1 General Rule</h5>
+            <p>Unless explicitly agreed in writing, fees paid to Gradway are non-refundable once services have commenced. This includes, but is not limited to: profile evaluations, university mapping, application preparation, and visa guidance.</p>
+          </div>
+
+          <div>
+            <h5 className="font-black text-[#1A1F2C] text-[11px] uppercase tracking-widest mb-3 underline underline-offset-4 decoration-emerald-500/30">2.2 Non-Refundable Circumstances</h5>
+            <p className="mb-4">Refunds will not be issued in the following situations:</p>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 list-disc ml-8">
+              <li>Change of mind by the client</li>
+              <li>Visa refusal or application rejection</li>
+              <li>Admission denial by an institution</li>
+              <li>Delays caused by third parties</li>
+              <li>Changes in immigration policies</li>
+              <li>Failure to provide accurate information</li>
+              <li>Withdrawal after services commenced</li>
+              <li>Submission of false documents</li>
+            </ul>
+          </div>
+
+          <div>
+            <h5 className="font-black text-[#1A1F2C] text-[11px] uppercase tracking-widest mb-3 underline underline-offset-4 decoration-emerald-500/30">2.3 Exceptional Refunds</h5>
+            <p>In limited and exceptional circumstances, Gradway may consider a refund at its sole discretion, provided that the request is submitted in writing and services have not commenced.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <NumberedSection num="3" title="Third-Party Fees and Payments" color="emerald" />
+        <p className="mb-4">Fees paid to third parties are non-refundable and are governed by the policies of those entities. This includes:</p>
+        <ul className="list-disc ml-8 space-y-2">
+          <li>University or college application fees</li>
+          <li>Visa application fees</li>
+          <li>Medical examination fees</li>
+          <li>Courier, translation, or certification charges</li>
+        </ul>
+        <p className="mt-4 font-bold">Gradway does not control third-party refund decisions and bears no liability for such costs.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="4" title="Cancellation by the Client" color="emerald" />
+        <p>Clients may cancel services by providing written notice to Gradway. However, cancellation does not automatically entitle the client to a refund, and outstanding balances remain payable.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="5" title="Cancellation or Termination by Gradway" color="emerald" />
+        <p>Gradway reserves the right to suspend or terminate services without refund where false info is provided, conduct is abusive, or policies are breached. Such termination does not waive outstanding payment obligations.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="6" title="No Guarantee Clause" color="emerald" />
+        <p>Refunds are not linked to outcomes. Gradway does not guarantee admission outcomes, visa approvals, processing timelines, or scholarships. Unfavourable outcomes do not constitute grounds for refunds.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="7" title="Refund Processing Method" color="emerald" />
+        <p>Where a refund is approved, it will be issued using the original payment method where possible. Processing timelines may vary, and administrative or transaction fees may be deducted.</p>
+      </section>
+
+      <section>
+        <NumberedSection num="8" title="Policy Amendments" color="emerald" />
+        <p>Gradway reserves the right to update or modify this policy at any time. Continued use of our services constitutes acceptance of the updated policy.</p>
+      </section>
+
+      <LegalFooter colorClass="text-emerald-600" sectionNum="9" sectionColor="emerald" />
     </div>
   );
 
@@ -484,10 +591,14 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
     title: "Privacy Policy",
     icon: <ShieldAlert className="text-amber-500" size={32} />,
     body: privacyBody
-  } : {
+  } : type === 'terms' ? {
     title: "Terms of Service",
-    icon: <FileText className="text-indigo-500" size={32} />,
+    icon: <FileText className="text-blue-600" size={32} />,
     body: tosBody
+  } : {
+    title: "Refund Policy",
+    icon: <RefreshCcw className="text-emerald-600" size={32} />,
+    body: refundBody
   };
 
   return (
@@ -505,16 +616,16 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
         onClick={(e) => e.stopPropagation()}
         className="bg-white w-full max-w-3xl rounded-[3.5rem] shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh] cursor-default"
       >
-        <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-white relative z-10 shrink-0">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center">
-              {content.icon}
-            </div>
-            <h3 className="text-2xl font-black text-[#1A1F2C] uppercase tracking-tighter">{content.title}</h3>
+        <div className="p-8 border-b border-slate-50 flex items-center gap-4 bg-white relative z-10 shrink-0">
+          <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center">
+            {content.icon}
           </div>
-          <button onClick={onClose} className="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
-            <X size={20} className="text-slate-400" />
-          </button>
+          <div className="flex-1 flex items-center justify-between">
+            <h3 className="text-2xl font-black text-[#1A1F2C] uppercase tracking-tighter">{content.title}</h3>
+            <button onClick={onClose} className="w-10 h-10 rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors">
+              <X size={20} className="text-slate-400" />
+            </button>
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto p-8 md:p-14 custom-scrollbar mb-4">
           {content.body}
@@ -533,8 +644,22 @@ const App: React.FC = () => {
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'bot'; text: string }[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // FORM STATES
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [intake, setIntake] = useState("");
+  const [message, setMessage] = useState("");
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [selectedFieldOfStudy, setSelectedFieldOfStudy] = useState("");
+  const [selectedProgramLevel, setSelectedProgramLevel] = useState("");
+  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
 
   const scrollRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const countryDropdownRef = useRef<HTMLDivElement>(null);
+  const hiddenFormRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -548,6 +673,16 @@ const App: React.FC = () => {
     }
   }, [modal]);
 
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target as Node)) {
+        setIsCountryDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatMessage.trim()) return;
@@ -560,9 +695,37 @@ const App: React.FC = () => {
     setIsTyping(false);
   };
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setFormSubmitted(true);
+    setIsSubmitting(true);
+
+    // Trigger the hidden form's submission. 
+    // Since the hidden form inputs are fully controlled by React state (see the hidden form JSX below),
+    // multiple country inputs will be correctly serialized and sent.
+    if (hiddenFormRef.current) {
+        hiddenFormRef.current.submit();
+        
+        // Provide clear feedback delay
+        setTimeout(() => {
+            setFormSubmitted(true);
+            setIsSubmitting(false);
+            // Reset visible states
+            setName(""); setPhone(""); setEmail(""); setIntake(""); setMessage(""); 
+            setSelectedCountries([]); setSelectedFieldOfStudy(""); setSelectedProgramLevel("");
+        }, 1500);
+    }
+  };
+
+  const toggleCountrySelection = (countryName: string) => {
+    setSelectedCountries(prev => {
+      if (prev.includes(countryName)) {
+        return prev.filter(c => c !== countryName);
+      }
+      if (prev.length < 4) {
+        return [...prev, countryName];
+      }
+      return prev;
+    });
   };
 
   const scrollToId = (id: string) => {
@@ -596,6 +759,22 @@ const App: React.FC = () => {
         behavior: 'smooth'
       });
     }
+  };
+
+  const navigateToServiceDetail = (id: number) => {
+    setView('services-full');
+    setTimeout(() => {
+      const el = document.getElementById(`service-${id}`);
+      if (el) {
+        const offset = 100;
+        const elementPosition = el.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - offset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+      }
+    }, 150);
   };
 
   const scrollContainer = (region: string, direction: 'left' | 'right') => {
@@ -661,9 +840,10 @@ const App: React.FC = () => {
 
       <div className="container mx-auto px-4 lg:px-12 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">© 2025 Gradway (Private) Limited. All rights reserved.</p>
-        <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest text-slate-500">
+        <div className="flex flex-wrap justify-center gap-8 text-[10px] font-black uppercase tracking-widest text-slate-500">
            <button onClick={() => setModal('privacy')} className="hover:text-white transition-colors">Privacy Policy</button>
            <button onClick={() => setModal('terms')} className="hover:text-white transition-colors">Terms of Service</button>
+           <button onClick={() => setModal('refund')} className="hover:text-white transition-colors">Refund & Cancellation</button>
         </div>
         <button 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
@@ -762,6 +942,192 @@ const App: React.FC = () => {
   }
 
   if (view === 'services-full') {
+    const ServiceCardRenderer = ({ service }: { service: Service }) => {
+      const renderContent = () => {
+        switch (service.id) {
+          case 1:
+            return (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {[
+                  { icon: <Target className="text-blue-500" />, label: "Academic Audit", text: "In-depth analysis of your academics for global mapping." },
+                  { icon: <BookOpen className="text-amber-500" />, label: "English Language Proficiency", text: "Guidance on meeting Language requirements for top institutions." },
+                  { icon: <TrendingUp className="text-emerald-500" />, label: "Strategic Roadmap", text: "A future-proof road to academic and professional success in your dream destination" }
+                ].map((pillar, i) => (
+                  <div key={i} className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex flex-col gap-4 hover:scale-105 transition-all duration-300 hover:shadow-lg active:scale-95 cursor-default group/pillar">
+                    <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-sm group-hover/pillar:bg-white transition-colors">{pillar.icon}</div>
+                    <h4 className="font-black text-[#1A1F2C] text-xs uppercase tracking-widest">{pillar.label}</h4>
+                    <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{pillar.text}</p>
+                  </div>
+                ))}
+              </div>
+            );
+          case 2:
+            return (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                <div className="space-y-6">
+                   <div className="p-6 bg-amber-500/5 border border-amber-500/10 rounded-3xl">
+                      <h4 className="font-black text-amber-600 uppercase text-[10px] tracking-widest mb-3">Global Matching Index</h4>
+                      <p className="text-slate-600 text-xs font-medium leading-relaxed">We provide cross-destination intelligence, comparing UK, Canada, Australia and many more based on your specific budget and career path.</p>
+                   </div>
+                   <ul className="grid grid-cols-1 gap-3">
+                      {["Scholarship Eligibility Checks", "Post-Study Work Opportunity Audits", "Campus Environment Assessments"].map((point) => (
+                        <li key={point} className="flex items-center gap-3 text-[11px] font-bold text-slate-700">
+                          <Check size={14} className="text-amber-500" /> {point}
+                        </li>
+                      ))}
+                   </ul>
+                </div>
+                <div className="bg-[#1A1F2C] p-8 rounded-[3rem] text-white flex flex-col justify-center relative overflow-hidden">
+                   <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-amber-500/10 blur-[80px] rounded-full"></div>
+                   <h5 className="text-2xl font-black uppercase tracking-tighter mb-4">Precision Matching</h5>
+                   <p className="text-slate-400 text-[11px] leading-relaxed italic">"Our goal is to ensure you don't just get a degree, but the right platform for your future professional life."</p>
+                </div>
+              </div>
+            );
+          case 3:
+            return (
+              <div className="flex flex-col gap-8">
+                <div className="bg-slate-50 p-10 rounded-[3rem] border border-slate-100">
+                   <div className="flex items-start justify-between mb-8">
+                      <h4 className="font-black text-[#1A1F2C] uppercase tracking-widest text-xs">Submission Quality Standards</h4>
+                      <CheckCircle2 className="text-emerald-500" />
+                   </div>
+                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      <div className="space-y-2">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage 01</span>
+                        <p className="text-sm font-bold text-slate-800">Document Audit</p>
+                      </div>
+                      <div className="space-y-2">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage 02</span>
+                        <p className="text-sm font-bold text-slate-800">SOP Making/Editing</p>
+                      </div>
+                      <div className="space-y-2">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage 03</span>
+                        <p className="text-sm font-bold text-slate-800">Verification</p>
+                      </div>
+                      <div className="space-y-2">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage 04</span>
+                        <p className="text-sm font-bold text-slate-800">Submission and Tracking</p>
+                      </div>
+                   </div>
+                </div>
+              </div>
+            );
+          case 4:
+            return (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div className="bg-emerald-500 text-white p-10 rounded-[3rem] shadow-lg">
+                   <Zap className="mb-6" />
+                   <h4 className="text-3xl font-black uppercase tracking-tighter mb-4 leading-tight">Live Confidence Simulation</h4>
+                   <p className="text-emerald-50 text-sm leading-relaxed font-medium">We conduct mock interviews for both university admission boards and visa officers, giving you the edge in communication and poise.</p>
+                </div>
+                <div className="space-y-6 px-4">
+                  <div className="flex items-center gap-5">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0"><Clock size={16}/></div>
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-widest text-[#1A1F2C]">Intensive Drill Sessions</p>
+                      <p className="text-[11px] text-slate-500">Master frequently asked visa questions.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-5">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0"><MessageSquare size={16}/></div>
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-widest text-[#1A1F2C]">Expert Feedback</p>
+                      <p className="text-[11px] text-slate-500">Direct critique on the answers and tips to improve.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          case 5:
+            return (
+              <div className="bg-[#1A1F2C] text-white p-10 md:p-14 rounded-[4rem] relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/10 blur-[100px] rounded-full"></div>
+                <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12">
+                   <div className="space-y-6">
+                      <div className="flex items-center gap-3">
+                        <Shield className="text-rose-500" />
+                        <h4 className="text-2xl font-black uppercase tracking-tighter">Migration Compliance</h4>
+                      </div>
+                      <p className="text-slate-400 text-sm leading-relaxed">We offer end-to-end visa application and preparation guidance, covering Sri Lankan banking requirements, documentation, and compliance with student visa regulations across global destinations.</p>
+                   </div>
+                   <div className="flex flex-col justify-center space-y-4">
+                      <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors">
+                        <span className="w-8 h-8 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center font-black">1</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">Financial Check</span>
+                      </div>
+                      <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors">
+                        <span className="w-8 h-8 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center font-black">2</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">Immigration Check</span>
+                      </div>
+                   </div>
+                </div>
+              </div>
+            );
+          case 6:
+            return (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                 {[
+                   { title: "Foundation & Pathway", text: "Ideal for students looking for alternative entry points into top-tier global campuses." },
+                   { title: "Direct Undergraduate", text: "Direct admission support for students across multiple global destinations." },
+                   { title: "Direct Post-Graduate", text: "Strategic guidance for professionals and graduates aiming for Master's degree and graduate Programs globally." }
+                 ].map((route, idx) => (
+                   <div key={idx} className="p-8 bg-violet-50 rounded-[2.5rem] border border-violet-100 hover:scale-105 transition-transform duration-300">
+                      <Layers className="text-violet-500 mb-4" size={24} />
+                      <h5 className="font-black text-[#1A1F2C] text-xs uppercase tracking-widest mb-2">{route.title}</h5>
+                      <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{route.text}</p>
+                   </div>
+                 ))}
+              </div>
+            );
+          case 7:
+            return (
+              <div className="space-y-10">
+                <div className="flex flex-col md:flex-row gap-8 items-center">
+                   <div className="flex-1 space-y-4">
+                      <h4 className="text-xl font-black uppercase tracking-widest text-[#1A1F2C]">The 360° Arrival Promise</h4>
+                      <p className="text-slate-500 text-sm leading-relaxed">Transitioning from Colombo to global capitals shouldn't be scary. We manage the details so you focus on your first week of lectures.</p>
+                   </div>
+                   <div className="flex gap-4">
+                      <div className="w-16 h-16 bg-teal-500 text-white rounded-2xl flex items-center justify-center shadow-lg"><MapPin /></div>
+                      <div className="w-16 h-16 bg-teal-600 text-white rounded-2xl flex items-center justify-center shadow-lg"><Globe /></div>
+                   </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                   {['Flight Booking', 'Sim Cards', 'Bank Opening', 'accommodation'].map((item) => (
+                     <div key={item} className="px-2 md:px-4 py-4 bg-white border border-slate-100 rounded-2xl text-[8px] sm:text-[9px] font-black uppercase tracking-tight text-slate-400 text-center shadow-sm flex items-center justify-center overflow-hidden whitespace-nowrap">
+                       {item}
+                     </div>
+                   ))}
+                </div>
+              </div>
+            );
+          default:
+            return null;
+        }
+      };
+
+      return (
+        <div id={`service-${service.id}`} className="bg-white p-10 md:p-16 rounded-[3.5rem] shadow-xl border border-slate-100 flex flex-col md:flex-row gap-12 items-start hover:shadow-2xl transition-all overflow-hidden group scroll-mt-24">
+          <div className={`w-24 h-24 ${service.iconBg} ${service.iconColor} rounded-[2.5rem] flex items-center justify-center text-5xl shrink-0 shadow-lg border border-white group-hover:scale-110 transition-transform`}>
+            <i className={`fa-solid ${service.icon}`}></i>
+          </div>
+          <div className="flex-1 space-y-10">
+            <div>
+              <h2 className="text-4xl font-black text-[#1A1F2C] mb-4 uppercase tracking-tight">{service.title}</h2>
+              <div className="h-1.5 w-24 bg-amber-500 rounded-full mb-8"></div>
+            </div>
+            
+            {renderContent()}
+
+            <button onClick={() => scrollToId('contact')} className="bg-[#1A1F2C] text-white px-10 py-5 rounded-full font-black text-[11px] uppercase tracking-widest shadow-xl hover:bg-amber-500 active:scale-95 transition-all inline-flex items-center gap-3">
+               Book a Consultation <i className="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+      );
+    };
+
     return (
       <div className="min-h-screen bg-slate-50">
         <ScrollNavigation logoUrl={LOGO_URL} onNavigate={scrollToId} />
@@ -770,55 +1136,10 @@ const App: React.FC = () => {
             <div className="max-w-4xl mx-auto mb-20 text-center">
               <SectionBadge text="Full Expertise" amberOutline />
               <h1 className="text-5xl md:text-7xl font-black text-[#1A1F2C] leading-tight tracking-tighter mb-8 uppercase">Our Full Support.</h1>
-              <p className="text-slate-500 text-xl font-medium leading-relaxed">A comprehensive guide to the professional services we provide for Sri Lankan students.</p>
+              <p className="text-slate-500 text-xl font-medium leading-relaxed">A comprehensive guide to the professional services we provide for Sri Lankan students seeking world-class education.</p>
             </div>
             <div className="grid grid-cols-1 gap-12 max-w-5xl mx-auto">
-              {SERVICES.map((s) => {
-                const details = SERVICE_DETAILS[s.id];
-                return (
-                  <div key={s.id} className="bg-white p-10 md:p-16 rounded-[3.5rem] shadow-xl border border-slate-100 flex flex-col md:flex-row gap-12 items-start hover:shadow-2xl transition-all overflow-hidden group">
-                    <div className={`w-24 h-24 ${s.iconBg} ${s.iconColor} rounded-[2.5rem] flex items-center justify-center text-5xl shrink-0 shadow-lg border border-white group-hover:scale-110 transition-transform`}>
-                      <i className={`fa-solid ${s.icon}`}></i>
-                    </div>
-                    <div className="flex-1 space-y-10">
-                      <div>
-                        <h2 className="text-4xl font-black text-[#1A1F2C] mb-4 uppercase tracking-tight">{s.title}</h2>
-                        <div className="h-1.5 w-24 bg-amber-500 rounded-full mb-8"></div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-3 text-amber-600">
-                             <ShieldCheck size={20} />
-                             <span className="text-[10px] font-black uppercase tracking-widest">What is it?</span>
-                          </div>
-                          <p className="text-slate-600 text-sm leading-relaxed font-medium">{details?.whatIsIt || s.description}</p>
-                        </div>
-                        
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-3 text-indigo-600">
-                             <Zap size={20} />
-                             <span className="text-[10px] font-black uppercase tracking-widest">How we help?</span>
-                          </div>
-                          <p className="text-slate-600 text-sm leading-relaxed font-medium">{details?.howWeHelp || "Direct expertise tailored to your goals."}</p>
-                        </div>
-                        
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-3 text-emerald-600">
-                             <Check size={20} />
-                             <span className="text-[10px] font-black uppercase tracking-widest">The Benefit?</span>
-                          </div>
-                          <p className="text-slate-600 text-sm leading-relaxed font-medium">{details?.benefits || "Successful global academic entry."}</p>
-                        </div>
-                      </div>
-
-                      <button onClick={() => scrollToId('contact')} className="bg-[#1A1F2C] text-white px-10 py-5 rounded-full font-black text-[11px] uppercase tracking-widest shadow-xl hover:bg-amber-500 active:scale-95 transition-all inline-flex items-center gap-3">
-                         Book a Consultation <i className="fa-solid fa-arrow-right"></i>
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+              {SERVICES.map((s) => <ServiceCardRenderer key={s.id} service={s} />)}
             </div>
           </div>
         </main>
@@ -857,7 +1178,9 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-[#FAFAFA]" id="top">
       <ScrollNavigation logoUrl={LOGO_URL} onNavigate={scrollToId} />
 
-      {/* Hero Section */}
+      {/* TARGET FOR HIDDEN FORM SUBMISSION TO PREVENT PAGE REDIRECT */}
+      <iframe name="google_form_target" id="google_form_target" style={{ display: 'none' }} />
+
       <section id="home" className="relative min-h-[100svh] flex flex-col items-center pt-32 lg:pt-0 lg:flex-row overflow-hidden">
         <div className="absolute inset-0 hero-pattern opacity-10 pointer-events-none"></div>
         <div className="container mx-auto px-4 lg:px-12 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-20 relative z-10 flex-1 lg:flex-none">
@@ -868,7 +1191,7 @@ const App: React.FC = () => {
               <span className="text-amber-500 block">Simplified!!</span>
             </h1>
             <p className="text-base md:text-lg text-slate-600 mb-12 max-w-lg mx-auto lg:mx-0 font-medium leading-relaxed">
-              Empowering students to achieve global academic success with tailored strategies and dedicated support.
+              Empowering students to achieve global academic success with tailored strategies and dedicated support from our Colombo headquarters.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <button onClick={() => scrollToId('destinations')} className="w-full sm:w-auto bg-gradient-to-r from-amber-400 to-yellow-500 text-white px-12 py-5 rounded-full font-black shadow-2xl shadow-amber-200/50 hover:scale-105 active:scale-95 transition-all text-[11px] uppercase tracking-widest">Explore Destinations</button>
@@ -880,14 +1203,12 @@ const App: React.FC = () => {
 
           <div className="lg:w-1/2 relative h-[500px] md:h-[650px] w-full flex items-center justify-center">
              <div className="relative w-full h-full max-w-[600px]">
-               {/* STUDENTS FIRST BUBBLE (CENTER) */}
                <div className="hero-bubble absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160px] h-[160px] md:w-[260px] md:h-[260px] bg-white z-20 flex flex-col items-center justify-center shadow-2xl animate-float-center hero-bubble-center p-8 text-slate-900">
                   <StudentsFirstIcon className="mb-2 md:mb-4 w-12 h-12 md:w-20 md:h-20" />
                   <span className="text-[12px] md:text-xl font-black uppercase tracking-widest leading-none">Students</span>
                   <span className="text-[12px] md:text-xl font-black uppercase tracking-widest leading-none">First</span>
                </div>
                
-               {/* Bubble 1: 450+ UNIVERSITIES (TOP-LEFT) */}
                <div className="hero-bubble absolute top-[15%] left-[5%] lg:top-[8%] lg:left-[2%] w-[100px] h-[100px] md:w-[170px] md:h-[170px] bg-[#FFB800] z-30 animate-float-tl p-4 text-[#1A1F2C]">
                   <GraduationCap size={40} className="mb-2 hidden md:block" />
                   <GraduationCap size={20} className="mb-1 md:hidden" />
@@ -895,7 +1216,6 @@ const App: React.FC = () => {
                   <span className="text-[7px] md:text-[11px] font-black uppercase tracking-widest opacity-80 text-black">UNIVERSITIES</span>
                </div>
                
-               {/* Bubble 2: 10+ COUNTRIES (TOP-RIGHT) */}
                <div className="hero-bubble absolute top-[10%] right-[5%] lg:top-[5%] lg:right-[2%] w-[110px] h-[110px] md:w-[180px] md:h-[180px] bg-white z-10 animate-float-tr p-4 border border-slate-100">
                   <Globe size={40} className="mb-2 hidden md:block text-[#FFB800]" />
                   <Globe size={20} className="mb-1 md:hidden text-[#FFB800]" />
@@ -903,7 +1223,6 @@ const App: React.FC = () => {
                   <span className="text-[7px] md:text-[11px] font-black uppercase tracking-widest text-slate-400">COUNTRIES</span>
                </div>
                
-               {/* Bubble 3: 10k+ PROGRAMS (BOTTOM-LEFT) */}
                <div className="hero-bubble absolute bottom-[15%] left-[2%] lg:bottom-[15%] lg:left-[-10%] w-[110px] h-[110px] md:w-[180px] md:h-[180px] bg-[#4F46E5] z-30 animate-float-bl p-4 text-white">
                   <Layers size={40} className="mb-2 hidden md:block" />
                   <Layers size={20} className="mb-1 md:hidden" />
@@ -911,7 +1230,6 @@ const App: React.FC = () => {
                   <span className="text-[7px] md:text-[11px] font-black uppercase tracking-widest opacity-80">PROGRAMS</span>
                </div>
                
-               {/* Bubble 4: APPLICATION MANAGEMENT (BOTTOM-RIGHT) */}
                <div className="hero-bubble absolute bottom-[5%] right-[2%] lg:bottom-[15%] lg:right-[-10%] w-[110px] h-[110px] md:w-[200px] md:h-[200px] bg-black z-20 animate-float-br p-6 text-white text-center">
                   <CheckCircle2 size={40} className="mb-2 hidden md:block text-white" />
                   <CheckCircle2 size={20} className="mb-1 md:hidden text-white" />
@@ -926,7 +1244,6 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* About Section */}
       <section id="aboutus" className="py-24 bg-white relative overflow-hidden scroll-mt-[76px]">
         <div className="container mx-auto px-4 lg:px-12 flex flex-col lg:flex-row items-center gap-16">
           <div className="lg:w-1/2">
@@ -955,14 +1272,13 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Our Services Section */}
       <section id="services" className="py-24 bg-slate-50 scroll-mt-[76px]">
         <div className="container mx-auto px-4 lg:px-12">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <SectionBadge text="Our Expertise" />
             <h2 className="text-3xl md:text-5xl font-black text-[#1A1F2C] uppercase tracking-tighter">Our Services</h2>
             <p className="mt-4 text-slate-500 font-medium text-sm md:text-base leading-relaxed">
-              We take you from Confusion to clarity, with our comprehensive support tailored to your academic goals, ensuring smooth transition from application to arrival and your dream destination
+              We take you from confusion to clarity, with our comprehensive support tailored to your academic goals, ensuring smooth transition from application to arrival at your dream destination.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -971,7 +1287,7 @@ const App: React.FC = () => {
               return (
                 <div 
                   key={i} 
-                  onClick={() => setView('services-full')} 
+                  onClick={() => navigateToServiceDetail(s.id)} 
                   className={cn(
                     "bg-white p-8 rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all border border-slate-100 group flex flex-col cursor-pointer relative overflow-hidden",
                     isLast && "md:col-span-2 lg:col-span-2"
@@ -1000,7 +1316,6 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Destinations Section */}
       <section id="destinations" className="py-24 bg-white scroll-mt-[76px]">
         <div className="container mx-auto px-4 lg:px-12">
           <div className="mb-10 text-center lg:text-left">
@@ -1048,7 +1363,6 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Stories Section */}
       <section id="stories" className="py-24 bg-[#0a0d14] text-white scroll-mt-[76px]">
         <div className="container mx-auto px-4 lg:px-12 text-center mb-16">
           <SectionBadge text="Real Stories" lightVariant />
@@ -1070,76 +1384,217 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Contact Section */}
       <section id="contact" className="py-24 bg-slate-50 scroll-mt-[76px]">
         <div className="container mx-auto px-4 lg:px-12 text-center flex flex-col items-center">
-          <SectionBadge text="Get Started" amberOutline />
+          <SectionBadge text="Contact Hub" amberOutline />
           <h2 className="text-4xl md:text-7xl font-black text-[#1A1F2C] tracking-tighter mb-12 leading-tight uppercase max-w-4xl">Start Your Journey.</h2>
           
-          <div className="w-full max-w-3xl bg-white p-10 md:p-14 rounded-[4rem] shadow-2xl text-left border border-slate-100 mb-16">
+          <div className="w-full max-w-3xl bg-white p-10 md:p-14 rounded-[4rem] shadow-2xl text-left border border-slate-100 mb-16 relative overflow-visible">
             {!formSubmitted ? (
-              <form className="space-y-6" onSubmit={handleContactSubmit}>
+              <form className="space-y-8" onSubmit={handleContactSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Full Name</label>
-                    <input required placeholder="John Doe" className="w-full px-8 py-5 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-amber-500 transition-all font-medium text-sm border-transparent focus:bg-white" />
+                    <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" className="w-full px-8 py-5 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-amber-500 transition-all font-medium text-sm border-transparent focus:bg-white" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Phone Number</label>
-                    <input required placeholder="+9477 500 9929" className="w-full px-8 py-5 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-amber-500 transition-all font-medium text-sm border-transparent focus:bg-white" />
+                    <input required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+9477 500 9929" className="w-full px-8 py-5 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-amber-500 transition-all font-medium text-sm border-transparent focus:bg-white" />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Email Address</label>
-                  <input required type="email" placeholder="info@gradwayedu.com" className="w-full px-8 py-5 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-amber-500 transition-all font-medium text-sm border-transparent focus:bg-white" />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Email Address</label>
+                    <input required value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="info@gradwayedu.com" className="w-full px-8 py-5 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-amber-500 transition-all font-medium text-sm border-transparent focus:bg-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Program Level</label>
+                    <div className="relative">
+                      <select 
+                        required
+                        value={selectedProgramLevel}
+                        onChange={(e) => setSelectedProgramLevel(e.target.value)}
+                        className="w-full px-8 py-5 bg-slate-50 rounded-2xl outline-none appearance-none font-medium text-sm border-transparent focus:bg-white focus:ring-2 focus:ring-amber-500 transition-all cursor-pointer"
+                      >
+                        <option value="" disabled>Select program level</option>
+                        {PROGRAM_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+                      </select>
+                      <ChevronDown size={16} className="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
+                    </div>
+                  </div>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-2 relative" ref={countryDropdownRef}>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Preferred Countries (Select up to 4)</label>
+                    <button 
+                      type="button"
+                      onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
+                      className="w-full px-8 py-5 bg-slate-50 rounded-2xl outline-none border-transparent font-medium text-sm flex items-center justify-between hover:bg-slate-100 transition-all"
+                    >
+                      <span className={selectedCountries.length === 0 ? "text-slate-400" : "text-slate-800"}>
+                        {selectedCountries.length > 0 ? selectedCountries.join(", ") : "Select destinations"}
+                      </span>
+                      <ChevronDown size={16} className={cn("transition-transform duration-300", isCountryDropdownOpen && "rotate-180")} />
+                    </button>
+                    <AnimatePresence>
+                      {isCountryDropdownOpen && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          className="absolute z-[100] left-0 right-0 top-[110%] bg-white border border-slate-100 rounded-3xl shadow-2xl p-4 max-h-[300px] overflow-y-auto custom-scrollbar"
+                        >
+                          <div className="grid grid-cols-1 gap-1">
+                            {DESTINATIONS.map(d => (
+                              <button
+                                key={d.id}
+                                type="button"
+                                onClick={() => toggleCountrySelection(d.name)}
+                                className={cn(
+                                  "flex items-center gap-3 w-full px-4 py-3 rounded-xl transition-all text-left group",
+                                  selectedCountries.includes(d.name) ? "bg-amber-50 text-amber-600" : "hover:bg-slate-50 text-slate-600"
+                                )}
+                              >
+                                <div className={cn(
+                                  "w-5 h-5 rounded border-2 flex items-center justify-center transition-all",
+                                  selectedCountries.includes(d.name) ? "bg-amber-500 border-amber-500 text-white" : "border-slate-200 group-hover:border-amber-500"
+                                )}>
+                                  {selectedCountries.includes(d.name) && <Check size={12} strokeWidth={3} />}
+                                </div>
+                                <span className="text-xs font-bold uppercase tracking-wider">{d.name}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Field of study</label>
+                    <div className="relative">
+                      <select 
+                        required
+                        value={selectedFieldOfStudy}
+                        onChange={(e) => setSelectedFieldOfStudy(e.target.value)}
+                        className="w-full px-8 py-5 bg-slate-50 rounded-2xl outline-none appearance-none font-medium text-sm border-transparent focus:bg-white focus:ring-2 focus:ring-amber-500 transition-all cursor-pointer"
+                      >
+                        <option value="" disabled>Select your field</option>
+                        {FIELDS_OF_STUDY.map(f => <option key={f} value={f}>{f}</option>)}
+                      </select>
+                      <ChevronDown size={16} className="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Preferred Intake (Month / Year)</label>
+                  <input required value={intake} onChange={(e) => setIntake(e.target.value)} placeholder="Eg - September 2026" className="w-full px-8 py-5 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-amber-500 transition-all font-medium text-sm border-transparent focus:bg-white" />
+                </div>
+
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Message</label>
-                  <textarea rows={3} placeholder="Tell us about your study abroad dreams..." className="w-full px-8 py-5 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-amber-500 transition-all font-medium text-sm resize-none border-transparent focus:bg-white"></textarea>
+                  <textarea required value={message} onChange={(e) => setMessage(e.target.value)} rows={4} placeholder="Tell us about your Goals, Budget or if you have any questions" className="w-full px-8 py-5 bg-slate-50 rounded-2xl outline-none focus:ring-2 focus:ring-amber-500 transition-all font-medium text-sm resize-none border-transparent focus:bg-white"></textarea>
                 </div>
-                <button type="submit" className="btn-submit w-full bg-[#1A1F2C] text-white py-6 rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 mt-4">Submit Inquiry</button>
+
+                <div className="pt-4">
+                  <button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="btn-submit w-full bg-[#1A1F2C] text-white py-6 rounded-2xl font-black uppercase tracking-[0.2em] text-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="animate-spin" size={20} />
+                        Sending...
+                      </>
+                    ) : (
+                      "Submit Inquiry"
+                    )}
+                  </button>
+                </div>
               </form>
             ) : (
-              <div className="text-center py-12">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-12"
+              >
                 <div className="w-20 h-20 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto text-4xl mb-6 shadow-xl"><i className="fa-solid fa-check"></i></div>
-                <h3 className="text-3xl font-black mb-4">Message Sent!</h3>
-                <p className="text-slate-500 font-medium">Thank you for reaching out. A Gradway consultant will call you shortly.</p>
-              </div>
+                <h3 className="text-3xl font-black mb-4">Inquiry Received!</h3>
+                <p className="text-slate-500 font-medium">Thank you for reaching out. Your details have been recorded, and a Gradway consultant will call you shortly.</p>
+                <button 
+                  onClick={() => {
+                    setFormSubmitted(false);
+                  }}
+                  className="mt-8 text-amber-600 font-black uppercase text-[10px] tracking-widest hover:underline"
+                >
+                  Send another inquiry
+                </button>
+              </motion.div>
             )}
           </div>
 
-          <div className="flex flex-row flex-wrap justify-center gap-6 w-full max-w-4xl px-4">
-            <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="bg-white p-6 rounded-3xl border border-slate-100 shadow-lg flex items-center gap-4 group hover:border-[#25D366] transition-all min-w-[240px]">
+          {/* 
+              ULTRA-RELIABLE REACT-DRIVEN HIDDEN FORM
+              By rendering the multi-select inputs directly in the JSX, we ensure that the browser's form 
+              serialization always includes every selected item correctly when .submit() is called.
+          */}
+          <form 
+            ref={hiddenFormRef} 
+            action={GOOGLE_FORM_URL} 
+            method="POST" 
+            target="google_form_target" 
+            style={{ display: 'none' }}
+          >
+              <input type="hidden" name={FORM_ENTRIES.name} value={name} />
+              <input type="hidden" name={FORM_ENTRIES.phone} value={phone} />
+              <input type="hidden" name={FORM_ENTRIES.email} value={email} />
+              <input type="hidden" name={FORM_ENTRIES.programLevel} value={selectedProgramLevel} />
+              <input type="hidden" name={FORM_ENTRIES.fieldOfStudy} value={selectedFieldOfStudy} />
+              <input type="hidden" name={FORM_ENTRIES.intake} value={intake} />
+              <input type="hidden" name={FORM_ENTRIES.message} value={message || "-"} />
+              
+              {/* MULTI-SELECT MAPPING: Crucial to use React to generate these inputs based on state */}
+              {selectedCountries.length > 0 ? selectedCountries.map((c, idx) => (
+                  <input key={idx} type="hidden" name={FORM_ENTRIES.countries} value={c.toUpperCase()} />
+              )) : (
+                  <input type="hidden" name={FORM_ENTRIES.countries} value="-" />
+              )}
+          </form>
+
+          <div className="flex flex-col md:flex-row justify-center items-center gap-6 w-full max-w-5xl px-4 pb-4">
+            <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="bg-white p-6 rounded-3xl border border-slate-100 shadow-lg flex items-center gap-4 group hover:border-[#25D366] transition-all w-full md:w-auto md:flex-1 min-w-[220px]">
               <div className="w-12 h-12 bg-[#25D366] text-white rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-md group-hover:scale-110 transition-transform"><MessageSquare /></div>
               <div className="text-left">
                 <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest">WhatsApp</span>
                 <span className="block text-xs font-black text-[#1A1F2C] tracking-tight">+94 77 500 9929</span>
               </div>
             </a>
-            <a href="tel:+94775009929" className="bg-white p-6 rounded-3xl border border-slate-100 shadow-lg flex items-center gap-4 group hover:border-amber-500 transition-all min-w-[240px]">
+            <a href="tel:+94775009929" className="bg-white p-6 rounded-3xl border border-slate-100 shadow-lg flex items-center gap-4 group hover:border-amber-500 transition-all w-full md:w-auto md:flex-1 min-w-[220px]">
               <div className="w-12 h-12 bg-amber-500 text-white rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-md group-hover:scale-110 transition-transform"><Phone /></div>
               <div className="text-left">
                 <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest">Call Us</span>
                 <span className="block text-xs font-black text-[#1A1F2C] tracking-tight">+94 77 500 9929</span>
               </div>
             </a>
-            <a href="mailto:info@gradwayedu.com" className="bg-white p-6 rounded-3xl border border-slate-100 shadow-lg flex items-center gap-4 group hover:border-indigo-600 transition-all min-w-[240px]">
+            <a href="mailto:info@gradwayedu.com" className="bg-white p-6 rounded-3xl border border-slate-100 shadow-lg flex items-center gap-4 group hover:border-indigo-600 transition-all w-full md:w-auto md:flex-1 min-w-[220px]">
               <div className="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-md group-hover:scale-110 transition-transform"><Mail /></div>
               <div className="text-left">
                 <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest">Email</span>
-                <span className="block text-xs font-black text-[#1A1F2C] tracking-tight text-wrap break-all leading-tight">info@gradwayedu.com</span>
+                <span className="block text-xs font-black text-[#1A1F2C] tracking-tight truncate leading-tight">info@gradwayedu.com</span>
               </div>
             </a>
           </div>
         </div>
       </section>
 
-      {/* FAQ Section */}
       <section id="faq" className="py-24 bg-white scroll-mt-[76px]">
         <div className="container mx-auto px-4 lg:px-12 flex flex-col lg:flex-row gap-16">
           <div className="lg:w-1/3">
-            <SectionBadge text="Help Center" amberOutline />
-            <h2 className="text-4xl font-black mb-6 uppercase tracking-tighter leading-tight">Knowledge Base & Frequently Asked Questions</h2>
+            <SectionBadge text="Knowledge Base" amberOutline />
+            <h2 className="text-4xl font-black mb-6 uppercase tracking-tighter leading-tight">Frequently Asked Questions</h2>
             <p className="text-slate-500 font-medium mb-10">Clear, student-focused answers for your migration concerns.</p>
             <button onClick={() => setView('faq-full')} className="bg-[#1A1F2C] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-all">View Full FAQ</button>
           </div>
