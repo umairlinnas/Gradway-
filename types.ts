@@ -1,3 +1,4 @@
+
 export interface Destination {
   id: string;
   name: string;
@@ -31,5 +32,5 @@ export interface FAQ {
   id: number;
   question: string;
   answer: string;
-  category: 'General' | 'Visa' | 'Niche';
+  category: 'General' | 'Academic' | 'Application' | 'Financial' | 'Visa' | 'Life Abroad' | 'Post-Study' | 'Program-Specific' | 'Uncommon & Niche' | 'Consultants' | 'Destinations' | 'Resources' | 'Advice';
 }

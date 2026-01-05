@@ -231,55 +231,204 @@ export const SUCCESS_STORIES: SuccessStory[] = [
   }
 ];
 
-export const MAIN_FAQ: FAQ[] = [
+export const FULL_FAQ: FAQ[] = [
+  // General
   {
     id: 1,
     category: 'General',
-    question: "How do I start my study abroad journey with Gradway in Sri Lanka?",
-    answer: "The best first step is to book a free profile assessment at our Colombo office. We'll evaluate your academic history, English proficiency (IELTS/PTE), and financial goals to recommend the perfect university and destination for you."
+    question: "What is studying abroad?",
+    answer: "Studying abroad means pursuing your higher education—whether undergraduate, postgraduate, or diploma programs—at a university or college outside Sri Lanka. It offers exposure to world-class education systems, diverse cultures, global networking opportunities, and enhanced career prospects."
   },
   {
     id: 2,
     category: 'General',
-    question: "Do I need to pay a consultation fee at Gradway?",
-    answer: "No, Gradway (Pvt) Limited provides initial profile reviews and professional counselling completely free of charge. We believe in providing transparent guidance to all ambitious Sri Lankan students."
+    question: "Is studying abroad worth it for Sri Lankan students?",
+    answer: "Absolutely! Studying abroad provides numerous benefits including access to internationally recognized qualifications, exposure to cutting-edge research facilities, improved employment prospects with multinational companies, development of independence and cross-cultural skills, and potential pathways to permanent residency."
   },
   {
     id: 3,
-    category: 'Visa',
-    question: "What is the student visa success rate for the UK and Canada?",
-    answer: "While the final decision belongs to the high commission or embassy, our meticulous documentation process and personalized interview training ensure a very high success rate for our students."
+    category: 'General',
+    question: "Which countries are most popular for Sri Lankan students?",
+    answer: "The most popular destinations include Australia (post-study work rights), United Kingdom (prestigious universities), Canada (affordable tuition), United States (diverse options), New Zealand (safe environment), Germany (low tuition fees), and Malaysia (proximity and affordability)."
   },
   {
     id: 4,
-    category: 'Niche',
-    question: "Can I work while I study abroad in Australia or Germany?",
-    answer: "Yes, most student visas allow part-time work (typically 20-24 hours per week) during semester periods and full-time work during university vacations, helping you manage living costs."
+    category: 'General',
+    question: "When should I start planning to study abroad?",
+    answer: "Ideally, begin planning 12-18 months before your intended start date. This allows time for researching universities, preparing for standardized tests (IELTS, TOEFL, SAT, GRE), gathering documents, applying for scholarships, and processing visas."
   },
+  // Academic
   {
     id: 5,
-    category: 'General',
-    question: "Are there scholarships available for Sri Lankan students?",
-    answer: "Many international universities offer merit-based scholarships. Our team will help you identify and apply for these to make your global education more affordable."
+    category: 'Academic',
+    question: "What are the minimum academic qualifications needed?",
+    answer: "Generally: Foundation/Diploma needs O/L or A/L; Undergraduate requires A/Levels (typically minimum 2 passes); Postgraduate requires a Bachelor's degree with minimum GPA (usually 2.5-3.0). Some universities offer pathways if you don't meet direct entry."
   },
   {
     id: 6,
-    category: 'General',
-    question: "What are the typical English language requirements?",
-    answer: "Most universities require IELTS, PTE, or TOEFL. Depending on your choice, the required band scores range from 6.0 to 7.0 for postgraduate programs. We provide guidance on meeting these requirements."
+    category: 'Academic',
+    question: "Can I study abroad with lower A/L results?",
+    answer: "Yes! Many universities offer alternative pathways including foundation year programs, diploma courses that articulate into degree programs, and conditional admission. Gradway specializes in finding these suitable pathways."
   },
   {
     id: 7,
-    category: 'Visa',
-    question: "Can my spouse or family join me while I study?",
-    answer: "Depending on the destination (like the UK or Canada), certain postgraduate routes allow dependents to join you. We can provide detailed advice on spouse visa eligibility for your specific program."
+    category: 'Academic',
+    question: "What English language tests are required?",
+    answer: "Most commonly IELTS (Academic), TOEFL (iBT), PTE Academic, and the Duolingo English Test. Medium of instruction waivers may be available if previous education was entirely in English."
   },
   {
     id: 8,
-    category: 'Niche',
-    question: "What happens after I graduate? (Post-Study Work)",
-    answer: "Destinations like the UK offer a 2-year Graduate Route, while Canada and Australia offer varying lengths of Post-Graduation Work Permits, allowing you to gain international work experience after your degree."
+    category: 'Academic',
+    question: "Can I study abroad without IELTS?",
+    answer: "Yes, under certain conditions: completing previous education in English (MOI waiver), universities accepting PTE/TOEFL/Duolingo, university-specific internal tests, or pathway programs with integrated English training."
+  },
+  // Application
+  {
+    id: 9,
+    category: 'Application',
+    question: "How do I apply to study abroad?",
+    answer: "The process involves: researching and shortlisting, checking requirements, preparing documents (transcripts, personal statement, CV), submitting applications (directly or via Gradway), receiving and accepting offers, and finally applying for a student visa."
+  },
+  {
+    id: 10,
+    category: 'Application',
+    question: "What is a Statement of Purpose (SOP)?",
+    answer: "An SOP is a personal essay explaining your academic background, career goals, why you've chosen a specific program/university, and how it aligns with your aspirations. A well-crafted SOP is crucial for admission."
+  },
+  {
+    id: 11,
+    category: 'Application',
+    question: "What is the difference between conditional and unconditional offers?",
+    answer: "A Conditional Offer is pending fulfillment of requirements (like final grades or test scores). An Unconditional Offer means you've met all requirements and can proceed directly to enrollment."
+  },
+  // Financial
+  {
+    id: 12,
+    category: 'Financial',
+    question: "How much does it cost to study abroad?",
+    answer: "Annual estimates (Tuition + Living) range from USD 30k-70k in the US, GBP 15k-40k in the UK, AUD 25k-50k in Australia, CAD 20k-40k in Canada, and EUR 0-15k in Germany (public universities)."
+  },
+  {
+    id: 13,
+    category: 'Financial',
+    question: "What scholarships are available for Sri Lankan students?",
+    answer: "Options include Government scholarships (Commonwealth, Chevening, Fulbright), University-specific merit/diversity awards, and external funding from organizations like Rotary or the World Bank."
+  },
+  {
+    id: 14,
+    category: 'Financial',
+    question: "Can I work part-time while studying?",
+    answer: "Most countries allow part-time work (typically 20 hours/week during semester and full-time during breaks). Wages range from USD 10-20 per hour depending on location, helping offset living costs."
+  },
+  {
+    id: 15,
+    category: 'Financial',
+    question: "How do I show proof of funds for my visa?",
+    answer: "Acceptable proof includes bank statements (6 months history), fixed deposits, education loans from recognized banks, affidavit of support, and scholarship letters. Required amounts vary by country."
+  },
+  // Visa
+  {
+    id: 16,
+    category: 'Visa',
+    question: "How long does student visa processing take?",
+    answer: "Generally: UK takes 3 weeks; Australia 4-8 weeks; Canada 4-12 weeks; US 2-4 weeks after interview; New Zealand 4-6 weeks. Always apply well in advance of your intake."
+  },
+  {
+    id: 17,
+    category: 'Visa',
+    question: "What are common reasons for visa rejection?",
+    answer: "Common reasons include insufficient financial proof, incomplete documentation, poor academic history, inability to demonstrate genuine student intent, or lack of strong ties to Sri Lanka."
+  },
+  {
+    id: 18,
+    category: 'Visa',
+    question: "Can I bring my family on a student visa?",
+    answer: "Many countries (Australia, Canada, New Zealand, and UK for certain post-grad routes) allow dependent visas for spouses and children. Financial requirements increase substantially."
+  },
+  // Life Abroad
+  {
+    id: 19,
+    category: 'Life Abroad',
+    question: "Is studying abroad safe for Sri Lankan students?",
+    answer: "Yes, popular destinations maintain high safety standards. Universities provide dedicated international support services, campus security, and orientation programs to help you adjust safely."
+  },
+  {
+    id: 20,
+    category: 'Life Abroad',
+    question: "Do I need to speak the local language?",
+    answer: "In English-speaking countries, English is enough. In non-English speaking countries, many Master's programs are taught in English, but learning basic local language enhances your experience and job prospects."
+  },
+  {
+    id: 21,
+    category: 'Life Abroad',
+    question: "What about healthcare and insurance?",
+    answer: "International student health insurance is typically mandatory (e.g., OSHC in Australia, IHS in the UK). It covers medical consultations, hospital care, and emergency services."
+  },
+  // Post-Study
+  {
+    id: 22,
+    category: 'Post-Study',
+    question: "Can I work in the country after graduation?",
+    answer: "Yes, most countries offer post-study work rights: UK (2-3 years), Australia (2-4 years), Canada (up to 3 years), and NZ (1-3 years). This allows you to gain global experience."
+  },
+  {
+    id: 23,
+    category: 'Post-Study',
+    question: "What are pathways to permanent residency (PR)?",
+    answer: "Australia (Points-based), Canada (Express Entry), and New Zealand offer clear PR pathways for graduates. Qualifications, work experience, and language proficiency contribute to eligibility."
+  },
+  // Program-Specific
+  {
+    id: 24,
+    category: 'Program-Specific',
+    question: "What is a foundation program and do I need one?",
+    answer: "It's a 6-12 month preparatory course for students who don't meet direct entry requirements. It bridges the gap in education systems and guarantees progression to Bachelor's degrees."
+  },
+  {
+    id: 25,
+    category: 'Program-Specific',
+    question: "What is a co-op program or internship?",
+    answer: "Common in Canada and US, these integrate academic study with paid work experience in your field. They significantly enhance employability and professional networking."
+  },
+  // Uncommon
+  {
+    id: 26,
+    category: 'Uncommon & Niche',
+    question: "Can I study abroad after a long gap in education?",
+    answer: "Yes! Many students successfully return to study after career or family breaks. Clearly explaining the gap in your SOP and demonstrating professional growth is key."
+  },
+  {
+    id: 27,
+    category: 'Uncommon & Niche',
+    question: "Is it too late to study abroad if I'm over 35?",
+    answer: "Not at all. Mature students bring valuable experience. Visa focus is on genuine student intent and financial capacity, not age. Professional Master's or research degrees are popular for this group."
+  },
+  // Consultants
+  {
+    id: 28,
+    category: 'Consultants',
+    question: "Why should I use an education consultant like Gradway?",
+    answer: "We navigate complex requirements, provide SOP guidance, offer scholarship access, and maintain high visa success rates, saving you significant time and potential rejection."
+  },
+  {
+    id: 29,
+    category: 'Consultants',
+    question: "Are Gradway's services free?",
+    answer: "Yes! Most of our services (consultation, application, visa guidance) are free for students. We receive commissions from partner universities upon your successful enrollment."
+  },
+  // Destinations
+  {
+    id: 30,
+    category: 'Destinations',
+    question: "What makes Australia a popular choice?",
+    answer: "High-quality education (7 universities in global top 100), post-study work rights, a large Sri Lankan community, and a climate similar to home."
+  },
+  {
+    id: 31,
+    category: 'Destinations',
+    question: "Why do students choose the UK?",
+    answer: "Prestigious historic universities, shorter durations (1-year Master's), 2-year post-study work rights, and no need for SAT/GRE for most programs."
   }
 ];
 
-export const FULL_FAQ: FAQ[] = [...MAIN_FAQ];
+export const MAIN_FAQ: FAQ[] = FULL_FAQ.filter(f => [1, 2, 5, 12, 16, 29].includes(f.id));

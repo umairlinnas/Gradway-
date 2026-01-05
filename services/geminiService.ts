@@ -11,6 +11,7 @@ Always encourage them to visit the office in Colombo or contact Gradway at +94 7
 `;
 
 export const getGeminiResponse = async (prompt: string) => {
+  // Always create a new instance right before the call to ensure latest API key usage.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
     const response = await ai.models.generateContent({
@@ -21,6 +22,7 @@ export const getGeminiResponse = async (prompt: string) => {
         temperature: 0.7,
       },
     });
+    // response.text is a property, not a method.
     return response.text;
   } catch (error) {
     console.error("Gemini API Error:", error);

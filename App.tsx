@@ -4,7 +4,7 @@ import { DESTINATIONS, SERVICES, SUCCESS_STORIES, MAIN_FAQ, FULL_FAQ } from './c
 import { getGeminiResponse } from './services/geminiService';
 import { ScrollNavigation } from './components/ui/scroll-navigation-menu';
 import { motion, AnimatePresence } from 'motion/react';
-import { Service } from './types';
+import { Service, FAQ } from './types';
 import { GlowingEffect } from './components/ui/glowing-effect';
 import { 
   Telescope, 
@@ -33,30 +33,39 @@ import {
   Target,
   BookOpen,
   ChevronDown,
-  Loader2
+  Loader2,
+  Compass,
+  Train,
+  Utensils,
+  Play
 } from 'lucide-react';
 import { cn } from './lib/utils';
 
 const LOGO_URL = "https://i.ibb.co/3ykG4SjV/logo.png";
 const TIKTOK_URL = "https://www.tiktok.com/@gradway_education?_r=1&_t=ZS-92huBpIVt6y";
 const WA_PHONE = "94775009929";
+const PHONE_DISPLAY = "+94 77 500 9929";
 const WA_PREFILLED_MSG = encodeURIComponent("Hi, I’m interested in studying abroad.\n\nName:\nPreferred Study Country:\nIntended Program / Level:\n\nThank you.");
 const WA_LINK = `https://wa.me/${WA_PHONE}?text=${WA_PREFILLED_MSG}`;
 
-// GOOGLE FORM CONFIGURATION - Locked to your latest pre-filled link structure
+// GOOGLE FORM CONFIGURATION
 const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSe0osLal3ZHqpy3mMBrtIvA0Xf0TkEFJ8aieLX3bFefI-8pAQ/formResponse";
 const FORM_ENTRIES = {
   name: "entry.2104636556",
   phone: "entry.1820781302",
   email: "entry.1675582797",
   programLevel: "entry.1976373844",
-  countries: "entry.1757388082", // Google expects this repeated for each selected checkbox
+  countries: "entry.1757388082",
   fieldOfStudy: "entry.1764432255",
   intake: "entry.957759174",
   message: "entry.1508256747"
 };
 
-type ViewState = 'main' | 'careers' | 'faq-full' | 'services-full';
+// NEWSLETTER FORM CONFIGURATION
+const NEWSLETTER_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfqVHdpFMQYrR5mdHDuMIkcryqN-V42DIA7W72bJ5AJihGbiw/formResponse";
+const NEWSLETTER_ENTRY_ID = "entry.1657033578";
+
+type ViewState = 'main' | 'careers' | 'faq-full' | 'services-full' | 'destination-uk';
 type ModalType = 'none' | 'privacy' | 'terms' | 'refund';
 
 const FIELDS_OF_STUDY = [
@@ -104,7 +113,7 @@ const SectionBadge: React.FC<{ text: string; lightVariant?: boolean; amberOutlin
   </div>
 );
 
-const FAQAccordion: React.FC<{ items: typeof MAIN_FAQ }> = ({ items }) => {
+const FAQAccordion: React.FC<{ items: FAQ[] }> = ({ items }) => {
   const [openId, setOpenId] = useState<number | null>(null);
 
   return (
@@ -152,6 +161,197 @@ const NumberedSection: React.FC<{ num: string | number; title: string; color?: '
     {title}
   </h4>
 );
+
+interface ServiceCardRendererProps {
+  service: Service;
+  scrollToId: (id: string) => void;
+}
+
+const ServiceCardRenderer: React.FC<ServiceCardRendererProps> = ({ service, scrollToId }) => {
+  const renderContent = () => {
+    switch (service.id) {
+      case 1:
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {[
+              { icon: <Target className="text-blue-500" />, label: "Academic Audit", text: "In-depth analysis of your academics for global mapping." },
+              { icon: <BookOpen className="text-amber-500" />, label: "English Language Proficiency", text: "Guidance on meeting Language requirements for top institutions." },
+              { icon: <TrendingUp className="text-emerald-500" />, label: "Strategic Roadmap", text: "A future-proof road to academic and professional success in your dream destination" }
+            ].map((pillar, i) => (
+              <div key={i} className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex flex-col gap-4 hover:scale-105 transition-all duration-300 hover:shadow-lg active:scale-95 cursor-default group/pillar">
+                <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-sm group-hover/pillar:bg-white transition-colors">{pillar.icon}</div>
+                <h4 className="font-black text-[#1A1F2C] text-xs uppercase tracking-widest">{pillar.label}</h4>
+                <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{pillar.text}</p>
+              </div>
+            ))}
+          </div>
+        );
+      case 2:
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <div className="space-y-6">
+               <div className="p-6 bg-amber-500/5 border border-amber-500/10 rounded-3xl">
+                  <h4 className="font-black text-amber-600 uppercase text-[10px] tracking-widest mb-3">Global Matching Index</h4>
+                  <p className="text-slate-600 text-xs font-medium leading-relaxed">We provide cross-destination intelligence, comparing UK, Canada, Australia and many more based on your specific budget and career path.</p>
+               </div>
+               <ul className="grid grid-cols-1 gap-3">
+                  {["Scholarship Eligibility Checks", "Post-Study Work Opportunity Audits", "Campus Environment Assessments"].map((point) => (
+                    <li key={point} className="flex items-center gap-3 text-[11px] font-bold text-slate-700">
+                      <Check size={14} className="text-amber-500" /> {point}
+                    </li>
+                  ))}
+               </ul>
+            </div>
+            <div className="bg-[#1A1F2C] p-8 rounded-[3rem] text-white flex flex-col justify-center relative overflow-hidden">
+               <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-amber-500/10 blur-[80px] rounded-full"></div>
+               <h5 className="text-2xl font-black uppercase tracking-tighter mb-4">Precision Matching</h5>
+               <p className="text-slate-400 text-[11px] leading-relaxed italic">"Our goal is to ensure you don't just get a degree, but the right platform for your future professional life."</p>
+            </div>
+          </div>
+        );
+      case 3:
+        return (
+          <div className="flex flex-col gap-8">
+            <div className="bg-slate-50 p-10 rounded-[3rem] border border-slate-100">
+               <div className="flex items-start justify-between mb-8">
+                  <h4 className="font-black text-[#1A1F2C] uppercase tracking-widest text-xs">Submission Quality Standards</h4>
+                  <CheckCircle2 className="text-emerald-500" />
+               </div>
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage 01</span>
+                    <p className="text-sm font-bold text-slate-800">Document Audit</p>
+                  </div>
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage 02</span>
+                    <p className="text-sm font-bold text-slate-800">SOP Making/Editing</p>
+                  </div>
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage 03</span>
+                    <p className="text-sm font-bold text-slate-800">Verification</p>
+                  </div>
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage 04</span>
+                    <p className="text-sm font-bold text-slate-800">Submission and Tracking</p>
+                  </div>
+               </div>
+            </div>
+          </div>
+        );
+      case 4:
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div className="bg-emerald-500 text-white p-10 rounded-[3rem] shadow-lg">
+               <Zap className="mb-6" />
+               <h4 className="text-3xl font-black uppercase tracking-tighter mb-4 leading-tight">Live Confidence Simulation</h4>
+               <p className="text-emerald-50 text-sm leading-relaxed font-medium">We conduct mock interviews for both university admission boards and visa officers, giving you the edge in communication and poise.</p>
+            </div>
+            <div className="space-y-6 px-4">
+              <div className="flex items-center gap-5">
+                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0"><Clock size={16}/></div>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-[#1A1F2C]">Intensive Drill Sessions</p>
+                  <p className="text-[11px] text-slate-500">Master frequently asked visa questions.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-5">
+                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0"><MessageSquare size={16}/></div>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-[#1A1F2C]">Expert Feedback</p>
+                  <p className="text-[11px] text-slate-500">Direct critique on the answers and tips to improve.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      case 5:
+        return (
+          <div className="bg-[#1A1F2C] text-white p-10 md:p-14 rounded-[4rem] relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/10 blur-[100px] rounded-full"></div>
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12">
+               <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <Shield className="text-rose-500" />
+                    <h4 className="text-2xl font-black uppercase tracking-tighter">Migration Compliance</h4>
+                  </div>
+                  <p className="text-slate-400 text-sm leading-relaxed">We offer end-to-end visa application and preparation guidance, covering Sri Lankan banking requirements, documentation, and compliance with student visa regulations across global destinations.</p>
+               </div>
+               <div className="flex flex-col justify-center space-y-4">
+                  <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors">
+                    <span className="w-8 h-8 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center font-black">1</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Financial Check</span>
+                  </div>
+                  <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors">
+                    <span className="w-8 h-8 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center font-black">2</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Immigration Check</span>
+                  </div>
+               </div>
+            </div>
+          </div>
+        );
+      case 6:
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+             {[
+               { title: "Foundation & Pathway", text: "Ideal for students looking for alternative entry points into top-tier global campuses." },
+               { title: "Direct Undergraduate", text: "Direct admission support for students across multiple global destinations." },
+               { title: "Direct Post-Graduate", text: "Strategic guidance for professionals and graduates aiming for Master's degree and graduate Programs globally." }
+             ].map((route, idx) => (
+               <div key={idx} className="p-8 bg-violet-50 rounded-[2.5rem] border border-violet-100 hover:scale-105 transition-transform duration-300">
+                  <Layers className="text-violet-500 mb-4" size={24} />
+                  <h5 className="font-black text-[#1A1F2C] text-xs uppercase tracking-widest mb-2">{route.title}</h5>
+                  <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{route.text}</p>
+               </div>
+             ))}
+          </div>
+        );
+      case 7:
+        return (
+          <div className="space-y-10">
+            <div className="flex flex-col md:flex-row gap-8 items-center">
+               <div className="flex-1 space-y-4">
+                  <h4 className="text-xl font-black uppercase tracking-widest text-[#1A1F2C]">The 360° Arrival Promise</h4>
+                  <p className="text-slate-500 text-sm leading-relaxed">Transitioning from Colombo to global capitals shouldn't be scary. We manage the details so you focus on your first week of lectures.</p>
+               </div>
+               <div className="flex gap-4">
+                  <div className="w-16 h-16 bg-teal-500 text-white rounded-2xl flex items-center justify-center shadow-lg"><MapPin /></div>
+                  <div className="w-16 h-16 bg-teal-600 text-white rounded-2xl flex items-center justify-center shadow-lg"><Globe /></div>
+               </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+               {['Flight Booking', 'Sim Cards', 'Bank Opening', 'accommodation'].map((item) => (
+                 <div key={item} className="px-2 md:px-4 py-4 bg-white border border-slate-100 rounded-2xl text-[8px] sm:text-[9px] font-black uppercase tracking-tight text-slate-400 text-center shadow-sm flex items-center justify-center overflow-hidden whitespace-nowrap">
+                   {item}
+                 </div>
+               ))}
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div id={`service-${service.id}`} className="bg-white p-10 md:p-16 rounded-[3.5rem] shadow-xl border border-slate-100 flex flex-col md:flex-row gap-12 items-start hover:shadow-2xl transition-all overflow-hidden group scroll-mt-24">
+      <div className={`w-24 h-24 ${service.iconBg} ${service.iconColor} rounded-[2.5rem] flex items-center justify-center text-5xl shrink-0 shadow-lg border border-white group-hover:scale-110 transition-transform`}>
+        <i className={`fa-solid ${service.icon}`}></i>
+      </div>
+      <div className="flex-1 space-y-10">
+        <div>
+          <h2 className="text-4xl font-black text-[#1A1F2C] mb-4 uppercase tracking-tight">{service.title}</h2>
+          <div className="h-1.5 w-24 bg-amber-500 rounded-full mb-8"></div>
+        </div>
+        
+        {renderContent()}
+
+        <button onClick={() => scrollToId('contact')} className="bg-[#1A1F2C] text-white px-10 py-5 rounded-full font-black text-[11px] uppercase tracking-widest shadow-xl hover:bg-amber-500 active:scale-95 transition-all inline-flex items-center gap-3">
+           Book a Consultation <i className="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, onClose }) => {
   useEffect(() => {
@@ -466,7 +666,7 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
 
       <section>
         <NumberedSection num="8" title="Suspension or Termination" color="blue" />
-        <p>Gradway reserves the right to suspend or terminate services where false information is provided, documents are withheld, terms are violated, or client conduct is abusive or obstructive. Termination does not relieve the client of outstanding obligations.</p>
+        <p>Gradway reserves the right to suspend or termination services where false information is provided, documents are withheld, terms are violated, or client conduct is abusive or obstructive. Termination does not relieve the client of outstanding obligations.</p>
       </section>
 
       <section>
@@ -636,6 +836,460 @@ const LegalModal: React.FC<{ type: ModalType; onClose: () => void }> = ({ type, 
   );
 };
 
+// COMPONENT MOVED OUTSIDE TO FIX NEWSLETTER INPUT FOCUS BUG
+interface FooterProps {
+  onModal: (type: ModalType) => void;
+  onNavigate: (id: string) => void;
+  onSetView: (v: ViewState) => void;
+}
+
+const Footer: React.FC<FooterProps> = ({ onModal, onNavigate, onSetView }) => {
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterSubmitted, setNewsletterSubmitted] = useState(false);
+  const newsletterFormRef = useRef<HTMLFormElement>(null);
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+    
+    setNewsletterLoading(true);
+    if (newsletterFormRef.current) {
+      newsletterFormRef.current.submit();
+      setTimeout(() => {
+        setNewsletterLoading(false);
+        setNewsletterSubmitted(true);
+        setNewsletterEmail("");
+      }, 1000);
+    }
+  };
+
+  const handleRefill = () => {
+    setNewsletterSubmitted(false);
+  };
+
+  return (
+    <footer className="bg-[#111520] text-white pt-24 pb-12 relative overflow-hidden">
+      <iframe name="newsletter_target" style={{ display: 'none' }} />
+      <form ref={newsletterFormRef} action={NEWSLETTER_FORM_URL} method="POST" target="newsletter_target" style={{ display: 'none' }}>
+        <input type="hidden" name={NEWSLETTER_ENTRY_ID} value={newsletterEmail} />
+      </form>
+
+      <div className="container mx-auto px-4 lg:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
+        <div className="space-y-8">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-white rounded-2xl p-2 flex items-center justify-center shadow-lg">
+              <img src={LOGO_URL} alt="Gradway Logo" className="w-full h-full object-contain" />
+            </div>
+            <h3 className="text-2xl font-black tracking-tighter leading-none uppercase">Gradway (Pvt) Ltd.</h3>
+          </div>
+          <p className="text-slate-400 text-sm leading-relaxed max-w-xs font-medium">Empowering the next generation of Sri Lankan leaders through world-class global education pathways and ethical migration consultancy.</p>
+          
+          <div className="space-y-2 pt-2">
+            <a href={`tel:${WA_PHONE.replace(/\s/g, '')}`} className="flex items-center gap-3 text-amber-500 hover:scale-105 transition-transform origin-left group">
+               <Phone size={16} />
+               <span className="text-sm font-black tracking-widest">{PHONE_DISPLAY}</span>
+            </a>
+          </div>
+
+          <div className="flex flex-row items-center gap-5 text-2xl flex-nowrap overflow-visible">
+             <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="text-[#25D366] hover:scale-125 transition-all"><i className="fa-brands fa-whatsapp"></i></a>
+             <a href="https://web.facebook.com/p/GradWay-Education-Consultancy-61577557164852" target="_blank" rel="noopener noreferrer" className="text-[#1877F2] hover:scale-125 transition-all"><i className="fa-brands fa-facebook"></i></a>
+             <a href="https://www.instagram.com/gradway_education" target="_blank" rel="noopener noreferrer" className="text-[#E4405F] hover:scale-125 transition-all"><i className="fa-brands fa-instagram"></i></a>
+             <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" className="text-white hover:scale-125 transition-all"><i className="fa-brands fa-tiktok"></i></a>
+             <a href="mailto:info@gradwayedu.com" className="text-[#EA4335] hover:scale-125 transition-all"><i className="fa-solid fa-at"></i></a>
+             <a href="https://www.linkedin.com/company/gradway-pvt-ltd-sl/" target="_blank" rel="noopener noreferrer" className="text-[#0077B5] hover:scale-125 transition-all"><i className="fa-brands fa-linkedin"></i></a>
+          </div>
+        </div>
+
+        <div>
+          <h4 className="text-sm font-black uppercase tracking-widest mb-8 text-white">Services</h4>
+          <ul className="space-y-4 text-slate-400 text-sm font-bold uppercase tracking-wide">
+            <li onClick={() => onSetView('services-full')} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer hover:translate-x-1 duration-200"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Course & University Selection</li>
+            <li onClick={() => onSetView('services-full')} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer hover:translate-x-1 duration-200"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Visa Application & Support</li>
+            <li onClick={() => onSetView('services-full')} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer hover:translate-x-1 duration-200"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Departure & After Arrival Support</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className="text-sm font-black uppercase tracking-widest mb-8 text-white">Quick Links</h4>
+          <ul className="space-y-4 text-slate-400 text-sm font-bold uppercase tracking-wide">
+            <li className="hover:text-white transition-colors cursor-pointer uppercase" onClick={() => onNavigate('aboutus')}>About Us</li>
+            <li className="hover:text-white transition-colors cursor-pointer uppercase" onClick={() => onNavigate('destinations')}>Destinations</li>
+            <li className="hover:text-white transition-colors cursor-pointer uppercase" onClick={() => onSetView('faq-full')}>FAQ</li>
+            <li className="hover:text-white transition-colors cursor-pointer uppercase" onClick={() => onSetView('careers')}>Careers</li>
+          </ul>
+        </div>
+
+        <div className="space-y-8">
+          <div className="bg-slate-800/30 p-8 rounded-[2.5rem] border border-white/5 space-y-6">
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-white">Stay Updated</h4>
+            {!newsletterSubmitted ? (
+              <form onSubmit={handleNewsletterSubmit} className="flex bg-white/5 p-1 rounded-full border border-white/10 overflow-hidden group">
+                <input 
+                  type="email" 
+                  required
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  placeholder="Email address" 
+                  className="bg-transparent border-0 px-4 py-2 text-xs outline-none flex-1 text-white placeholder:text-slate-600" 
+                />
+                <button 
+                  type="submit" 
+                  disabled={newsletterLoading}
+                  className="bg-white text-black w-8 h-8 rounded-full flex items-center justify-center hover:bg-amber-500 transition-colors shrink-0 disabled:opacity-50"
+                >
+                  {newsletterLoading ? (
+                    <Loader2 className="animate-spin text-[10px]" size={12} />
+                  ) : (
+                    <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                  )}
+                </button>
+              </form>
+            ) : (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-3"
+              >
+                <div className="flex items-center gap-2 text-amber-500">
+                  <Check size={14} strokeWidth={3} />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Subscribed!</span>
+                </div>
+                <p className="text-[9px] text-slate-500 uppercase tracking-[0.2em] leading-relaxed">Thank you, you have been subscribed to our updates.</p>
+                <button 
+                  onClick={handleRefill}
+                  className="text-[8px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors underline underline-offset-4"
+                >
+                  Click to re-fill
+                </button>
+              </motion.div>
+            )}
+            <p className="text-[9px] text-slate-500 uppercase tracking-widest leading-tight">Service updates & Announcements</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 lg:px-12 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
+        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">© 2025 Gradway (Private) Limited. All rights reserved.</p>
+        <div className="flex flex-wrap justify-center gap-8 text-[10px] font-black uppercase tracking-widest text-slate-500">
+           <button onClick={() => onModal('privacy')} className="hover:text-white transition-colors">Privacy Policy</button>
+           <button onClick={() => onModal('terms')} className="hover:text-white transition-colors">Terms of Service</button>
+           <button onClick={() => onModal('refund')} className="hover:text-white transition-colors">Refund & Cancellation</button>
+        </div>
+        <button 
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+          className="bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 text-white px-10 py-5 rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:scale-110 active:scale-95 transition-all flex items-center gap-3 shadow-[0_10px_30px_rgba(244,63,94,0.3)] group"
+        >
+           Back to the Top <ArrowUp size={16} className="group-hover:-translate-y-1 transition-transform" />
+        </button>
+      </div>
+    </footer>
+  );
+};
+
+// COMPONENT MOVED OUTSIDE TO FIX FOCUS BUG
+const ChatWidget: React.FC<{
+  chatOpen: boolean;
+  setChatOpen: (o: boolean) => void;
+  chatMessage: string;
+  setChatMessage: (m: string) => void;
+  chatHistory: { role: 'user' | 'bot'; text: string }[];
+  isTyping: boolean;
+  handleChatSubmit: (e: React.FormEvent) => void;
+}> = ({ chatOpen, setChatOpen, chatMessage, setChatMessage, chatHistory, isTyping, handleChatSubmit }) => (
+  <div className="fixed bottom-6 right-6 z-[250]">
+    {!chatOpen ? (
+      <button onClick={() => setChatOpen(true)} className="w-14 h-14 bg-amber-500 rounded-full shadow-lg flex items-center justify-center text-[#1A1F2C] text-2xl hover:scale-110 transition-all">
+        <i className="fa-solid fa-headset"></i>
+      </button>
+    ) : (
+      <div className="bg-white w-[320px] h-[480px] rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-slate-100 animate-[fadeIn_0.3s_ease-out]">
+        <div className="bg-[#1A1F2C] p-6 text-white flex justify-between items-center">
+          <span className="font-black text-xs uppercase tracking-widest">GradBot AI</span>
+          <button onClick={() => setChatOpen(false)}><i className="fa-solid fa-xmark"></i></button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 text-sm bg-slate-50">
+           {chatHistory.length === 0 && (
+             <p className="text-slate-500 text-center mt-8 italic text-xs">"Hi! I'm your Gradway AI assistant. How can I help you today?"</p>
+           )}
+           {chatHistory.map((c, i) => (
+             <div key={i} className={`p-4 rounded-2xl ${c.role === 'user' ? 'bg-[#1A1F2C] text-white ml-8 rounded-br-none' : 'bg-white border border-slate-200 mr-8 rounded-bl-none shadow-sm'}`}>
+               {c.text}
+             </div>
+           ))}
+           {isTyping && <div className="text-amber-500 font-black text-[10px] animate-pulse">GradBot is thinking...</div>}
+        </div>
+        <form onSubmit={handleChatSubmit} className="p-4 bg-white border-t flex gap-2">
+           <input type="text" value={chatMessage} onChange={e => setChatMessage(e.target.value)} placeholder="Type your question..." className="flex-1 bg-slate-100 border-0 rounded-full px-4 text-xs py-3 outline-none font-medium" />
+           <button type="submit" className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-white"><i className="fa-solid fa-paper-plane text-sm"></i></button>
+        </form>
+      </div>
+    )}
+  </div>
+);
+
+const UKDestinationPage: React.FC<{ onContact: () => void }> = ({ onContact }) => {
+  const [selectedCity, setSelectedCity] = useState(0);
+  const cities = [
+    { name: "London", desc: "Home to 30+ universities, London offers unparalleled access to culture, internships, and global networks.", stats: "£1,200/mo Rent • Excellent Tube", rating: "#1 Student City" },
+    { name: "Edinburgh", desc: "A historic academic hub known for its stunning architecture, vibrant festivals, and world-class research institutions.", stats: "£950/mo Rent • Very Walkable", rating: "UNESCO City" },
+    { name: "Manchester", desc: "The industrial heart of the North, now a thriving student hub with a massive student population and rich musical heritage.", stats: "£850/mo Rent • Metrolink Tram", rating: "The Northern Powerhouse" },
+    { name: "Birmingham", desc: "The UK's second-largest city, boasting multiple top universities and a young, diverse population in the heart of England.", stats: "£800/mo Rent • Great Train Links", rating: "Multicultural Hub" }
+  ];
+
+  return (
+    <main className="animate-[fadeIn_0.5s_ease-out] bg-[#020617] text-white overflow-hidden">
+      {/* Hero Section */}
+      <section className="relative h-[85vh] flex items-center justify-center text-center px-6 overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=2070" 
+            className="w-full h-full object-cover opacity-30 scale-105" 
+            alt="London Skyline" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/50 to-[#020617]"></div>
+        </div>
+        
+        <div className="relative z-10 max-w-4xl space-y-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600/20 border border-blue-500/30 rounded-full text-[10px] font-black uppercase tracking-widest text-blue-400">
+            <Globe size={14} /> UK Education Excellence
+          </div>
+          <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none uppercase">
+            Uncover Your <br />
+            <span className="text-blue-500">Potential</span>
+          </h1>
+          <p className="text-slate-400 text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
+            Embark on a journey through centuries of academic heritage and vibrant modern culture. The UK awaits your ambition.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-6 pt-4">
+            <button onClick={onContact} className="bg-blue-600 text-white px-10 py-4 rounded-full font-black uppercase tracking-widest text-xs hover:bg-blue-700 hover:scale-105 transition-all shadow-2xl shadow-blue-600/20">Start Your Journey +</button>
+            <button className="flex items-center gap-3 px-8 py-4 bg-white/5 border border-white/10 rounded-full font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all">
+              <Play size={16} fill="white" /> Watch Video
+            </button>
+          </div>
+        </div>
+        
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+          <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">Scroll to explore</span>
+          <ChevronDown size={14} className="text-slate-500" />
+        </div>
+      </section>
+
+      {/* Chapter 1: Legacy */}
+      <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
+        <div className="text-center mb-16 space-y-4">
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Chapter I: Heritage</span>
+          <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">A Legacy of Learning</h2>
+          <p className="text-slate-400 max-w-3xl mx-auto font-medium leading-relaxed">
+            From the historic cobblestones of <span className="text-white border-b border-blue-500">Oxford</span> to the bustling innovation hubs of <span className="text-white border-b border-blue-500">London</span>, the United Kingdom offers an education system respected worldwide. It is not merely about degrees; it is about immersing yourself in a tradition that has shaped leaders, scientists, and artists for centuries.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[
+            { icon: <Compass className="text-blue-500" />, title: "World-Class Research", desc: "Access to pioneering research facilities and libraries that house centuries of knowledge." },
+            { icon: <Globe className="text-blue-500" />, title: "Global Community", desc: "Join a diverse student body from over 200 countries, creating a truly global network." },
+            { icon: <TrendingUp className="text-blue-500" />, title: "Career Acceleration", desc: "Benefit from strong industry links and the 2-year Graduate Route post-study work visa." }
+          ].map((card, i) => (
+            <div key={i} className="p-10 bg-white/5 border border-white/10 rounded-[2.5rem] hover:bg-white/10 transition-all group">
+              <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">{card.icon}</div>
+              <h3 className="text-xl font-black uppercase mb-4 tracking-tight">{card.title}</h3>
+              <p className="text-slate-400 text-sm leading-relaxed font-medium">{card.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Chapter 2: Cities */}
+      <section className="py-24 px-6 md:px-12 bg-[#0a0d14]">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="space-y-8">
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Chapter II: Living</span>
+            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">Explore <br /> Iconic Cities</h2>
+            <p className="text-slate-400 font-medium leading-relaxed">The UK is a tapestry of cultures. Choose the environment that inspires you.</p>
+            <div className="space-y-2">
+              {cities.map((city, i) => (
+                <button 
+                  key={i} 
+                  onClick={() => setSelectedCity(i)}
+                  className={cn(
+                    "w-full px-8 py-5 rounded-2xl text-left font-black uppercase tracking-widest text-xs flex justify-between items-center transition-all",
+                    selectedCity === i ? "bg-blue-600 text-white" : "bg-white/5 text-slate-500 hover:bg-white/10"
+                  )}
+                >
+                  {city.name}
+                  <ChevronDown className={cn("transition-transform", selectedCity === i ? "-rotate-90" : "")} size={16} />
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div className="relative group">
+            <div className="absolute -inset-4 bg-blue-600/20 blur-3xl rounded-full"></div>
+            <div className="relative bg-[#020617] border border-white/10 rounded-[3rem] p-8 shadow-2xl animate-[fadeIn_0.3s_ease-out]">
+               <img 
+                 src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=400" 
+                 className="w-full h-48 object-cover rounded-3xl mb-8 border border-white/10" 
+                 alt="City" 
+               />
+               <div className="flex justify-between items-start mb-4">
+                  <h3 className="text-3xl font-black uppercase tracking-tight">{cities[selectedCity].name}</h3>
+                  <span className="px-3 py-1 bg-blue-600 text-[10px] font-black uppercase rounded-full">{cities[selectedCity].rating}</span>
+               </div>
+               <p className="text-slate-400 text-sm leading-relaxed mb-6 font-medium">{cities[selectedCity].desc}</p>
+               <div className="flex items-center gap-6 py-4 border-t border-white/5">
+                  <div className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-500">
+                    <MapPin size={14} className="text-blue-500" /> {cities[selectedCity].stats.split('•')[0]}
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-500">
+                    <Train size={14} className="text-blue-500" /> {cities[selectedCity].stats.split('•')[1]}
+                  </div>
+               </div>
+               <button onClick={onContact} className="w-full mt-4 py-4 bg-transparent border border-white/10 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-white/5 transition-all">View Universities</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Chapter 3: Institutions */}
+      <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto overflow-hidden">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-8">
+           <div className="space-y-4">
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Chapter III: Institutions</span>
+              <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter">Partner Universities</h2>
+           </div>
+           <div className="flex gap-4">
+              <button className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all"><X size={16} className="rotate-45" /></button>
+              <button className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/10 transition-all"><ChevronDown size={16} className="-rotate-90" /></button>
+           </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[
+            { name: "University of Edinburgh", location: "Scotland, UK", tag: "Top 10 UK", fields: "Computer Science • Law • Medicine" },
+            { name: "University of Manchester", location: "Manchester, UK", tag: "Russell Group", fields: "Engineering • Business" },
+            { name: "King's College London", location: "London, UK", tag: "Gold Rated", fields: "Politics • Health" }
+          ].map((uni, i) => (
+            <div key={i} className="bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden hover:scale-[1.02] transition-all flex flex-col h-full group">
+               <div className="h-48 bg-slate-800 relative">
+                  <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-[8px] font-black uppercase border border-white/10">{uni.tag}</div>
+                  <div className="absolute inset-0 flex items-center justify-center opacity-40 group-hover:scale-110 transition-transform">
+                    <div className="w-16 h-16 border-4 border-white/20 rounded-xl"></div>
+                  </div>
+               </div>
+               <div className="p-8 flex flex-col flex-1">
+                  <h3 className="text-2xl font-black uppercase tracking-tight mb-2">{uni.name}</h3>
+                  <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-6">{uni.location}</span>
+                  <div className="mt-auto pt-6 border-t border-white/5">
+                    <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mb-4">{uni.fields}</p>
+                    <button onClick={onContact} className="text-blue-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:translate-x-1 transition-transform">View Programs <ArrowUp size={14} className="rotate-45" /></button>
+                  </div>
+               </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Chapter 4: Essentials */}
+      <section className="py-24 bg-gradient-to-b from-[#0a0d14] to-[#020617] px-6 md:px-12">
+         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div className="space-y-8">
+               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Chapter IV: Essentials</span>
+               <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">Your Path <br /> to the UK</h2>
+               <p className="text-slate-400 font-medium leading-relaxed max-w-md">Navigating the Student Visa (Formerly Tier 4) can be complex. We simplify the process into four clear stages.</p>
+               <div className="p-8 bg-blue-600/10 border border-blue-500/20 rounded-[2.5rem] space-y-4">
+                  <div className="flex items-center gap-3 text-blue-400">
+                    <Shield size={20} /> <span className="text-xs font-black uppercase tracking-widest">Did you know?</span>
+                  </div>
+                  <p className="text-xs text-slate-400 leading-relaxed italic">The UK now offers a <span className="text-blue-400">Graduate Route</span> visa allowing you to stay and work for 2 years after graduation without a sponsor.</p>
+               </div>
+            </div>
+
+            <div className="space-y-12 relative">
+               <div className="absolute left-6 top-8 bottom-8 w-px bg-white/10"></div>
+               {[
+                 { step: "1", title: "Secure Your Offer", desc: "Apply to universities and receive an unconditional offer letter." },
+                 { step: "2", title: "Get Your CAS", desc: "Receive your Confirmation of Acceptance for Studies (CAS) number from your university." },
+                 { step: "3", title: "Visa Application", desc: "Submit your application online, pay the health surcharge, and book biometrics." },
+                 { step: "4", title: "Biometrics & Travel", desc: "Attend your appointment and await your vignette to travel." }
+               ].map((item, i) => (
+                 <div key={i} className="relative pl-16 group">
+                    <div className="absolute left-0 top-0 w-12 h-12 rounded-full bg-[#020617] border border-blue-500/50 text-blue-500 flex items-center justify-center font-black z-10 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-xl shadow-blue-600/10">{item.step}</div>
+                    <h4 className="text-xl font-black uppercase tracking-tight mb-2">{item.title}</h4>
+                    <p className="text-slate-400 text-sm leading-relaxed font-medium">{item.desc}</p>
+                 </div>
+               ))}
+            </div>
+         </div>
+      </section>
+
+      {/* Chapter 5: Experience */}
+      <section className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
+         <div className="text-center mb-16 space-y-4">
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500">Chapter V: Experience</span>
+            <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter">Life Beyond the Classroom</h2>
+         </div>
+
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 h-[600px]">
+            <div className="lg:col-span-2 relative rounded-[3rem] overflow-hidden group">
+               <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60" alt="Students" />
+               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+               <div className="absolute bottom-10 left-10 right-10">
+                  <h3 className="text-3xl font-black uppercase tracking-tight mb-2">Vibrant Student Life</h3>
+                  <p className="text-slate-300 text-sm font-medium">Join societies, sports clubs, and meet friends for life.</p>
+               </div>
+            </div>
+            
+            <div className="lg:col-span-2 grid grid-rows-2 gap-6">
+               <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10 flex flex-col justify-center relative overflow-hidden">
+                  <div className="flex items-center justify-between mb-8">
+                    <Utensils size={32} className="text-blue-500" />
+                    <span className="text-[10px] font-black uppercase text-slate-500">Avg. Costs</span>
+                  </div>
+                  <h3 className="text-2xl font-black uppercase tracking-tight mb-4">Cost of Living</h3>
+                  <p className="text-slate-400 text-sm leading-relaxed mb-6">Ranges from £900 - £1,300 per month depending on the city.</p>
+                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-blue-600 w-2/3"></div>
+                  </div>
+               </div>
+               
+               <div className="grid grid-cols-2 gap-6">
+                  <div className="relative rounded-[3rem] overflow-hidden group border border-white/10">
+                     <img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=400" className="w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-500" alt="Food" />
+                     <div className="absolute bottom-6 left-6 right-6">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-white/50 block mb-1">Culture & Food</span>
+                        <div className="h-px w-8 bg-blue-500 mb-2"></div>
+                     </div>
+                  </div>
+                  <div className="bg-blue-600 rounded-[3rem] p-10 flex flex-col justify-between group hover:bg-blue-700 transition-all cursor-pointer">
+                     <Train size={32} className="text-white" />
+                     <div>
+                        <h4 className="text-xl font-black uppercase tracking-tight mb-1">Travel Europe</h4>
+                        <p className="text-[10px] text-blue-100 font-medium">Paris is just 2 hours away by train.</p>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 px-6 md:px-12 bg-blue-600 relative overflow-hidden text-center">
+         <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-white/10 blur-[150px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
+         <div className="relative z-10 max-w-4xl mx-auto space-y-10">
+            <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter leading-none">Ready to Write <br /> Your Story?</h2>
+            <p className="text-blue-50 text-lg md:text-xl font-medium max-w-2xl mx-auto">Our consultants are ready to guide you through university selection, application, and visa processes. 100% free initial consultation.</p>
+            <div className="flex flex-wrap items-center justify-center gap-6">
+               <button onClick={onContact} className="bg-white text-blue-600 px-12 py-5 rounded-full font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-2xl">Book Free Consultation</button>
+               <button className="bg-transparent border-2 border-white/30 text-white px-10 py-5 rounded-full font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all">Download Brochure</button>
+            </div>
+         </div>
+      </section>
+    </main>
+  );
+};
+
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('main');
   const [modal, setModal] = useState<ModalType>('none');
@@ -699,17 +1353,11 @@ const App: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Trigger the hidden form's submission. 
-    // Since the hidden form inputs are fully controlled by React state (see the hidden form JSX below),
-    // multiple country inputs will be correctly serialized and sent.
     if (hiddenFormRef.current) {
         hiddenFormRef.current.submit();
-        
-        // Provide clear feedback delay
         setTimeout(() => {
             setFormSubmitted(true);
             setIsSubmitting(false);
-            // Reset visible states
             setName(""); setPhone(""); setEmail(""); setIntake(""); setMessage(""); 
             setSelectedCountries([]); setSelectedFieldOfStudy(""); setSelectedProgramLevel("");
         }, 1500);
@@ -785,108 +1433,6 @@ const App: React.FC = () => {
     }
   };
 
-  const Footer = () => (
-    <footer className="bg-[#111520] text-white pt-24 pb-12 relative overflow-hidden">
-      <div className="container mx-auto px-4 lg:px-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
-        <div className="space-y-8">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-white rounded-2xl p-2 flex items-center justify-center shadow-lg">
-              <img src={LOGO_URL} alt="Gradway Logo" className="w-full h-full object-contain" />
-            </div>
-            <h3 className="text-2xl font-black tracking-tighter leading-none uppercase">Gradway (Pvt) Ltd.</h3>
-          </div>
-          <p className="text-slate-400 text-sm leading-relaxed max-w-xs font-medium">Empowering the next generation of Sri Lankan leaders through world-class global education pathways and ethical migration consultancy.</p>
-          <div className="flex flex-row items-center gap-5 text-2xl flex-nowrap overflow-visible">
-             <a href={WA_LINK} target="_blank" rel="noopener noreferrer" className="text-[#25D366] hover:scale-125 transition-all"><i className="fa-brands fa-whatsapp"></i></a>
-             <a href="https://web.facebook.com/p/GradWay-Education-Consultancy-61577557164852" target="_blank" rel="noopener noreferrer" className="text-[#1877F2] hover:scale-125 transition-all"><i className="fa-brands fa-facebook"></i></a>
-             <a href="https://www.instagram.com/gradway_education" target="_blank" rel="noopener noreferrer" className="text-[#E4405F] hover:scale-125 transition-all"><i className="fa-brands fa-instagram"></i></a>
-             <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" className="text-white hover:scale-125 transition-all"><i className="fa-brands fa-tiktok"></i></a>
-             <a href="mailto:info@gradwayedu.com" className="text-[#EA4335] hover:scale-125 transition-all"><i className="fa-solid fa-at"></i></a>
-             <a href="https://www.linkedin.com/company/gradway-pvt-ltd-sl/" target="_blank" rel="noopener noreferrer" className="text-[#0077B5] hover:scale-125 transition-all"><i className="fa-brands fa-linkedin"></i></a>
-          </div>
-        </div>
-
-        <div>
-          <h4 className="text-sm font-black uppercase tracking-widest mb-8 text-white">Services</h4>
-          <ul className="space-y-4 text-slate-400 text-sm font-bold uppercase tracking-wide">
-            <li onClick={() => setView('services-full')} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer hover:translate-x-1 duration-200"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Course & University Selection</li>
-            <li onClick={() => setView('services-full')} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer hover:translate-x-1 duration-200"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Visa Application & Support</li>
-            <li onClick={() => setView('services-full')} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer hover:translate-x-1 duration-200"><span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Departure & After Arrival Support</li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 className="text-sm font-black uppercase tracking-widest mb-8 text-white">Quick Links</h4>
-          <ul className="space-y-4 text-slate-400 text-sm font-bold uppercase tracking-wide">
-            <li className="hover:text-white transition-colors cursor-pointer uppercase" onClick={() => scrollToId('home')}>Company</li>
-            <li className="hover:text-white transition-colors cursor-pointer uppercase" onClick={() => scrollToId('aboutus')}>About Us</li>
-            <li className="hover:text-white transition-colors cursor-pointer uppercase" onClick={() => scrollToId('destinations')}>Destinations</li>
-            <li className="hover:text-white transition-colors cursor-pointer uppercase" onClick={() => setView('faq-full')}>FAQ</li>
-            <li className="hover:text-white transition-colors cursor-pointer uppercase" onClick={() => setView('careers')}>Careers</li>
-          </ul>
-        </div>
-
-        <div className="space-y-8">
-          <div className="bg-slate-800/30 p-8 rounded-[2.5rem] border border-white/5 space-y-6">
-            <h4 className="text-[10px] font-black uppercase tracking-widest text-white">Stay Updated</h4>
-            <div className="flex bg-white/5 p-1 rounded-full border border-white/10 overflow-hidden">
-              <input type="email" placeholder="Email address" className="bg-transparent border-0 px-4 py-2 text-xs outline-none flex-1 text-white placeholder:text-slate-600" />
-              <button className="bg-white text-black w-8 h-8 rounded-full flex items-center justify-center hover:bg-amber-500 transition-colors shrink-0"><i className="fa-solid fa-arrow-right text-[10px]"></i></button>
-            </div>
-            <p className="text-[9px] text-slate-500 uppercase tracking-widest leading-tight">Service updates & Announcements</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 lg:px-12 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
-        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">© 2025 Gradway (Private) Limited. All rights reserved.</p>
-        <div className="flex flex-wrap justify-center gap-8 text-[10px] font-black uppercase tracking-widest text-slate-500">
-           <button onClick={() => setModal('privacy')} className="hover:text-white transition-colors">Privacy Policy</button>
-           <button onClick={() => setModal('terms')} className="hover:text-white transition-colors">Terms of Service</button>
-           <button onClick={() => setModal('refund')} className="hover:text-white transition-colors">Refund & Cancellation</button>
-        </div>
-        <button 
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
-          className="bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 text-white px-10 py-5 rounded-full text-[11px] font-black uppercase tracking-[0.2em] hover:scale-110 active:scale-95 transition-all flex items-center gap-3 shadow-[0_10px_30px_rgba(244,63,94,0.3)] group"
-        >
-           Back to the Top <ArrowUp size={16} className="group-hover:-translate-y-1 transition-transform" />
-        </button>
-      </div>
-    </footer>
-  );
-
-  const ChatWidget = () => (
-    <div className="fixed bottom-6 right-6 z-[250]">
-      {!chatOpen ? (
-        <button onClick={() => setChatOpen(true)} className="w-14 h-14 bg-amber-500 rounded-full shadow-lg flex items-center justify-center text-[#1A1F2C] text-2xl hover:scale-110 transition-all">
-          <i className="fa-solid fa-headset"></i>
-        </button>
-      ) : (
-        <div className="bg-white w-[320px] h-[480px] rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-slate-100 animate-[fadeIn_0.3s_ease-out]">
-          <div className="bg-[#1A1F2C] p-6 text-white flex justify-between items-center">
-            <span className="font-black text-xs uppercase tracking-widest">GradBot AI</span>
-            <button onClick={() => setChatOpen(false)}><i className="fa-solid fa-xmark"></i></button>
-          </div>
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 text-sm bg-slate-50">
-             {chatHistory.length === 0 && (
-               <p className="text-slate-500 text-center mt-8 italic text-xs">"Hi! I'm your Gradway AI assistant. How can I help you today?"</p>
-             )}
-             {chatHistory.map((c, i) => (
-               <div key={i} className={`p-4 rounded-2xl ${c.role === 'user' ? 'bg-[#1A1F2C] text-white ml-8 rounded-br-none' : 'bg-white border border-slate-200 mr-8 rounded-bl-none shadow-sm'}`}>
-                 {c.text}
-               </div>
-             ))}
-             {isTyping && <div className="text-amber-500 font-black text-[10px] animate-pulse">GradBot is thinking...</div>}
-          </div>
-          <form onSubmit={handleChatSubmit} className="p-4 bg-white border-t flex gap-2">
-             <input type="text" value={chatMessage} onChange={e => setChatMessage(e.target.value)} placeholder="Type your question..." className="flex-1 bg-slate-100 border-0 rounded-full px-4 text-xs py-3 outline-none font-medium" />
-             <button type="submit" className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-white"><i className="fa-solid fa-paper-plane text-sm"></i></button>
-          </form>
-        </div>
-      )}
-    </div>
-  );
-
   if (view === 'careers') {
     return (
       <div className="min-h-screen bg-[#FAFAFA]">
@@ -932,8 +1478,12 @@ const App: React.FC = () => {
             </div>
           </div>
         </main>
-        <Footer />
-        <ChatWidget />
+        <Footer onModal={setModal} onNavigate={scrollToId} onSetView={setView} />
+        <ChatWidget 
+          chatOpen={chatOpen} setChatOpen={setChatOpen} 
+          chatMessage={chatMessage} setChatMessage={setChatMessage} 
+          chatHistory={chatHistory} isTyping={isTyping} handleChatSubmit={handleChatSubmit} 
+        />
         <AnimatePresence>
           {modal !== 'none' && <LegalModal type={modal} onClose={() => setModal('none')} />}
         </AnimatePresence>
@@ -942,192 +1492,6 @@ const App: React.FC = () => {
   }
 
   if (view === 'services-full') {
-    const ServiceCardRenderer = ({ service }: { service: Service }) => {
-      const renderContent = () => {
-        switch (service.id) {
-          case 1:
-            return (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {[
-                  { icon: <Target className="text-blue-500" />, label: "Academic Audit", text: "In-depth analysis of your academics for global mapping." },
-                  { icon: <BookOpen className="text-amber-500" />, label: "English Language Proficiency", text: "Guidance on meeting Language requirements for top institutions." },
-                  { icon: <TrendingUp className="text-emerald-500" />, label: "Strategic Roadmap", text: "A future-proof road to academic and professional success in your dream destination" }
-                ].map((pillar, i) => (
-                  <div key={i} className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex flex-col gap-4 hover:scale-105 transition-all duration-300 hover:shadow-lg active:scale-95 cursor-default group/pillar">
-                    <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-sm group-hover/pillar:bg-white transition-colors">{pillar.icon}</div>
-                    <h4 className="font-black text-[#1A1F2C] text-xs uppercase tracking-widest">{pillar.label}</h4>
-                    <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{pillar.text}</p>
-                  </div>
-                ))}
-              </div>
-            );
-          case 2:
-            return (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                <div className="space-y-6">
-                   <div className="p-6 bg-amber-500/5 border border-amber-500/10 rounded-3xl">
-                      <h4 className="font-black text-amber-600 uppercase text-[10px] tracking-widest mb-3">Global Matching Index</h4>
-                      <p className="text-slate-600 text-xs font-medium leading-relaxed">We provide cross-destination intelligence, comparing UK, Canada, Australia and many more based on your specific budget and career path.</p>
-                   </div>
-                   <ul className="grid grid-cols-1 gap-3">
-                      {["Scholarship Eligibility Checks", "Post-Study Work Opportunity Audits", "Campus Environment Assessments"].map((point) => (
-                        <li key={point} className="flex items-center gap-3 text-[11px] font-bold text-slate-700">
-                          <Check size={14} className="text-amber-500" /> {point}
-                        </li>
-                      ))}
-                   </ul>
-                </div>
-                <div className="bg-[#1A1F2C] p-8 rounded-[3rem] text-white flex flex-col justify-center relative overflow-hidden">
-                   <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-amber-500/10 blur-[80px] rounded-full"></div>
-                   <h5 className="text-2xl font-black uppercase tracking-tighter mb-4">Precision Matching</h5>
-                   <p className="text-slate-400 text-[11px] leading-relaxed italic">"Our goal is to ensure you don't just get a degree, but the right platform for your future professional life."</p>
-                </div>
-              </div>
-            );
-          case 3:
-            return (
-              <div className="flex flex-col gap-8">
-                <div className="bg-slate-50 p-10 rounded-[3rem] border border-slate-100">
-                   <div className="flex items-start justify-between mb-8">
-                      <h4 className="font-black text-[#1A1F2C] uppercase tracking-widest text-xs">Submission Quality Standards</h4>
-                      <CheckCircle2 className="text-emerald-500" />
-                   </div>
-                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                      <div className="space-y-2">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage 01</span>
-                        <p className="text-sm font-bold text-slate-800">Document Audit</p>
-                      </div>
-                      <div className="space-y-2">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage 02</span>
-                        <p className="text-sm font-bold text-slate-800">SOP Making/Editing</p>
-                      </div>
-                      <div className="space-y-2">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage 03</span>
-                        <p className="text-sm font-bold text-slate-800">Verification</p>
-                      </div>
-                      <div className="space-y-2">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage 04</span>
-                        <p className="text-sm font-bold text-slate-800">Submission and Tracking</p>
-                      </div>
-                   </div>
-                </div>
-              </div>
-            );
-          case 4:
-            return (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                <div className="bg-emerald-500 text-white p-10 rounded-[3rem] shadow-lg">
-                   <Zap className="mb-6" />
-                   <h4 className="text-3xl font-black uppercase tracking-tighter mb-4 leading-tight">Live Confidence Simulation</h4>
-                   <p className="text-emerald-50 text-sm leading-relaxed font-medium">We conduct mock interviews for both university admission boards and visa officers, giving you the edge in communication and poise.</p>
-                </div>
-                <div className="space-y-6 px-4">
-                  <div className="flex items-center gap-5">
-                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0"><Clock size={16}/></div>
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-widest text-[#1A1F2C]">Intensive Drill Sessions</p>
-                      <p className="text-[11px] text-slate-500">Master frequently asked visa questions.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-5">
-                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0"><MessageSquare size={16}/></div>
-                    <div>
-                      <p className="text-xs font-black uppercase tracking-widest text-[#1A1F2C]">Expert Feedback</p>
-                      <p className="text-[11px] text-slate-500">Direct critique on the answers and tips to improve.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          case 5:
-            return (
-              <div className="bg-[#1A1F2C] text-white p-10 md:p-14 rounded-[4rem] relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/10 blur-[100px] rounded-full"></div>
-                <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12">
-                   <div className="space-y-6">
-                      <div className="flex items-center gap-3">
-                        <Shield className="text-rose-500" />
-                        <h4 className="text-2xl font-black uppercase tracking-tighter">Migration Compliance</h4>
-                      </div>
-                      <p className="text-slate-400 text-sm leading-relaxed">We offer end-to-end visa application and preparation guidance, covering Sri Lankan banking requirements, documentation, and compliance with student visa regulations across global destinations.</p>
-                   </div>
-                   <div className="flex flex-col justify-center space-y-4">
-                      <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors">
-                        <span className="w-8 h-8 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center font-black">1</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest">Financial Check</span>
-                      </div>
-                      <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors">
-                        <span className="w-8 h-8 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center font-black">2</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest">Immigration Check</span>
-                      </div>
-                   </div>
-                </div>
-              </div>
-            );
-          case 6:
-            return (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                 {[
-                   { title: "Foundation & Pathway", text: "Ideal for students looking for alternative entry points into top-tier global campuses." },
-                   { title: "Direct Undergraduate", text: "Direct admission support for students across multiple global destinations." },
-                   { title: "Direct Post-Graduate", text: "Strategic guidance for professionals and graduates aiming for Master's degree and graduate Programs globally." }
-                 ].map((route, idx) => (
-                   <div key={idx} className="p-8 bg-violet-50 rounded-[2.5rem] border border-violet-100 hover:scale-105 transition-transform duration-300">
-                      <Layers className="text-violet-500 mb-4" size={24} />
-                      <h5 className="font-black text-[#1A1F2C] text-xs uppercase tracking-widest mb-2">{route.title}</h5>
-                      <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{route.text}</p>
-                   </div>
-                 ))}
-              </div>
-            );
-          case 7:
-            return (
-              <div className="space-y-10">
-                <div className="flex flex-col md:flex-row gap-8 items-center">
-                   <div className="flex-1 space-y-4">
-                      <h4 className="text-xl font-black uppercase tracking-widest text-[#1A1F2C]">The 360° Arrival Promise</h4>
-                      <p className="text-slate-500 text-sm leading-relaxed">Transitioning from Colombo to global capitals shouldn't be scary. We manage the details so you focus on your first week of lectures.</p>
-                   </div>
-                   <div className="flex gap-4">
-                      <div className="w-16 h-16 bg-teal-500 text-white rounded-2xl flex items-center justify-center shadow-lg"><MapPin /></div>
-                      <div className="w-16 h-16 bg-teal-600 text-white rounded-2xl flex items-center justify-center shadow-lg"><Globe /></div>
-                   </div>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                   {['Flight Booking', 'Sim Cards', 'Bank Opening', 'accommodation'].map((item) => (
-                     <div key={item} className="px-2 md:px-4 py-4 bg-white border border-slate-100 rounded-2xl text-[8px] sm:text-[9px] font-black uppercase tracking-tight text-slate-400 text-center shadow-sm flex items-center justify-center overflow-hidden whitespace-nowrap">
-                       {item}
-                     </div>
-                   ))}
-                </div>
-              </div>
-            );
-          default:
-            return null;
-        }
-      };
-
-      return (
-        <div id={`service-${service.id}`} className="bg-white p-10 md:p-16 rounded-[3.5rem] shadow-xl border border-slate-100 flex flex-col md:flex-row gap-12 items-start hover:shadow-2xl transition-all overflow-hidden group scroll-mt-24">
-          <div className={`w-24 h-24 ${service.iconBg} ${service.iconColor} rounded-[2.5rem] flex items-center justify-center text-5xl shrink-0 shadow-lg border border-white group-hover:scale-110 transition-transform`}>
-            <i className={`fa-solid ${service.icon}`}></i>
-          </div>
-          <div className="flex-1 space-y-10">
-            <div>
-              <h2 className="text-4xl font-black text-[#1A1F2C] mb-4 uppercase tracking-tight">{service.title}</h2>
-              <div className="h-1.5 w-24 bg-amber-500 rounded-full mb-8"></div>
-            </div>
-            
-            {renderContent()}
-
-            <button onClick={() => scrollToId('contact')} className="bg-[#1A1F2C] text-white px-10 py-5 rounded-full font-black text-[11px] uppercase tracking-widest shadow-xl hover:bg-amber-500 active:scale-95 transition-all inline-flex items-center gap-3">
-               Book a Consultation <i className="fa-solid fa-arrow-right"></i>
-            </button>
-          </div>
-        </div>
-      );
-    };
-
     return (
       <div className="min-h-screen bg-slate-50">
         <ScrollNavigation logoUrl={LOGO_URL} onNavigate={scrollToId} />
@@ -1139,12 +1503,16 @@ const App: React.FC = () => {
               <p className="text-slate-500 text-xl font-medium leading-relaxed">A comprehensive guide to the professional services we provide for Sri Lankan students seeking world-class education.</p>
             </div>
             <div className="grid grid-cols-1 gap-12 max-w-5xl mx-auto">
-              {SERVICES.map((s) => <ServiceCardRenderer key={s.id} service={s} />)}
+              {SERVICES.map((s) => <ServiceCardRenderer key={s.id} service={s} scrollToId={scrollToId} />)}
             </div>
           </div>
         </main>
-        <Footer />
-        <ChatWidget />
+        <Footer onModal={setModal} onNavigate={scrollToId} onSetView={setView} />
+        <ChatWidget 
+          chatOpen={chatOpen} setChatOpen={setChatOpen} 
+          chatMessage={chatMessage} setChatMessage={setChatMessage} 
+          chatHistory={chatHistory} isTyping={isTyping} handleChatSubmit={handleChatSubmit} 
+        />
         <AnimatePresence>
           {modal !== 'none' && <LegalModal type={modal} onClose={() => setModal('none')} />}
         </AnimatePresence>
@@ -1153,20 +1521,76 @@ const App: React.FC = () => {
   }
 
   if (view === 'faq-full') {
+    // Group FAQ by category for the creative layout
+    const groupedFaqs = FULL_FAQ.reduce((acc, faq) => {
+      if (!acc[faq.category]) acc[faq.category] = [];
+      acc[faq.category].push(faq);
+      return acc;
+    }, {} as Record<string, FAQ[]>);
+
     return (
       <div className="min-h-screen bg-slate-50">
         <ScrollNavigation logoUrl={LOGO_URL} onNavigate={scrollToId} />
-        <main className="pt-32 animate-[fadeIn_0.5s_ease-out]">
+        <main className="pt-32 pb-24 animate-[fadeIn_0.5s_ease-out]">
           <div className="container mx-auto px-4 lg:px-12">
-            <div className="max-w-4xl mx-auto">
-              <SectionBadge text="Knowledge Base" amberOutline />
-              <h1 className="text-5xl md:text-7xl font-black text-[#1A1F2C] mb-16 leading-tight uppercase tracking-tighter">Authoritative Guidance Hub.</h1>
-              <FAQAccordion items={FULL_FAQ} />
+            <div className="max-w-5xl mx-auto">
+              <div className="text-center mb-20">
+                <SectionBadge text="Comprehensive Guide" amberOutline />
+                <h1 className="text-5xl md:text-7xl font-black text-[#1A1F2C] mb-8 leading-tight uppercase tracking-tighter">Your Knowledge Hub.</h1>
+                <p className="text-slate-500 text-lg font-medium max-w-2xl mx-auto">Everything you need to know about starting your international education journey from Sri Lanka.</p>
+              </div>
+              
+              <div className="grid grid-cols-1 gap-16">
+                {Object.entries(groupedFaqs).map(([category, items]) => (
+                  <section key={category} className="space-y-8">
+                    <div className="flex items-center gap-4">
+                      <div className="h-px flex-1 bg-slate-200"></div>
+                      <h2 className="text-xs font-black uppercase tracking-[0.3em] text-amber-500">{category}</h2>
+                      <div className="h-px flex-1 bg-slate-200"></div>
+                    </div>
+                    <FAQAccordion items={items} />
+                  </section>
+                ))}
+              </div>
+
+              <div className="mt-24 p-12 bg-[#1A1F2C] rounded-[4rem] text-white text-center relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-[100px] rounded-full"></div>
+                <h3 className="text-3xl font-black mb-6 uppercase tracking-tight relative z-10">Still have questions?</h3>
+                <p className="text-slate-400 mb-10 max-w-xl mx-auto relative z-10 font-medium">Our consultants are ready to provide personalized guidance for your specific situation. Book a free session today.</p>
+                <button 
+                  onClick={() => scrollToId('contact')}
+                  className="bg-amber-500 text-[#1A1F2C] px-12 py-5 rounded-full font-black uppercase tracking-widest text-[11px] shadow-2xl hover:scale-105 active:scale-95 transition-all relative z-10"
+                >
+                  Book Free Assessment
+                </button>
+              </div>
             </div>
           </div>
         </main>
-        <Footer />
-        <ChatWidget />
+        <Footer onModal={setModal} onNavigate={scrollToId} onSetView={setView} />
+        <ChatWidget 
+          chatOpen={chatOpen} setChatOpen={setChatOpen} 
+          chatMessage={chatMessage} setChatMessage={setChatMessage} 
+          chatHistory={chatHistory} isTyping={isTyping} handleChatSubmit={handleChatSubmit} 
+        />
+        <AnimatePresence>
+          {modal !== 'none' && <LegalModal type={modal} onClose={() => setModal('none')} />}
+        </AnimatePresence>
+      </div>
+    );
+  }
+
+  if (view === 'destination-uk') {
+    return (
+      <div className="min-h-screen">
+        <ScrollNavigation logoUrl={LOGO_URL} onNavigate={scrollToId} />
+        <UKDestinationPage onContact={() => scrollToId('contact')} />
+        <Footer onModal={setModal} onNavigate={scrollToId} onSetView={setView} />
+        <ChatWidget 
+          chatOpen={chatOpen} setChatOpen={setChatOpen} 
+          chatMessage={chatMessage} setChatMessage={setChatMessage} 
+          chatHistory={chatHistory} isTyping={isTyping} handleChatSubmit={handleChatSubmit} 
+        />
         <AnimatePresence>
           {modal !== 'none' && <LegalModal type={modal} onClose={() => setModal('none')} />}
         </AnimatePresence>
@@ -1178,7 +1602,6 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-[#FAFAFA]" id="top">
       <ScrollNavigation logoUrl={LOGO_URL} onNavigate={scrollToId} />
 
-      {/* TARGET FOR HIDDEN FORM SUBMISSION TO PREVENT PAGE REDIRECT */}
       <iframe name="google_form_target" id="google_form_target" style={{ display: 'none' }} />
 
       <section id="home" className="relative min-h-[100svh] flex flex-col items-center pt-32 lg:pt-0 lg:flex-row overflow-hidden">
@@ -1333,7 +1756,7 @@ const App: React.FC = () => {
               </div>
               <div ref={(el) => { scrollRefs.current[region] = el; }} className="flex overflow-x-auto scrollbar-hide space-x-6 pt-24 pb-20 px-4 snap-x snap-mandatory">
                 {DESTINATIONS.filter(d => d.region === region).map((dest) => (
-                  <div key={dest.id} className="min-w-[75vw] md:min-w-[340px] snap-center">
+                  <div key={dest.id} className="min-w-[75vw] md:min-w-[340px] snap-center" onClick={() => dest.id === 'uk' ? setView('destination-uk') : scrollToId('contact')}>
                     <div className="relative h-full rounded-[3.5rem] border-[1px] border-transparent p-4 overflow-visible">
                       <GlowingEffect
                         spread={60}
@@ -1352,7 +1775,7 @@ const App: React.FC = () => {
                         </div>
                         <h3 className="text-3xl font-black text-[#1A1F2C] mb-4 relative z-10 uppercase tracking-tighter">{dest.name}</h3>
                         <p className="text-slate-500 text-sm leading-relaxed mb-8 flex-1 font-medium relative z-10">{dest.description}</p>
-                        <button onClick={() => scrollToId('contact')} className="text-[10px] font-black uppercase tracking-widest text-amber-600 flex items-center gap-2 group-hover:translate-x-2 transition-transform relative z-10">Learn More <i className="fa-solid fa-arrow-right"></i></button>
+                        <button className="text-[10px] font-black uppercase tracking-widest text-amber-600 flex items-center gap-2 group-hover:translate-x-2 transition-transform relative z-10">Learn More <i className="fa-solid fa-arrow-right"></i></button>
                       </div>
                     </div>
                   </div>
@@ -1536,11 +1959,6 @@ const App: React.FC = () => {
             )}
           </div>
 
-          {/* 
-              ULTRA-RELIABLE REACT-DRIVEN HIDDEN FORM
-              By rendering the multi-select inputs directly in the JSX, we ensure that the browser's form 
-              serialization always includes every selected item correctly when .submit() is called.
-          */}
           <form 
             ref={hiddenFormRef} 
             action={GOOGLE_FORM_URL} 
@@ -1555,8 +1973,6 @@ const App: React.FC = () => {
               <input type="hidden" name={FORM_ENTRIES.fieldOfStudy} value={selectedFieldOfStudy} />
               <input type="hidden" name={FORM_ENTRIES.intake} value={intake} />
               <input type="hidden" name={FORM_ENTRIES.message} value={message || "-"} />
-              
-              {/* MULTI-SELECT MAPPING: Crucial to use React to generate these inputs based on state */}
               {selectedCountries.length > 0 ? selectedCountries.map((c, idx) => (
                   <input key={idx} type="hidden" name={FORM_ENTRIES.countries} value={c.toUpperCase()} />
               )) : (
@@ -1572,7 +1988,7 @@ const App: React.FC = () => {
                 <span className="block text-xs font-black text-[#1A1F2C] tracking-tight">+94 77 500 9929</span>
               </div>
             </a>
-            <a href="tel:+94775009929" className="bg-white p-6 rounded-3xl border border-slate-100 shadow-lg flex items-center gap-4 group hover:border-amber-500 transition-all w-full md:w-auto md:flex-1 min-w-[220px]">
+            <a href={`tel:${WA_PHONE.replace(/\s/g, '')}`} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-lg flex items-center gap-4 group hover:border-amber-500 transition-all w-full md:w-auto md:flex-1 min-w-[220px]">
               <div className="w-12 h-12 bg-amber-500 text-white rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-md group-hover:scale-110 transition-transform"><Phone /></div>
               <div className="text-left">
                 <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest">Call Us</span>
@@ -1604,8 +2020,12 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      <Footer />
-      <ChatWidget />
+      <Footer onModal={setModal} onNavigate={scrollToId} onSetView={setView} />
+      <ChatWidget 
+        chatOpen={chatOpen} setChatOpen={setChatOpen} 
+        chatMessage={chatMessage} setChatMessage={setChatMessage} 
+        chatHistory={chatHistory} isTyping={isTyping} handleChatSubmit={handleChatSubmit} 
+      />
       <AnimatePresence>
         {modal !== 'none' && <LegalModal type={modal} onClose={() => setModal('none')} />}
       </AnimatePresence>
