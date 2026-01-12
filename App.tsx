@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { DESTINATIONS, SERVICES, SUCCESS_STORIES, MAIN_FAQ, FULL_FAQ } from './constants';
 import { getGeminiResponse } from './services/geminiService';
@@ -1180,7 +1179,7 @@ const UKDestinationPage: React.FC<{ onContact: () => void }> = ({ onContact }) =
                </div>
                <div className="p-8 flex flex-col flex-1">
                   <h3 className="text-2xl font-black uppercase tracking-tight mb-2">{uni.name}</h3>
-                  <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-6">{uni.location}</span>
+                  <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-2">{uni.location}</span>
                   <div className="mt-auto pt-6 border-t border-white/5">
                     <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest mb-4">{uni.fields}</p>
                     <button onClick={onContact} className="text-blue-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:translate-x-1 transition-transform">View Programs <ArrowUp size={14} className="rotate-45" /></button>
@@ -1315,6 +1314,23 @@ const App: React.FC = () => {
   const countryDropdownRef = useRef<HTMLDivElement>(null);
   const hiddenFormRef = useRef<HTMLFormElement>(null);
 
+  // --- HASH ROUTING LOGIC ---
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash === '#uk') setView('destination-uk');
+      else if (hash === '#careers') setView('careers');
+      else if (hash === '#faq-full') setView('faq-full');
+      else if (hash === '#services-full') setView('services-full');
+      else setView('main');
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    handleHashChange(); // Run on mount
+
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [view]);
@@ -1377,21 +1393,27 @@ const App: React.FC = () => {
   };
 
   const scrollToId = (id: string) => {
+    // Update hash for primary routes
     if (id === 'careers') {
-      setView('careers');
+      window.location.hash = '#careers';
       return;
     }
     if (id === 'faq-full') {
-      setView('faq-full');
+      window.location.hash = '#faq-full';
       return;
     }
     if (id === 'services-full') {
-      setView('services-full');
+      window.location.hash = '#services-full';
+      return;
+    }
+    if (id === 'destination-uk') {
+      window.location.hash = '#uk';
       return;
     }
 
+    // Handle standard sections on main page
     if (view !== 'main') {
-      setView('main');
+      window.location.hash = ''; // Reset to home
       setTimeout(() => {
         const element = document.getElementById(id);
         if (element) {
@@ -1400,6 +1422,7 @@ const App: React.FC = () => {
       }, 150);
       return;
     }
+
     const element = document.getElementById(id);
     if (element) {
       window.scrollTo({
@@ -1410,7 +1433,7 @@ const App: React.FC = () => {
   };
 
   const navigateToServiceDetail = (id: number) => {
-    setView('services-full');
+    window.location.hash = '#services-full';
     setTimeout(() => {
       const el = document.getElementById(`service-${id}`);
       if (el) {
@@ -1756,7 +1779,7 @@ const App: React.FC = () => {
               </div>
               <div ref={(el) => { scrollRefs.current[region] = el; }} className="flex overflow-x-auto scrollbar-hide space-x-6 pt-24 pb-20 px-4 snap-x snap-mandatory">
                 {DESTINATIONS.filter(d => d.region === region).map((dest) => (
-                  <div key={dest.id} className="min-w-[75vw] md:min-w-[340px] snap-center" onClick={() => dest.id === 'uk' ? setView('destination-uk') : scrollToId('contact')}>
+                  <div key={dest.id} className="min-w-[75vw] md:min-w-[340px] snap-center" onClick={() => dest.id === 'uk' ? scrollToId('destination-uk') : scrollToId('contact')}>
                     <div className="relative h-full rounded-[3.5rem] border-[1px] border-transparent p-4 overflow-visible">
                       <GlowingEffect
                         spread={60}
@@ -2012,7 +2035,7 @@ const App: React.FC = () => {
             <SectionBadge text="Knowledge Base" amberOutline />
             <h2 className="text-4xl font-black mb-6 uppercase tracking-tighter leading-tight">Frequently Asked Questions</h2>
             <p className="text-slate-500 font-medium mb-10">Clear, student-focused answers for your migration concerns.</p>
-            <button onClick={() => setView('faq-full')} className="bg-[#1A1F2C] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-all">View Full FAQ</button>
+            <button onClick={() => scrollToId('faq-full')} className="bg-[#1A1F2C] text-white px-8 py-4 rounded-full font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-all">View Full FAQ</button>
           </div>
           <div className="lg:w-2/3">
             <FAQAccordion items={MAIN_FAQ} />

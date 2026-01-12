@@ -1,4 +1,3 @@
-
 import { Destination, Service, SuccessStory, FAQ } from './types';
 
 export const DESTINATIONS: Destination[] = [
@@ -369,7 +368,7 @@ export const FULL_FAQ: FAQ[] = [
     id: 22,
     category: 'Post-Study',
     question: "Can I work in the country after graduation?",
-    answer: "Yes, most countries offer post-study work rights: UK (2-3 years), Australia (2-4 years), Canada (up to 3 years), and NZ (1-3 years). This allows you to gain global experience."
+    answer: "Yes, most countries offer post-study work rights: Among them are UK (1.6-3 years), Australia (2-4 years), Canada (up to 3 years), and NZ (1-3 years). This allows you to gain global experience."
   },
   {
     id: 23,
