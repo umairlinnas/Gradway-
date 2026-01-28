@@ -1,4 +1,3 @@
-
 import { GoogleGenAI } from "@google/genai";
 
 const SYSTEM_INSTRUCTION = `
@@ -11,21 +10,20 @@ Always encourage them to visit the office in Colombo or contact Gradway at +94 7
 `;
 
 export const getGeminiResponse = async (prompt: string) => {
-  // Always create a new instance right before the call to ensure latest API key usage.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: prompt,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.7,
-      },
-    });
-    // response.text is a property, not a method.
-    return response.text;
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    return "I'm having a bit of trouble connecting right now. Please reach out to our team directly at +94 77 500 9929!";
-  }
+    // Always create a new instance right before the call to ensure latest API key usage.
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-3-flash-preview",
+            contents: prompt,
+            config: {
+                systemInstruction: SYSTEM_INSTRUCTION,
+                temperature: 0.7,
+            },
+        });
+        return response.text;
+    } catch (error) {
+        console.error("Gemini API Error:", error);
+        return "I'm having a bit of trouble connecting right now. Please reach out to our team directly at +94 77 500 9929!";
+    }
 };

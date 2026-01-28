@@ -1,37 +1,44 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gradway | Migration Simplified</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
       
+      :root {
+        --svh: 1svh;
+      }
+
       body {
         font-family: 'Plus Jakarta Sans', sans-serif;
         overflow-x: hidden;
         scroll-behavior: smooth;
+        letter-spacing: 0.01em;
+        word-spacing: 0.05em;
+        background-color: #FAFAFA;
       }
 
-      /* Custom Scrollbar for Modal */
+      h1, h2, h3, h4, h5, h6 {
+        letter-spacing: -0.02em;
+        word-spacing: 0.05em;
+      }
+
       .custom-scrollbar::-webkit-scrollbar {
-        width: 10px;
+        width: 8px;
       }
       .custom-scrollbar::-webkit-scrollbar-track {
-        background: #ffffff;
-        border-radius: 20px;
-        margin-block: 20px; /* Prevents thumb from entering the extreme rounded corners */
+        background: transparent;
       }
       .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #1e293b; /* Slight dark blue */
-        border-radius: 10px;
-        border: 2px solid #ffffff; /* Breathable gap */
+        background: #cbd5e1;
+        border-radius: 20px;
+        border: 2px solid #ffffff;
       }
 
-      /* Snappier Floating Keyframes */
       @keyframes float-center {
         0%, 100% { transform: translate(-50%, -50%); }
         50% { transform: translate(-50%, -52%); }
@@ -39,19 +46,19 @@
       
       @keyframes float-tl {
         0%, 100% { transform: translate(0, 0); }
-        50% { transform: translate(12px, -15px); }
+        50% { transform: translate(8px, -12px); }
       }
       @keyframes float-tr {
         0%, 100% { transform: translate(0, 0); }
-        50% { transform: translate(-15px, 12px); }
+        50% { transform: translate(-10px, 10px); }
       }
       @keyframes float-bl {
         0%, 100% { transform: translate(0, 0); }
-        50% { transform: translate(15px, 15px); }
+        50% { transform: translate(10px, 12px); }
       }
       @keyframes float-br {
         0%, 100% { transform: translate(0, 0); }
-        50% { transform: translate(-10px, -20px); }
+        50% { transform: translate(-8px, -15px); }
       }
 
       .animate-float-center { animation: float-center 6s ease-in-out infinite; }
@@ -60,7 +67,6 @@
       .animate-float-bl { animation: float-bl 8s ease-in-out infinite 1s; }
       .animate-float-br { animation: float-br 7.5s ease-in-out infinite 1.5s; }
 
-      /* Hero Bubble Base - IRREGULAR SHAPE BY DEFAULT */
       .hero-bubble {
         display: flex;
         flex-direction: column;
@@ -70,64 +76,48 @@
         aspect-ratio: 1 / 1;
         transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), 
                     box-shadow 0.6s ease, 
-                    border-radius 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
-                    border-color 0.4s ease;
+                    border-radius 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         cursor: pointer;
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        will-change: transform, border-radius;
-        box-shadow: 
-          0 4px 12px -2px rgba(0, 0, 0, 0.08), 
-          0 12px 24px -4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         touch-action: manipulation;
-        border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%; /* Irregular/Organic shape */
+        border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
       }
       
-      /* MORPH TO PERFECT CIRCLE ON HOVER */
-      .hero-bubble:hover, .hero-bubble:active {
-        transform: scale(1.1);
+      .hero-bubble:hover {
+        transform: scale(1.05);
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-        border-color: rgba(251, 191, 36, 0.8);
         z-index: 60;
         border-radius: 50% !important;
       }
 
-      .hero-bubble-center:hover, .hero-bubble-center:active {
-        transform: translate(-50%, -50%) scale(1.05) !important;
+      .hero-bubble-center:hover {
+        transform: translate(-50%, -50%) scale(1.03) !important;
       }
 
       .scrollbar-hide::-webkit-scrollbar { display: none; }
       .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-      /* Hero Section Background Pattern */
       .hero-pattern {
         background-image: radial-gradient(#fbbf24 0.5px, transparent 0.5px);
-        background-size: 24px 24px;
+        background-size: 32px 32px;
         mask-image: linear-gradient(to bottom, black, transparent);
       }
-
-      /* Form Button Styling */
-      .btn-submit {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      .btn-submit:hover {
-        background-color: #3b82f6 !important; /* Blue hover per instruction */
-      }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
-    "motion/react": "https://esm.sh/motion@12.0.0/react",
-    "clsx": "https://esm.sh/clsx@2.1.1",
-    "tailwind-merge": "https://esm.sh/tailwind-merge@2.5.4",
-    "motion/": "https://esm.sh/motion@^12.23.26/",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
-  }
-}
-</script>
+    <script type="importmap">
+    {
+      "imports": {
+        "react/": "https://esm.sh/react@^19.2.3/",
+        "react": "https://esm.sh/react@^19.2.3",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+        "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+        "motion/react": "https://esm.sh/motion@12.0.0/react",
+        "clsx": "https://esm.sh/clsx@2.1.1",
+        "tailwind-merge": "https://esm.sh/tailwind-merge@2.5.4",
+        "motion/": "https://esm.sh/motion@^12.23.26/",
+        "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
+      }
+    }
+    </script>
 </head>
 <body class="bg-[#FAFAFA] text-slate-800 antialiased">
     <div id="root"></div>

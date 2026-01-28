@@ -1,9 +1,8 @@
-
 "use client";
 
 import React, { memo, useCallback, useEffect, useRef } from "react";
 import { cn } from "../../lib/utils";
-import { animate, AnimationPlaybackControls } from "motion/react";
+import { animate } from "motion/react";
 
 interface GlowingEffectProps {
   blur?: number;
@@ -22,22 +21,21 @@ const GlowingEffect = memo(
   ({
     blur = 0,
     inactiveZone = 0.01,
-    proximity = 350,
+    proximity = 350, // Increased proximity as requested
     spread = 40,
     variant = "default",
     glow = false,
     className,
-    movementDuration = 0.8, // Reduced for much better responsiveness
-    borderWidth = 2,
-    disabled = false,
+    movementDuration = 2,
+    borderWidth = 1,
+    disabled = false, // Changed to false so it works by default in App.tsx
   }: GlowingEffectProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const lastPosition = useRef({ x: 0, y: 0 });
     const animationFrameRef = useRef<number>(0);
-    const controlsRef = useRef<AnimationPlaybackControls | null>(null);
 
     const handleMove = useCallback(
-      (e?: PointerEvent | { x: number; y: number }) => {
+      (e?: MouseEvent | { x: number; y: number }) => {
         if (!containerRef.current) return;
 
         if (animationFrameRef.current) {
@@ -61,7 +59,6 @@ const GlowingEffect = memo(
             mouseX - center[0],
             mouseY - center[1]
           );
-          
           const inactiveRadius = 0.5 * Math.min(width, height) * inactiveZone;
 
           if (distanceFromCenter < inactiveRadius) {
@@ -86,18 +83,12 @@ const GlowingEffect = memo(
               Math.PI +
             90;
 
-          // Normalize angles to find the shortest path
           const angleDiff = ((targetAngle - currentAngle + 180) % 360) - 180;
           const newAngle = currentAngle + angleDiff;
 
-          // Stop previous animation to prevent stacking/delay
-          if (controlsRef.current) {
-            controlsRef.current.stop();
-          }
-
-          controlsRef.current = animate(currentAngle, newAngle, {
+          animate(currentAngle, newAngle, {
             duration: movementDuration,
-            ease: [0.23, 1, 0.32, 1], // snappier curve
+            ease: [0.16, 1, 0.3, 1],
             onUpdate: (value) => {
               element.style.setProperty("--start", String(value));
             },
@@ -110,22 +101,21 @@ const GlowingEffect = memo(
     useEffect(() => {
       if (disabled) return;
 
-      const handlePointerMove = (e: PointerEvent) => handleMove(e);
       const handleScroll = () => handleMove();
+      const handlePointerMove = (e: PointerEvent) => handleMove(e);
 
-      // Using capture: true on document allows us to catch scrolls from the horizontal containers
-      document.addEventListener("pointermove", handlePointerMove, { passive: true });
-      document.addEventListener("scroll", handleScroll, { passive: true, capture: true });
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      // Using document.body to track pointer globally for proximity triggering
+      document.body.addEventListener("pointermove", handlePointerMove, {
+        passive: true,
+      });
 
       return () => {
         if (animationFrameRef.current) {
           cancelAnimationFrame(animationFrameRef.current);
         }
-        if (controlsRef.current) {
-          controlsRef.current.stop();
-        }
-        document.removeEventListener("pointermove", handlePointerMove);
-        document.removeEventListener("scroll", handleScroll, { capture: true } as any);
+        window.removeEventListener("scroll", handleScroll);
+        document.body.removeEventListener("pointermove", handlePointerMove);
       };
     }, [handleMove, disabled]);
 
@@ -156,16 +146,17 @@ const GlowingEffect = memo(
                   #000,
                   #000 calc(25% / var(--repeating-conic-gradient-times))
                 )`
-                  : `radial-gradient(circle at 50% 50%, #fbbf24 15%, transparent 40%),
-                radial-gradient(circle at 40% 40%, #f59e0b 8%, transparent 20%),
-                radial-gradient(circle at 60% 60%, #4f46e5 12%, transparent 25%), 
+                  : `radial-gradient(circle, #dd7bbb 10%, #dd7bbb00 20%),
+                radial-gradient(circle at 40% 40%, #d79f1e 5%, #d79f1e00 15%),
+                radial-gradient(circle at 60% 60%, #5a922c 10%, #5a922c00 20%), 
+                radial-gradient(circle at 40% 60%, #4c7894 10%, #4c789400 20%),
                 repeating-conic-gradient(
                   from 236.84deg at 50% 50%,
-                  #fbbf24 0%,
-                  #f59e0b calc(20% / var(--repeating-conic-gradient-times)),
-                  #4f46e5 calc(40% / var(--repeating-conic-gradient-times)), 
-                  #111827 calc(60% / var(--repeating-conic-gradient-times)),
-                  #fbbf24 calc(100% / var(--repeating-conic-gradient-times))
+                  #dd7bbb 0%,
+                  #d79f1e calc(25% / var(--repeating-conic-gradient-times)),
+                  #5a922c calc(50% / var(--repeating-conic-gradient-times)), 
+                  #4c7894 calc(75% / var(--repeating-conic-gradient-times)),
+                  #dd7bbb calc(100% / var(--repeating-conic-gradient-times))
                 )`,
             } as React.CSSProperties
           }
