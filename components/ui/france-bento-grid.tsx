@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { Users, Euro, Clock, Briefcase, Palette, ShieldCheck, Award, Check, TrendingUp, History, Globe2, Heart, Plane, Camera } from "lucide-react";
+import { motion } from "motion/react";
+import { Users, Euro, Clock, Briefcase, Palette, Award, Check, TrendingUp, Plane, Heart } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 function Counter({ value }: { value: number }) {

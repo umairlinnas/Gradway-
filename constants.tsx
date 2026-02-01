@@ -39,7 +39,7 @@ export const UK_UNIVERSITIES = [
 export const DESTINATIONS = [
     {
         id: 'uk',
-        name: 'United Kingdom',
+        name: 'UNITED KINGDOM',
         description: 'World-renowned education and historic campuses with global recognition.',
         color: '#00247D',
         icon: 'fa-solid fa-building-columns',
@@ -49,7 +49,7 @@ export const DESTINATIONS = [
     },
     {
         id: 'germany',
-        name: 'Germany',
+        name: 'GERMANY',
         description: 'Leader in engineering and technology with low tuition programs.',
         color: '#000000',
         icon: 'fa-solid fa-gears',
@@ -59,7 +59,7 @@ export const DESTINATIONS = [
     },
     {
         id: 'france',
-        name: 'France',
+        name: 'FRANCE',
         description: 'European hub for business, fashion, and culinary excellence.',
         color: '#0055A4',
         icon: 'fa-solid fa-archway',
@@ -69,7 +69,7 @@ export const DESTINATIONS = [
     },
     {
         id: 'ireland',
-        name: 'Ireland',
+        name: 'IRELAND',
         description: 'A tech hub with warm hospitality and 2-year post-study work visa.',
         color: '#169B62',
         icon: 'fa-solid fa-clover',
@@ -79,7 +79,7 @@ export const DESTINATIONS = [
     },
     {
         id: 'switzerland',
-        name: 'Switzerland',
+        name: 'SWITZERLAND',
         description: 'World-class hospitality and finance programs in a stunning alpine setting.',
         color: '#D52B1E',
         icon: 'fa-solid fa-mountain-sun',
@@ -89,7 +89,7 @@ export const DESTINATIONS = [
     },
     {
         id: 'malta',
-        name: 'Malta',
+        name: 'MALTA',
         description: 'Affordable English-speaking education in the heart of the Mediterranean.',
         color: '#D62828',
         icon: 'fa-solid fa-sun-bright',
@@ -99,7 +99,7 @@ export const DESTINATIONS = [
     },
     {
         id: 'canada',
-        name: 'Canada',
+        name: 'CANADA',
         description: 'High quality of life, diversity, and welcoming post-study work policies.',
         color: '#FF0000',
         icon: 'fa-solid fa-leaf',
@@ -109,7 +109,7 @@ export const DESTINATIONS = [
     },
     {
         id: 'australia',
-        name: 'Australia',
+        name: 'AUSTRALIA',
         description: 'High standard of living and top-tier research institutions.',
         color: '#00008B',
         icon: 'fa-solid fa-sun',
@@ -119,7 +119,7 @@ export const DESTINATIONS = [
     },
     {
         id: 'new-zealand',
-        name: 'New Zealand',
+        name: 'NEW ZEALAND',
         description: 'Safe, scenic environment excellent for research-based programs.',
         color: '#00247D',
         icon: 'fa-solid fa-mountain',
@@ -129,7 +129,7 @@ export const DESTINATIONS = [
     },
     {
         id: 'singapore',
-        name: 'Singapore',
+        name: 'SINGAPORE',
         description: 'A global business hub with top-ranked universities in Asia.',
         color: '#ED2939',
         icon: 'fa-solid fa-landmark',
@@ -139,7 +139,7 @@ export const DESTINATIONS = [
     },
     {
         id: 'malaysia',
-        name: 'Malaysia',
+        name: 'MALAYSIA',
         description: 'Affordable education with twinning programs from UK and Aus.',
         color: '#003399',
         icon: 'fa-solid fa-school',
@@ -149,7 +149,7 @@ export const DESTINATIONS = [
     },
     {
         id: 'south-korea',
-        name: 'South Korea',
+        name: 'SOUTH KOREA',
         description: 'Leader in innovation with generous scholarship opportunities.',
         color: '#000000',
         icon: 'fa-solid fa-microchip',
@@ -200,20 +200,23 @@ export const FULL_FAQ = [
 export const MAIN_FAQ = FULL_FAQ.filter(f => [1, 2, 5, 12, 16, 29].includes(f.id));
 
 export const PROGRAM_LEVELS = [
-    "Foundation / Pathway",
-    "Diploma / Advanced Diploma",
-    "Undergraduate (Bachelor's)",
-    "Postgraduate (Master's / MBA)",
-    "Doctoral (PhD)"
+    "FOUNDATION",
+    "UNDERGRADUATE",
+    "PRE-MASTERS",
+    "POSTGRADUATE"
 ];
 
 export const FIELDS_OF_STUDY = [
-    "Business & Management",
-    "Engineering & Technology",
-    "Computer Science & IT",
-    "Medicine & Health Sciences",
-    "Social Sciences & Law",
-    "Art, Design & Architecture",
-    "Hospitality & Tourism",
-    "Pure & Applied Sciences"
+    "MEDICINE & HEALTH SCIENCES",
+    "ENGINEERING & TECHNOLOGY",
+    "BUSINESS & MANAGEMENT",
+    "INFORMATION TECHNOLOGY & COMPUTER SCIENCE",
+    "LAW & LEGAL STUDIES",
+    "ARTS & HUMANITIES",
+    "SOCIAL SCIENCES",
+    "NATURAL SCIENCES",
+    "ARCHITECTURE & DESIGN",
+    "EDUCATION & TEACHING",
+    "HOSPITALITY & TOURISM",
+    "OTHER"
 ];

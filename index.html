@@ -9,36 +9,40 @@
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
       
-      :root {
-        --svh: 1svh;
-      }
-
       body {
         font-family: 'Plus Jakarta Sans', sans-serif;
         overflow-x: hidden;
         scroll-behavior: smooth;
-        letter-spacing: 0.01em;
-        word-spacing: 0.05em;
+        letter-spacing: 0.02em;
+        word-spacing: 0.15em;
         background-color: #FAFAFA;
       }
 
       h1, h2, h3, h4, h5, h6 {
-        letter-spacing: -0.02em;
-        word-spacing: 0.05em;
+        letter-spacing: -0.01em;
+        word-spacing: 0.1em;
       }
 
+      p, span, label, input, textarea, select {
+        word-spacing: 0.12em;
+      }
+
+      /* Custom Scrollbar for Modal */
       .custom-scrollbar::-webkit-scrollbar {
-        width: 8px;
+        width: 10px;
       }
       .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
+        background: #ffffff;
+        border-radius: 20px;
+        margin-block: 20px;
       }
       .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 20px;
+        background: #1e293b;
+        border-radius: 10px;
         border: 2px solid #ffffff;
       }
 
+      /* Floating Keyframes */
       @keyframes float-center {
         0%, 100% { transform: translate(-50%, -50%); }
         50% { transform: translate(-50%, -52%); }
@@ -46,19 +50,19 @@
       
       @keyframes float-tl {
         0%, 100% { transform: translate(0, 0); }
-        50% { transform: translate(8px, -12px); }
+        50% { transform: translate(12px, -15px); }
       }
       @keyframes float-tr {
         0%, 100% { transform: translate(0, 0); }
-        50% { transform: translate(-10px, 10px); }
+        50% { transform: translate(-15px, 12px); }
       }
       @keyframes float-bl {
         0%, 100% { transform: translate(0, 0); }
-        50% { transform: translate(10px, 12px); }
+        50% { transform: translate(15px, 15px); }
       }
       @keyframes float-br {
         0%, 100% { transform: translate(0, 0); }
-        50% { transform: translate(-8px, -15px); }
+        50% { transform: translate(-10px, -20px); }
       }
 
       .animate-float-center { animation: float-center 6s ease-in-out infinite; }
@@ -76,22 +80,26 @@
         aspect-ratio: 1 / 1;
         transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), 
                     box-shadow 0.6s ease, 
-                    border-radius 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+                    border-radius 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    border-color 0.4s ease;
         cursor: pointer;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        will-change: transform, border-radius;
+        box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08), 0 12px 24px -4px rgba(0, 0, 0, 0.1);
         touch-action: manipulation;
         border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
       }
       
-      .hero-bubble:hover {
-        transform: scale(1.05);
+      .hero-bubble:hover, .hero-bubble:active {
+        transform: scale(1.1);
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        border-color: rgba(251, 191, 36, 0.8);
         z-index: 60;
         border-radius: 50% !important;
       }
 
-      .hero-bubble-center:hover {
-        transform: translate(-50%, -50%) scale(1.03) !important;
+      .hero-bubble-center:hover, .hero-bubble-center:active {
+        transform: translate(-50%, -50%) scale(1.05) !important;
       }
 
       .scrollbar-hide::-webkit-scrollbar { display: none; }
@@ -99,8 +107,15 @@
 
       .hero-pattern {
         background-image: radial-gradient(#fbbf24 0.5px, transparent 0.5px);
-        background-size: 32px 32px;
+        background-size: 24px 24px;
         mask-image: linear-gradient(to bottom, black, transparent);
+      }
+
+      .btn-submit {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .btn-submit:hover {
+        background-color: #3b82f6 !important;
       }
     </style>
     <script type="importmap">

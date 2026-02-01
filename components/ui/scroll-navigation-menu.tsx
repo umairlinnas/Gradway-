@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence, Variants } from "motion/react"
@@ -66,7 +65,6 @@ export const ScrollNavigation: React.FC<ScrollNavbarProps> = ({
     return () => { document.body.style.overflow = 'unset'; };
   }, [isMenuOpen]);
 
-  /* Fixed: Casting transition type to 'spring' as const to match Variants type expectations */
   const menuVariants: Variants = {
     closed: { opacity: 0, scale: 0.95, y: 10, transition: { type: "spring" as const, stiffness: 400, damping: 40, staggerChildren: 0.03, staggerDirection: -1 } },
     open: { opacity: 1, scale: 1, y: 0, transition: { type: "spring" as const, stiffness: 350, damping: 30, staggerChildren: 0.05, delayChildren: 0.05 } }
@@ -77,10 +75,15 @@ export const ScrollNavigation: React.FC<ScrollNavbarProps> = ({
   return (
     <>
       <nav className={cn("fixed top-0 left-0 right-0 z-[200] transition-all duration-500 ease-in-out", isScrolled ? "py-3 bg-white/75 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.06)] border-b border-slate-200/50" : "py-5 md:py-6 bg-transparent border-transparent shadow-none", className)}>
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto px-4 lg:px-12">
           <div className="flex items-center justify-between h-12 md:h-14">
-            <motion.div className="flex-shrink-0 origin-left" animate={{ scale: isScrolled ? 1.25 : 1 }} transition={{ type: "spring", stiffness: 300, damping: 25 }}>
-              <a href="#top" onClick={(e) => scrollToSection(e, 'top')} className="block"><div className="w-10 h-10 md:w-11 md:h-11 bg-white rounded-full flex items-center justify-center shadow-lg overflow-hidden p-1.5 border border-slate-100"><img src={logoUrl} alt="Gradway" className="w-full h-full object-contain" /></div></a>
+            <motion.div className="flex-shrink-0 origin-left flex items-center gap-2 md:gap-4 overflow-visible" animate={{ scale: isScrolled ? 1.15 : 1 }} transition={{ type: "spring", stiffness: 300, damping: 25 }}>
+              <a href="#top" onClick={(e) => scrollToSection(e, 'top')} className="block shrink-0">
+                <div className="w-10 h-10 md:w-11 md:h-11 bg-white rounded-full flex items-center justify-center shadow-lg overflow-hidden p-1.5 border border-slate-100">
+                  <img src={logoUrl} alt="Gradway" className="w-full h-full object-contain" />
+                </div>
+              </a>
+              <span className="text-[#1A1F2C] font-black uppercase tracking-tighter text-[10px] sm:text-xs md:text-sm whitespace-nowrap block flex-1">Gradway (Pvt) Ltd</span>
             </motion.div>
             <div className="hidden lg:flex items-center space-x-1">
               {menuItems.map((item) => (
@@ -102,7 +105,10 @@ export const ScrollNavigation: React.FC<ScrollNavbarProps> = ({
             <motion.div variants={menuVariants} initial="closed" animate="open" exit="closed" className="relative w-full max-w-[310px] bg-white border border-slate-100 rounded-[3rem] shadow-[0_32px_80px_-12px_rgba(0,0,0,0.6)] z-[310] flex flex-col overflow-hidden max-h-[95vh]">
               <div className="p-6 flex flex-col items-center">
                 <motion.button onClick={toggleMenu} className="absolute top-5 right-5 p-2 text-slate-300 hover:text-red-500 rounded-full hover:bg-slate-50 transition-colors z-[320]" whileHover={{ scale: 1.1, rotate: 90 }} whileTap={{ scale: 0.9 }}><X className="w-5 h-5" /></motion.button>
-                <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-md p-2 border border-slate-50 mb-6 mt-2"><img src={logoUrl} alt="Logo" className="w-full h-full object-contain" /></div>
+                <div className="flex flex-col items-center mb-6 mt-2">
+                  <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-md p-2 border border-slate-50 mb-3"><img src={logoUrl} alt="Logo" className="w-full h-full object-contain" /></div>
+                  <span className="text-[#1A1F2C] font-black uppercase tracking-tighter text-sm">Gradway (Pvt) Ltd</span>
+                </div>
                 <div className="w-full space-y-1.5">
                   {menuItems.map((item) => (
                     <motion.div key={item.id} variants={itemVariants} whileHover={{ scale: 1.02, x: 4 }} whileTap={{ scale: 0.98 }}>

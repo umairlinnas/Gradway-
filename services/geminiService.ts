@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 
 const SYSTEM_INSTRUCTION = `
@@ -21,7 +22,8 @@ export const getGeminiResponse = async (prompt: string) => {
                 temperature: 0.7,
             },
         });
-        return response.text;
+        // response.text is a property, not a method.
+        return response.text || "I'm sorry, I couldn't generate a response. Please reach out to our team directly at +94 77 500 9929!";
     } catch (error) {
         console.error("Gemini API Error:", error);
         return "I'm having a bit of trouble connecting right now. Please reach out to our team directly at +94 77 500 9929!";
